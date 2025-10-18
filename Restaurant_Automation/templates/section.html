@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TASTE BUDS | Dashboard</title>
+    <link rel="stylesheet" href="../static/css/section.css">
+</head>
+<body>
+
+<header>
+    <h1> 🍽️ TASTE BUDS</h1>
+    <nav>
+        <div class="dropdown">
+            <button class="dropbtn">Inventory</button>
+            <div class="dropdown-content">
+                <a href="stock.html" target="contentFrame">Ingredient Stock</a>
+                <a href="log_ingredients.html" target="contentFrame">Issue Ingredients</a>
+                <a href="low_stock.html" target="contentFrame">Low Stock Alerts</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Purchase Orders</button>
+            <div class="dropdown-content">
+                <a href="purchase_orders.html" target="contentFrame">Generate PO</a>
+                <a href="purchase_entry.html" target="contentFrame">Enter PO Details</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Reports</button>
+            <div class="dropdown-content">
+                <a href="daily_sales.html" target="contentFrame">Daily Sales</a>
+                <a href="monthly_sales.html" target="contentFrame">Monthly Sales</a>
+                <a href="expenses_report.html" target="contentFrame">Expenses Report</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Analytics</button>
+            <div class="dropdown-content">
+                <a href="analytics.html" target="contentFrame">Sales & Stock Trends</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<iframe name="contentFrame" src="dashboard.html"></iframe>
+
+
+<footer>
+    <p>© 2025 Restaurant Automation System | Managed by Admin</p>
+</footer>
+
+</body>
+</html>

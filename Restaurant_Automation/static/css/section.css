@@ -1,0 +1,104 @@
+body {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+    background-color: #fafafa;
+}
+
+/* Header and navbar */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #8b0000;
+    padding: 12px 30px;
+    color: white;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 26px;
+}
+
+/* Navbar container */
+nav {
+    display: flex;
+    gap: 20px;
+}
+
+/* Dropdown container */
+.dropdown {
+    position: relative;
+}
+
+/* Dropdown button */
+.dropbtn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.dropbtn:hover {
+    background-color: #a52a2a;
+}
+
+/* Dropdown content */
+.dropdown-content {
+    display: none;
+    position: absolute; /* float below navbar */
+    top: 40px; /* adjust to navbar height */
+    left: 0;
+    background-color: white;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border-radius: 6px;
+    z-index: 100;
+}
+
+/* Dropdown links */
+.dropdown-content a {
+    color: #333;
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #f2f2f2;
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+/* Position adjustment for right-most dropdown */
+nav .dropdown:last-child .dropdown-content {
+    left: auto;  /* ignore left */
+    right: 0;    /* align to right edge of button */
+}
+
+/* Iframe content */
+iframe {
+    width: 100%;
+    height: calc(100vh - 70px);
+    border: none;
+    background-color: #fff;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    background-color: #8b0000;
+    color: white;
+    padding: 10px;
+    font-size: 14px;
+}
