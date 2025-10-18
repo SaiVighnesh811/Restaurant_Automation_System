@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Order Generation</title>
+    <link rel="stylesheet" href="../static/css/purchase_orders.css">
+</head>
+<body>
+    <header>
+        <h1>TASTE BUDS</h1>
+        <nav>
+            <a href="#">Dashboard</a>
+            <a href="#">Orders</a>
+            <a href="#">Billing</a>
+            <a href="stock.html">Stock</a>
+            <a href="log_ingredients.html">Log Ingredients</a>
+            <a href="#" class="active">Purchase Orders</a>
+             <a href="purchase_entry.html">Purchase Entry</a>
+             <a href="low_stock.html">Low Stock Alerts</a>
+            <a href="daily_sales.html">Daily Sales</a>
+            <a href="monthly_sales.html">Monthly Sales</a>
+            <a href="expenses_report.html">Expenses Report</a>
+            <a href="analytics.html">Analytics</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="po-section">
+            <h2>Auto-Generated Purchase Orders</h2>
+            <p>System automatically generates POs for ingredients below threshold.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>PO ID</th>
+                        <th>Ingredient</th>
+                        <th>Current Stock (kg)</th>
+                        <th>Threshold (kg)</th>
+                        <th>Order Quantity (kg)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>PO001</td>
+                        <td>Cheese</td>
+                        <td>15</td>
+                        <td>20</td>
+                        <td>10</td>
+                        <td><span class="status pending">Pending</span></td>
+                    </tr>
+                    <tr>
+                        <td>PO002</td>
+                        <td>Chicken</td>
+                        <td>10</td>
+                        <td>15</td>
+                        <td>8</td>
+                        <td><span class="status pending">Pending</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button class="generate-btn">Generate New POs</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Restaurant Automation System | Managed by Admin</p>
+    </footer>
+</body>
+</html>

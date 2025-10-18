@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Sales Report</title>
+    <link rel="stylesheet" href="../static/css/monthly_sales.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>TASTE BUDS</h1>
+        <nav>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="orders.html">Orders</a>
+            <a href="billing.html">Billing</a>
+            <a href="stock.html">Stock</a>
+            <a href="log_ingredients.html">Log Ingredients</a>
+            <a href="purchase_orders.html">Purchase Orders</a>
+            <a href="daily_sales.html">Daily Sales</a>
+            <a href="monthly_sales.html" class="active">Monthly Sales</a>
+            <a href="expenses_report.html">Expenses Report</a>
+            <a href="analytics.html">Analytics</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="monthly-section">
+            <h2>Monthly Sales Report</h2>
+
+            <form class="month-filter">
+                <label for="month">Select Month:</label>
+                <input type="month" id="month" name="month" required>
+                <button type="submit">View Report</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Total Quantity Sold</th>
+                        <th>Unit Price (₹)</th>
+                        <th>Total Revenue (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Cheese Pizza</td>
+                        <td>120</td>
+                        <td>250</td>
+                        <td>30000</td>
+                    </tr>
+                    <tr>
+                        <td>Veg Burger</td>
+                        <td>90</td>
+                        <td>120</td>
+                        <td>10800</td>
+                    </tr>
+                    <tr>
+                        <td>Chicken Pasta</td>
+                        <td>60</td>
+                        <td>300</td>
+                        <td>18000</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="summary">
+                <p><strong>Total Orders:</strong> 270</p>
+                <p><strong>Total Items Sold:</strong> 270</p>
+                <p><strong>Total Revenue:</strong> ₹58,800</p>
+                <p><strong>Best Selling Item:</strong> Cheese Pizza</p>
+            </div>
+
+            <!-- 📊 Chart Section -->
+            <section class="chart-section">
+                <h3>Revenue Breakdown by Item (Monthly)</h3>
+                <canvas id="monthlySalesChart"></canvas>
+            </section>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Restaurant Automation System | Managed by Admin</p>
+    </footer>
+
+    <script>
+        // Sample data — replace with dynamic data later
+        const itemNames = ['Cheese Pizza', 'Veg Burger', 'Chicken Pasta'];
+        const monthlyRevenue = [30000, 10800, 18000];
+
+        const ctx = document.getElementById('monthlySalesChart');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: itemNames,
+                datasets: [{
+                    label: 'Revenue (₹)',
+                    data: monthlyRevenue,
+                    backgroundColor: ['#2ecc71', '#3498db', '#e74c3c'],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Monthly Revenue by Item',
+                        color: '#2c3e50',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: 'Amount (₹)' } },
+                    x: { title: { display: true, text: 'Menu Items' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingredient Stock</title>
+    <link rel="stylesheet" href="../static/css/stock.css">
+</head>
+<body>
+    <header>
+        <h1>TASTE BUDS</h1>
+       <nav>
+            <a href="#">Dashboard</a>
+            <a href="#">Orders</a>
+            <a href="#">Billing</a>
+            <a href="#" class="active">Stock</a>
+            <a href="log_ingredients.html">Log Ingredients</a>
+            <a href="purchase_orders.html">Purchase Orders</a>
+             <a href="purchase_entry.html">Purchase Entry</a>
+             <a href="low_stock.html">Low Stock Alerts</a>
+            <a href="daily_sales.html">Daily Sales</a>
+            <a href="monthly_sales.html">Monthly Sales</a>
+            <a href="expenses_report.html">Expenses Report</a>
+            <a href="analytics.html">Analytics</a>
+        </nav>
+
+
+    </header>
+
+    <main>
+        <section class="stock-section">
+            <h2>Ingredient Stock Details</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ingredient ID</th>
+                        <th>Ingredient Name</th>
+                        <th>Current Stock (kg)</th>
+                        <th>Threshold (kg)</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ING001</td>
+                        <td>Flour</td>
+                        <td>50</td>
+                        <td>30</td>
+                        <td><span class="status good">Sufficient</span></td>
+                    </tr>
+                    <tr>
+                        <td>ING002</td>
+                        <td>Cheese</td>
+                        <td>15</td>
+                        <td>20</td>
+                        <td><span class="status low">Low Stock</span></td>
+                    </tr>
+                    <tr>
+                        <td>ING003</td>
+                        <td>Tomato Sauce</td>
+                        <td>25</td>
+                        <td>15</td>
+                        <td><span class="status good">Sufficient</span></td>
+                    </tr>
+                    <tr>
+                        <td>ING004</td>
+                        <td>Chicken</td>
+                        <td>10</td>
+                        <td>15</td>
+                        <td><span class="status low">Low Stock</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Restaurant Automation System | Managed by Admin</p>
+    </footer>
+</body>
+</html>
