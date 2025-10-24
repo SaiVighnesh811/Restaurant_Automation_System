@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>TasteBuds Add Dish</title>
+    <style>
+        :root {
+            --main-bg: #FFF8E7;
+            --section-bg: #FFF5D6;
+            --accent: #FF7043;
+            --accent-dark: #D84315;
+            --primary-text: #33210B;
+            --card-bg: #FFF;
+            --btn-bg: #FF7043;
+            --btn-text: #FFF;
+            --btn-hover: #D84315;
+            --navbar-bg: #FFDEAD;
+            --border-radius: 13px;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: var(--main-bg);
+            color: var(--primary-text);
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2vw;
+        }
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--navbar-bg);
+            padding: 12px 0;
+            box-shadow: 0 2px 8px #edd7b3;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+        }
+        .logo-area {
+            width: 65px;
+            height: 65px;
+            background: #fff;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px #f6c89fa6;
+            overflow: hidden;
+            margin-left: 2vw;
+        }
+        .logo-area img {
+            width: 90px;
+            height: 90px;
+            border-radius: 15px;
+            object-fit: cover;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.5em;
+            color: var(--accent-dark);
+            text-shadow: 0px 2px 2px #ffe0b2;
+        }
+        .form-section {
+            background: var(--section-bg);
+            padding: 24px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 8px #ffd2b2;
+            margin-bottom: 20px;
+        }
+        .form-section h2 {
+            margin: 0 0 20px 0;
+            color: var(--accent-dark);
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary-text);
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1.5px solid var(--accent);
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            box-sizing: border-box;
+            background: #FFF;
+        }
+        .form-group input[type="file"] {
+            padding: 3px;
+        }
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .form-group.checkbox {
+            display: flex;
+            align-items: center;
+        }
+        #imagePreview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 16px;
+            margin-top: 10px;
+            display: none;
+            object-fit: cover;
+        }
+        .add-btn, .cancel-btn {
+            background: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-right: 10px;
+        }
+        .add-btn:hover, .cancel-btn:hover {
+            background: var(--btn-hover);
+        }
+        .cancel-btn {
+            background: #888;
+        }
+        .cancel-btn:hover {
+            background: #666;
+        }
+        .error-message {
+            color: #ff3b3b;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        @media (max-width: 800px) {
+            .container {
+                padding: 0 5vw;
+            }
+            .form-group input, .form-group select {
+                font-size: 0.95em;
+            }
+            .add-btn, .cancel-btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar">
+        <div class="logo-area">
+            <img src="image.png" alt="TasteBuds Logo" />
+        </div>
+        <h1>Add New Dish</h1>
+    </nav>
+
+    <section class="form-section">
+        <h2>Add Dish</h2>
+        <div class="form-group">
+            <label for="dishName">Dish Name</label>
+            <input type="text" id="dishName" placeholder="Enter dish name" />
+            <span class="error-message" id="dishNameError">Please enter a dish name</span>
+        </div>
+        <div class="form-group">
+            <label for="dishPrice">Price (₹)</label>
+            <input type="number" id="dishPrice" placeholder="Enter price" min="0" />
+            <span class="error-message" id="dishPriceError">Please enter a valid price</span>
+        </div>
+        <div class="form-group">
+            <label for="dishSection">Section</label>
+            <select id="dishSection">
+                <option value="Starters">Starters</option>
+                <option value="Veg Starters">Veg Starters</option>
+                <option value="Cuisines">Cuisines</option>
+                <option value="Non Veg Starters">Non Veg Starters</option>
+                <option value="Indian Food">Indian Food</option>
+                <option value="Biryani's">Biryani's</option>
+                <option value="Sea Food">Sea Food</option>
+                <option value="Main Course">Main Course</option>
+            </select>
+            <span class="error-message" id="dishSectionError">Please select a section</span>
+        </div>
+        <div class="form-group checkbox">
+            <input type="checkbox" id="isDishOfTheDay" />
+            <label for="isDishOfTheDay">Set as Dish of the Day (20% discount)</label>
+        </div>
+        <div class="form-group">
+            <label for="dishImage">Image</label>
+            <input type="file" id="dishImage" accept="image/*" />
+            <span class="error-message" id="dishImageError">Please upload an image</span>
+            <img id="imagePreview" alt="Image Preview" />
+        </div>
+        <div>
+            <button class="add-btn" id="addBtn">Add Dish</button>
+            <button class="cancel-btn" id="cancelBtn">Cancel</button>
+        </div>
+    </section>
+</div>
+
+<script>
+const dishNameInput = document.getElementById('dishName');
+const dishPriceInput = document.getElementById('dishPrice');
+const dishSectionSelect = document.getElementById('dishSection');
+const isDishOfTheDayInput = document.getElementById('isDishOfTheDay');
+const dishImageInput = document.getElementById('dishImage');
+const imagePreview = document.getElementById('imagePreview');
+const addBtn = document.getElementById('addBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const dishNameError = document.getElementById('dishNameError');
+const dishPriceError = document.getElementById('dishPriceError');
+const dishSectionError = document.getElementById('dishSectionError');
+const dishImageError = document.getElementById('dishImageError');
+
+dishImageInput.addEventListener('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        imagePreview.style.display = 'none';
+    }
+});
+
+addBtn.addEventListener('click', () => {
+    let isValid = true;
+
+    // Reset error messages
+    dishNameError.style.display = 'none';
+    dishPriceError.style.display = 'none';
+    dishSectionError.style.display = 'none';
+    dishImageError.style.display = 'none';
+
+    // Validate inputs
+    if (!dishNameInput.value.trim()) {
+        dishNameError.style.display = 'block';
+        isValid = false;
+    }
+    if (!dishPriceInput.value || dishPriceInput.value <= 0) {
+        dishPriceError.style.display = 'block';
+        isValid = false;
+    }
+    if (!dishSectionSelect.value) {
+        dishSectionError.style.display = 'block';
+        isValid = false;
+    }
+    if (!imagePreview.src || imagePreview.src === window.location.href) {
+        dishImageError.style.display = 'block';
+        isValid = false;
+    }
+
+    if (!isValid) return;
+
+    const newDish = {
+        name: dishNameInput.value.trim(),
+        type: isDishOfTheDayInput.checked ? 'Dish of the Day' : dishSectionSelect.value,
+        price: Number(dishPriceInput.value),
+        image: imagePreview.src,
+        description: isDishOfTheDayInput.checked ? 'Special dish with 20% discount' : ''
+    };
+
+    if (isDishOfTheDayInput.checked) {
+        // Set as Dish of the Day
+        localStorage.setItem('dishOfTheDay', JSON.stringify(newDish));
+        localStorage.setItem('dishOfTheDayDeleted', 'false');
+    } else {
+        // Add to regular dishes
+        let dishes = JSON.parse(localStorage.getItem('dishes')) || [];
+        dishes.push(newDish);
+        localStorage.setItem('dishes', JSON.stringify(dishes));
+    }
+
+    alert(`Added ${newDish.name}${isDishOfTheDayInput.checked ? ' as Dish of the Day' : ''}`);
+    dishNameInput.value = '';
+    dishPriceInput.value = '';
+    dishSectionSelect.value = 'Starters';
+    isDishOfTheDayInput.checked = false;
+    dishImageInput.value = '';
+    imagePreview.style.display = 'none';
+});
+
+cancelBtn.addEventListener('click', () => {
+    dishNameInput.value = '';
+    dishPriceInput.value = '';
+    dishSectionSelect.value = 'Starters';
+    isDishOfTheDayInput.checked = false;
+    dishImageInput.value = '';
+    imagePreview.style.display = 'none';
+    dishNameError.style.display = 'none';
+    dishPriceError.style.display = 'none';
+    dishSectionError.style.display = 'none';
+    dishImageError.style.display = 'none';
+});
+</script>
+</body>
+</html>

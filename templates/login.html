@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form - Food App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+<style>
+/* CSS Starts Here */
+
+:root {
+    --primary-orange: #ff6b1d;
+    --light-orange: #fffaf7;
+    --text-dark: #333;
+    --text-medium: #555;
+    --text-light: #888;
+    --border-color: #ddd;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+
+    /* NOTE: Replace this placeholder URL with your hosted mutton image URL or local path. */
+    background-image: url('../static/images/dessert.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.login-container {
+    display: flex;
+    /* CHANGE 1: Push content to the right side of the container */
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.2);
+    /* Adjust padding to provide spacing on the right */
+    padding-right: 10vw;
+    /* Add left padding to keep content slightly off the left edge on very wide screens */
+    padding-left: 10vw;
+}
+
+.login-card {
+    background-color: white;
+    /* CHANGE 2: Decreased top/bottom padding from 25px to 15px */
+    padding: 25px 50px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    width: 400px;
+    max-width: 90%;
+    text-align: center;
+}
+
+/* --- LOGO STYLES (Circular Masking) --- */
+.logo-container {
+    margin-bottom: 15px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80px;
+}
+
+.logo-container img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-orange);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+/* --- END LOGO STYLES --- */
+
+
+/* Title and Subtitle */
+.form-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-header h2 {
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.form-header p {
+    font-size: 1rem;
+    color: var(--text-medium);
+    line-height: 1.5;
+}
+
+/* Form Fields */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-medium);
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 1rem;
+    color: var(--text-dark);
+    transition: border-color 0.3s;
+    outline: none;
+}
+
+
+.input-wrapper input:focus {
+    border-color: var(--primary-orange);
+}
+
+.input-wrapper .emoji-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+}
+
+/* NEW: Style for the password toggle button */
+.input-wrapper .password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-light);
+}
+
+/* Forgot Password Link */
+.forgot-password {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.forgot-password a {
+    font-size: 0.9rem;
+    color: var(--primary-orange);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 15px 0;
+    background-color: var(--primary-orange);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 107, 29, 0.4);
+}
+
+/* End Agreement Text */
+.end-agreement {
+    margin-top: 20px;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        background-image: none;
+        background-color: #f0f0f0;
+    }
+    .login-container {
+        /* On mobile, center the card */
+        padding-left: 0;
+        padding-right: 0;
+        justify-content: center;
+        background-color: transparent;
+    }
+    .login-card {
+        width: 95%;
+        padding: 30px;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+<div class="login-card">
+
+
+<div class="logo-container">
+
+<!-- LOGO SOURCE: Update this source path/URL to your logo image -->
+
+<img src="../static/images/image.png" alt="TasteBuds Logo">
+
+</div>
+
+
+
+<div class="form-header">
+
+<h2>Login form</h2>
+
+</div>
+
+
+
+<form  method="POST" action="/login">
+
+<!-- EMAIL FIELD -->
+
+<div class="form-group">
+
+<label for="email">Email</label>
+
+<div class="input-wrapper">
+
+<span class="emoji-icon">📧</span>
+
+<input type="email" id="email" name="email" placeholder="Your email address">
+
+</div>
+
+</div>
+
+
+
+
+
+
+<!-- PASSWORD FIELD -->
+<div class="form-group">
+<label for="password">Password</label>
+<div class="input-wrapper">
+<span class="emoji-icon">🔒</span>
+<input type="password" id="password" name="password" placeholder="Your password">
+<!-- NEW: Password Toggle Icon -->
+<span class="password-toggle" data-target="password" onclick="togglePasswordVisibility(this)">
+    &#128065; <!-- Closed Eye Emoji -->
+</span>
+</div>
+</div>
+
+
+
+<div class="forgot-password">
+
+<a href="#">Forgot password?</a>
+
+</div>
+
+
+
+<button type="submit" class="submit-btn">Login</button>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- NEW: JavaScript to handle the toggle function -->
+<script>
+    /**
+     * Toggles the visibility of a password input field and updates the icon.
+     * @param {HTMLElement} toggleElement The clicked span element.
+     */
+    function togglePasswordVisibility(toggleElement) {
+        // Find the <input> element directly preceding the toggle icon
+        const input = toggleElement.previousElementSibling;
+        
+        if (input.type === 'password') {
+            input.type = 'text';
+            // Open Eye Emoji (Represents Visible)
+            toggleElement.innerHTML = '&#128064;'; 
+        } else {
+            input.type = 'password';
+            // Closed Eye Emoji (Represents Hidden)
+            toggleElement.innerHTML = '&#128065;'; 
+        }
+    }
+</script>
+
+</body>
+
+</html>

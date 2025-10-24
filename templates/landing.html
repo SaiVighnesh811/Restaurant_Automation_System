@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TASTE BUDS | Welcome</title>
+  <style>
+    /* General reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    /* Background setup */
+    body {
+      background: url('https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
+      height: 100vh;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background-attachment: fixed;
+    }
+
+    /* Navbar styling */
+    header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      background: rgba(255, 165, 0, 0.7);
+      backdrop-filter: blur(6px);
+    }
+
+    header h1 {
+      font-size: 30px;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #fff;
+      font-weight: 600;
+      margin-left: 25px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      background: #fff;
+      color: #ff7b00;
+    }
+
+    /* Main content */
+    .hero {
+      text-align: center;
+      margin-top: 10%;
+    }
+
+    .hero h2 {
+      font-size: 60px;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .hero p {
+      font-size: 20px;
+      margin-top: 15px;
+      color: #ffe6cc;
+    }
+
+    .hero button {
+      margin-top: 40px;
+      background-color: #ff7b00;
+      color: #fff;
+      border: none;
+      padding: 14px 40px;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .hero button:hover {
+      background-color: #ffa533;
+      transform: scale(1.05);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .hero h2 {
+        font-size: 40px;
+      }
+      nav a {
+        margin-left: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>TASTE BUDS</h1>
+    <nav>
+     <a href="{{ url_for('show_menu') }}">Menu</a>
+     <a href="{{ url_for('signup') }}">Login</a>
+
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h2>Welcome to Taste Buds</h2>
+    <p>Experience automation that brings flavor and efficiency together 🍽️</p>
+    <button onclick="window.location.href='{{ url_for('show_menu') }}' ">Get Started</button>
+  </section>
+
+  <footer>
+    <p>© 2025 TASTE BUDS | Restaurant Automation System</p>
+  </footer>
+</body>
+</html>
