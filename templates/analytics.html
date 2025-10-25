@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manager Dashboard</title>
+  <title>Analytics & Charts</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     :root {
       --primary: #ff7b00;
@@ -27,10 +26,10 @@
       padding: 0;
       box-sizing: border-box;
       transition: background 0.3s, color 0.3s;
+      font-family: "Poppins", sans-serif;
     }
 
     body {
-      font-family: "Poppins", sans-serif;
       background-color: var(--bg-light);
       color: var(--text-dark);
       min-height: 100vh;
@@ -61,7 +60,6 @@
       color: #fff2e6;
     }
 
-    /* Nav Links */
     .nav-links {
       display: flex;
       align-items: center;
@@ -96,7 +94,6 @@
       width: 100%;
     }
 
-    /* Dropdown menu */
     .dropdown-content {
       display: none;
       position: absolute;
@@ -161,71 +158,6 @@
       border: 2px solid white;
     }
 
-    main {
-      flex: 1;
-      padding: 40px 60px;
-    }
-
-    header h1 {
-      color: var(--secondary);
-      font-size: 30px;
-    }
-
-    header p {
-      color: #555;
-      margin-top: 5px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 25px;
-      margin-top: 40px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-      text-align: center;
-      transition: transform 0.3s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-    }
-
-    .card h3 {
-      color: var(--primary);
-      margin-bottom: 10px;
-    }
-
-    .card p {
-      font-size: 22px;
-      font-weight: 600;
-    }
-
-    .chart-section {
-      margin-top: 50px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 40px;
-    }
-
-    .chart-container {
-      background: var(--card-bg);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    }
-
-    .chart-container h2 {
-      color: var(--secondary);
-      font-size: 18px;
-      margin-bottom: 15px;
-    }
-
     .profile-modal {
       display: none;
       position: fixed;
@@ -236,7 +168,7 @@
       border-radius: 12px;
       padding: 20px;
       width: 250px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
       z-index: 2000;
     }
 
@@ -261,6 +193,38 @@
       background: var(--secondary);
     }
 
+    /* Main Content */
+    main {
+      flex: 1;
+      padding: 40px 60px;
+    }
+
+    h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2em;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+    }
+
+    .chart-card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .chart-card h3 {
+      color: var(--secondary);
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
     footer {
       text-align: center;
       padding: 15px;
@@ -268,17 +232,21 @@
       color: white;
       margin-top: auto;
     }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 20px 15px;
+      }
+    }
   </style>
 </head>
-
 <body>
   <!-- Navbar -->
   <nav>
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href="#">Home</a> <!-- 🏠 Added Home Button -->
-
+      <a href="manager_dash.html">Home</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
@@ -286,7 +254,6 @@
           <a href="lowstock.html">Low Stock Alerts</a>
         </div>
       </div>
-
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
         <div class="dropdown-content">
@@ -294,7 +261,6 @@
           <a href="purchase_order.html">Enter PO Details</a>
         </div>
       </div>
-
       <div class="nav-item">
         <a href="#">Reports</a>
         <div class="dropdown-content">
@@ -303,7 +269,6 @@
           <a href="expense_report.html">Expense Report</a>
         </div>
       </div>
-
       <a href="analytics.html">Analytics</a>
     </div>
 
@@ -325,30 +290,31 @@
     <button class="logout">Logout</button>
   </div>
 
-  <!-- Dashboard -->
+  <!-- Analytics Dashboard -->
   <main>
-    <header>
-      <h1>Welcome, Manager 👋</h1>
-      <p>Here’s today’s restaurant overview.</p>
-    </header>
+    <h2>Business Analytics Dashboard</h2>
 
-    <section class="cards">
-      <div class="card"><h3>Total Sales</h3><p>₹58,800</p></div>
-      <div class="card"><h3>Total Orders</h3><p>270</p></div>
-      <div class="card"><h3>Low Stock Items</h3><p>5</p></div>
-      <div class="card"><h3>Pending POs</h3><p>3</p></div>
-    </section>
-
-    <section class="chart-section">
-      <div class="chart-container">
-        <h2>Monthly Sales Overview</h2>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Monthly Sales Trend (₹)</h3>
         <canvas id="salesChart"></canvas>
       </div>
-      <div class="chart-container">
-        <h2>Ingredient Usage</h2>
-        <canvas id="ingredientChart"></canvas>
+
+      <div class="chart-card">
+        <h3>Current Ingredient Stock</h3>
+        <canvas id="stockChart"></canvas>
       </div>
-    </section>
+
+      <div class="chart-card">
+        <h3>Expense Distribution</h3>
+        <canvas id="expenseChart"></canvas>
+      </div>
+
+      <div class="chart-card">
+        <h3>Sales vs Expenses Comparison</h3>
+        <canvas id="compareChart"></canvas>
+      </div>
+    </div>
   </main>
 
   <footer>
@@ -356,12 +322,14 @@
   </footer>
 
   <script>
+    // Profile Modal
     const profileBtn = document.getElementById("profileBtn");
     const profileModal = document.getElementById("profileModal");
     profileBtn.addEventListener("click", () => {
       profileModal.classList.toggle("active");
     });
 
+    // Dark Mode Toggle
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
       const currentTheme = document.body.getAttribute("data-theme");
@@ -374,6 +342,7 @@
       }
     });
 
+    // Navbar Dropdowns
     const navItems = document.querySelectorAll(".nav-item");
     navItems.forEach(item => {
       item.addEventListener("click", (e) => {
@@ -384,45 +353,75 @@
         });
       });
     });
-
     document.addEventListener("click", () => {
       navItems.forEach(item => item.classList.remove("open"));
     });
 
-    const salesCtx = document.getElementById("salesChart").getContext("2d");
+    // Charts
+    const salesCtx = document.getElementById('salesChart').getContext('2d');
     new Chart(salesCtx, {
-      type: "line",
+      type: 'line',
       data: {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
         datasets: [{
-          label: "Revenue (₹)",
-          data: [22000, 28000, 32000, 41000, 37000, 58800],
-          borderColor: "#ff7b00",
-          backgroundColor: "rgba(255, 123, 0, 0.2)",
-          tension: 0.4,
-          fill: true
+          label: 'Total Sales (₹)',
+          data: [45000, 52000, 49000, 60000, 75000, 82000, 87000, 92000, 98000, 105000],
+          borderColor: '#2ecc71',
+          backgroundColor: 'rgba(46, 204, 113, 0.2)',
+          fill: true,
+          tension: 0.3
         }]
       },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
-      }
+      options: { responsive: true, plugins: { legend: { display: false } } }
     });
 
-    const ingredientCtx = document.getElementById("ingredientChart").getContext("2d");
-    new Chart(ingredientCtx, {
-      type: "doughnut",
+    const stockCtx = document.getElementById('stockChart').getContext('2d');
+    new Chart(stockCtx, {
+      type: 'bar',
       data: {
-        labels: ["Cheese", "Buns", "Pasta", "Sauce", "Chicken"],
+        labels: ['Rice', 'Oil', 'Paneer', 'Tomato', 'Spices', 'Cheese'],
         datasets: [{
-          data: [30, 20, 15, 25, 10],
-          backgroundColor: ["#ff7b00", "#d86f00", "#ffae42", "#ffa94d", "#ffd07f"],
-          borderWidth: 2
+          label: 'Stock (kg)',
+          data: [120, 80, 50, 100, 40, 30],
+          backgroundColor: ['#f1c40f', '#e67e22', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c']
         }]
       },
-      options: {
-        plugins: { legend: { position: "bottom" } }
-      }
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+    new Chart(expenseCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Ingredients', 'Salaries', 'Utilities', 'Maintenance', 'Misc.'],
+        datasets: [{
+          label: 'Expenses',
+          data: [45, 25, 10, 12, 8],
+          backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#9b59b6', '#1abc9c']
+        }]
+      },
+      options: { responsive: true }
+    });
+
+    const compareCtx = document.getElementById('compareChart').getContext('2d');
+    new Chart(compareCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [
+          {
+            label: 'Sales (₹)',
+            data: [45000, 52000, 49000, 60000, 75000, 82000],
+            backgroundColor: '#2ecc71'
+          },
+          {
+            label: 'Expenses (₹)',
+            data: [30000, 32000, 35000, 40000, 42000, 45000],
+            backgroundColor: '#e74c3c'
+          }
+        ]
+      },
+      options: { responsive: true, scales: { y: { beginAtZero: true } } }
     });
   </script>
 </body>
