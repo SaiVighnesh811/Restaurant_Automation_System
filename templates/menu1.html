@@ -226,6 +226,20 @@ document.getElementById("searchInput").addEventListener("input",e=>{
     card.style.display=name.includes(query)?"block":"none";
   });
 });
+
+document.querySelector(".order-btn").addEventListener("click", () => {
+  if (cart.length === 0) {
+    alert("Your cart is empty! Please add items before placing an order.");
+    return;
+  }
+
+  // Store cart details locally so we can show them in payment page
+  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem("total", cartTotal.textContent);
+
+  // Redirect to Flask payment page
+  window.location.href = "{{ url_for('payment') }}";
+});
 </script>
 </body>
 </html>

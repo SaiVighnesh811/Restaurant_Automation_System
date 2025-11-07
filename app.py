@@ -113,12 +113,15 @@ def login():
             return redirect(url_for('login'))
 
     return render_template('login.html')
+
+
 # ---------------------------------
 # MENU PAGE
 # ---------------------------------
 @app.route('/menupage')
 def show_menu():
-    return render_template('menu.html')
+    
+    return render_template('menu1.html')
 
 
 # ---------------------------------
@@ -134,6 +137,8 @@ def forgot_password():
 
 @app.route('/owner-dashboard')
 def owner_dashboard():
+    
+    
     return render_template('manager_dash.html')
 
 # ---------------------------------
@@ -152,6 +157,153 @@ def chef_dashboard():
 def clerk_dashboard():
     return render_template('waiter-dashboard.html')
 
+# ---------------------------------
+# Inventory Pages
+# ---------------------------------
+@app.route("/owner-dashboard/ingredient_stock")
+def ingredient_stock():
+    return render_template("ingredient_stock.html")
+
+@app.route("/owner-dashboard/low_stock")
+def low_stock():
+    return render_template("lowstock.html")
+
+
+# ---------------------------------
+# Purchase Order Pages
+# ---------------------------------
+@app.route("/owner-dashboard/generate_po")
+def generate_po():
+    return render_template("generate_po.html")
+
+@app.route("/owner-dashboard/purchase_order")
+def purchase_order():
+    return render_template("purchase_order.html")
+
+
+# ---------------------------------
+# Reports Pages
+# ---------------------------------
+@app.route("/owner-dashboard/daily_sales")
+def daily_sales():
+    return render_template("daily_sales.html")
+
+@app.route("/owner-dashboard/monthly_sales")
+def monthly_sales():
+    return render_template("monthly_sales.html")
+
+@app.route("/owner-dashboard/expense_report")
+def expense_report():
+    return render_template("expense_report.html")
+
+
+# ---------------------------------
+# Analytics Page
+# ---------------------------------
+@app.route("/owner-dashboard/analytics")
+def analytics():
+    return render_template("analytics.html")
+
+
+# ---------------------------------
+# Payment Page
+# ---------------------------------
+@app.route("/payment")
+def payment():
+    return render_template("paymentpage.html")
+
+
+
+
+
+
+'''
+
+
+# ---------- READ ----------
+@app.route("/ingredient_stock")
+def ingredient_stock():
+    # --- FIX: Use the 'mysql' object and a DictCursor ---
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM ingredients")
+    ingredients = cursor.fetchall()
+    cursor.close() # --- FIX: Close the cursor ---
+
+    for i in ingredients:
+        if i["stock_quantity"] <= i["reorder_level"]:
+            i["status"] = "⚠️ Low"
+        else:
+            i["status"] = "✅ Sufficient"
+
+    return render_template("ingredient_stock.html", ingredients=ingredients)
+
+# ---------- CREATE ----------
+@app.route("/add_ingredient", methods=["GET", "POST"])
+def add_ingredient():
+    if request.method == "POST":
+        name = request.form["name"]
+        stock_quantity = request.form["stock_quantity"]
+        unit = request.form["unit"]
+        reorder_level = request.form["reorder_level"]
+
+        # --- FIX: Use the 'mysql' object ---
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "INSERT INTO ingredients (name, stock_quantity, unit, reorder_level) VALUES (%s, %s, %s, %s)",
+            (name, stock_quantity, unit, reorder_level)
+        )
+        mysql.connection.commit() # --- FIX: Commit using mysql.connection ---
+        cursor.close() # --- FIX: Close the cursor ---
+        
+        flash("Ingredient added successfully!", "success")
+        return redirect(url_for("ingredient_stock"))
+    
+    return render_template("ingredient_form.html", action="Add", ingredient=None) # Pass ingredient=None for safety
+
+# ---------- UPDATE ----------
+@app.route("/edit_ingredient/<int:id>", methods=["GET", "POST"])
+def edit_ingredient(id):
+    # --- FIX: Use the 'mysql' object and a DictCursor to fetch ---
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM ingredients WHERE id = %s", (id,))
+    ingredient = cursor.fetchone()
+    
+    if request.method == "POST":
+        name = request.form["name"]
+        stock_quantity = request.form["stock_quantity"]
+        unit = request.form["unit"]
+        reorder_level = request.form["reorder_level"]
+
+        # --- FIX: Use the same cursor (or a new one) for the update ---
+        cursor.execute("""
+            UPDATE ingredients 
+            SET name=%s, stock_quantity=%s, unit=%s, reorder_level=%s 
+            WHERE id=%s
+        """, (name, stock_quantity, unit, reorder_level, id))
+        mysql.connection.commit() # --- FIX: Commit using mysql.connection ---
+        cursor.close() # --- FIX: Close the cursor ---
+        
+        flash("Ingredient updated successfully!", "success")
+        return redirect(url_for("ingredient_stock"))
+
+    cursor.close() # --- FIX: Close cursor if it was a GET request ---
+    if not ingredient:
+        flash("Ingredient not found!", "danger")
+        return redirect(url_for("ingredient_stock"))
+        
+    return render_template("ingredient_form.html", ingredient=ingredient, action="Edit")
+
+# ---------- DELETE ----------
+@app.route("/delete_ingredient/<int:id>")
+def delete_ingredient(id):
+    # --- FIX: Use the 'mysql' object ---
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM ingredients WHERE id = %s", (id,))
+    mysql.connection.commit() # --- FIX: Commit using mysql.connection ---
+    cursor.close() # --- FIX: Close the cursor ---
+    
+    flash("Ingredient deleted successfully.", "success")
+    return redirect(url_for("ingredient_stock"))
 
 
 
@@ -161,9 +313,7 @@ def clerk_dashboard():
 
 
 
-
-
-
+'''
 
 
 

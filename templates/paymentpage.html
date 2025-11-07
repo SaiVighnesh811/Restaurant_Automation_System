@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment</title>
+<style>
+  body { font-family: Poppins, sans-serif; background: #fffaf5; padding: 40px; }
+  h1 { color: #ff7b00; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #ddd; padding: 10px; }
+  th { background: #ff7b00; color: white; }
+  .total { font-weight: bold; margin-top: 20px; text-align: right; }
+  button { background: #ff7b00; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+</style>
+</head>
+<body>
+  <h1>💳 Payment Page</h1>
+  <table id="orderTable">
+    <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
+  </table>
+  <p class="total">Total: ₹<span id="totalAmount"></span></p>
+  <button>Proceed to Pay</button>
+
+<script>
+  // Load cart data from localStorage
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const total = localStorage.getItem("total");
+  const table = document.getElementById("orderTable");
+  const totalAmount = document.getElementById("totalAmount");
+  totalAmount.textContent = total;
+
+  cart.forEach(item => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${item.name}</td><td>${item.qty}</td><td>₹${item.price * item.qty}</td>`;
+    table.appendChild(row);
+  });
+</script>
+</body>
+</html>
