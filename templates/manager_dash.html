@@ -277,36 +277,27 @@
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href=" {{ url_for('owner_dashboard') }}">Home</a> <!-- 🏠 Added Home Button -->
+      <a href="manager_dash.html">Home</a>
+      <a href="manager_menu.html">Menu</a>
+      <a href="manager_employees.html">Employee</a>
+      <div class="nav-item">
+        <a href="#">Inventory</a>
+        <div class="dropdown-content">
+          <a href="ingredient_stock.html">Ingredient Stock</a>
+          <a href="lowstock.html">Low Stock</a>
+        </div>
+      </div>
 
-              <div class="nav-item">
-            <a href="#">Inventory</a>
-            <div class="dropdown-content">
-              <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
-              <a href="{{ url_for('low_stock') }}">Low Stock</a>
-            </div>
-          </div>
+      <div class="nav-item">
+        <a href="#">Purchase Orders</a>
+        <div class="dropdown-content">
+          <a href="generate_po.html">Generate PO</a>
+          <a href="purchase_order.html">Enter PO Details</a>
+        </div>
+      </div>
 
-          <div class="nav-item">
-            <a href="#">Purchase Orders</a>
-            <div class="dropdown-content">
-              <a href="{{ url_for('generate_po') }}">Generate PO</a>
-              <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
-            </div>
-          </div>
-
-          <div class="nav-item">
-            <a href="#">Reports</a>
-            <div class="dropdown-content">
-              <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
-              <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
-              <a href="{{ url_for('expense_report') }}">Expense Report</a>
-            </div>
-          </div>
-
-      <a href="{{ url_for('analytics') }}">Analytics</a>
-
-
+      <a href="manager_reports.html">Reports</a>
+    </div>
 
     <div class="nav-actions">
       <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
@@ -326,7 +317,6 @@
     <button class="logout">Logout</button>
   </div>
 
-  <!-- Dashboard -->
   <main>
     <header>
       <h1>Welcome, Manager 👋</h1>
@@ -357,12 +347,14 @@
   </footer>
 
   <script>
+    // Profile Modal toggle
     const profileBtn = document.getElementById("profileBtn");
     const profileModal = document.getElementById("profileModal");
     profileBtn.addEventListener("click", () => {
       profileModal.classList.toggle("active");
     });
 
+    // Theme Toggle
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
       const currentTheme = document.body.getAttribute("data-theme");
@@ -375,6 +367,7 @@
       }
     });
 
+    // Dropdown toggle logic
     const navItems = document.querySelectorAll(".nav-item");
     navItems.forEach(item => {
       item.addEventListener("click", (e) => {
@@ -390,6 +383,7 @@
       navItems.forEach(item => item.classList.remove("open"));
     });
 
+    // Charts
     const salesCtx = document.getElementById("salesChart").getContext("2d");
     new Chart(salesCtx, {
       type: "line",

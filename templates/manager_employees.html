@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expenses Report</title>
+  <title>Manage Employees | RAS</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -21,19 +21,17 @@
     }
 
     * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
       transition: background 0.3s, color 0.3s;
-      font-family: "Poppins", sans-serif;
     }
 
     body {
-      background-color: var(--bg-light);
+      font-family: "Poppins";
+      background: var(--bg-light);
       color: var(--text-dark);
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
 
     /* Navbar */
@@ -49,15 +47,7 @@
       z-index: 1000;
     }
 
-    .logo {
-      font-weight: 700;
-      font-size: 24px;
-      letter-spacing: 1px;
-    }
-
-    .logo span {
-      color: #fff2e6;
-    }
+    .logo { font-weight: 700; font-size: 24px; }
 
     .nav-links {
       display: flex;
@@ -72,27 +62,22 @@
     }
 
     .nav-links a {
-      color: white;
-      text-decoration: none;
+      color: white; text-decoration: none;
       font-weight: 500;
       position: relative;
     }
 
-    .nav-links a::after {
+    .nav-links a:hover::after {
       content: "";
       position: absolute;
-      width: 0%;
+      width: 100%;
       height: 2px;
-      background-color: white;
+      background: white;
       left: 0;
       bottom: -4px;
-      transition: 0.3s;
     }
 
-    .nav-links a:hover::after {
-      width: 100%;
-    }
-
+    /* Dropdown Menu */
     .dropdown-content {
       display: none;
       position: absolute;
@@ -136,12 +121,9 @@
       border-radius: 20px;
       cursor: pointer;
       font-weight: 600;
-      transition: 0.3s;
     }
 
-    .theme-toggle:hover {
-      background: #fff2e6;
-    }
+    .theme-toggle:hover { background: #fff2e6; }
 
     .profile {
       display: flex;
@@ -151,29 +133,26 @@
     }
 
     .profile img {
-      width: 38px;
-      height: 38px;
+      width: 38px; height: 38px;
       border-radius: 50%;
       border: 2px solid white;
     }
 
+    /* Profile modal */
     .profile-modal {
       display: none;
       position: fixed;
-      top: 70px;
-      right: 30px;
+      top: 70px; right: 30px;
       background: var(--card-bg);
       color: var(--text-dark);
       border-radius: 12px;
       padding: 20px;
       width: 250px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
       z-index: 2000;
     }
 
-    .profile-modal.active {
-      display: block;
-    }
+    .profile-modal.active { display: block; }
 
     .logout {
       background: var(--primary);
@@ -185,90 +164,72 @@
       margin-top: 10px;
       cursor: pointer;
       width: 100%;
-      transition: 0.3s;
     }
 
-    .logout:hover {
-      background: var(--secondary);
-    }
+    .logout:hover { background: var(--secondary); }
 
-    /* Main Content */
-    main {
-      flex: 1;
-      padding: 40px 60px;
-    }
+    main { flex: 1; padding: 40px 60px; }
 
-    h2 {
-      color: var(--primary);
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 2em;
-    }
+    h1 { color: var(--secondary); margin-bottom: 20px; }
 
-    .date-filter {
+    /* Form */
+    form {
       display: flex;
-      justify-content: center;
       gap: 15px;
-      margin-bottom: 25px;
       flex-wrap: wrap;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
     }
 
-    .date-filter label {
-      font-weight: 600;
-      color: var(--primary);
+    input, select, button {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: "Poppins";
     }
 
-    .date-filter input[type="date"] {
-      padding: 6px 10px;
-      border: 1px solid var(--primary);
-      border-radius: 4px;
-    }
-
-    .date-filter button {
-      background-color: var(--primary);
-      color: #fff;
+    button {
+      background: var(--primary);
+      color: white;
       border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
       cursor: pointer;
       font-weight: 600;
-      transition: background 0.3s;
     }
 
-    .date-filter button:hover {
-      background-color: var(--secondary);
-    }
+    button:hover { background: var(--secondary); }
 
+    /* Table */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      background: var(--card-bg);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
     }
 
     th, td {
-      padding: 12px 15px;
+      padding: 12px;
       text-align: left;
+      border-bottom: 1px solid #eee;
     }
 
-    thead {
-      background-color: var(--primary);
+    th {
+      background: var(--primary);
       color: white;
     }
 
-    tbody tr:nth-child(even) {
-      background-color: #fff2e6;
+    .delete-btn {
+      background: crimson;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
-    tbody tr:hover {
-      background-color: #ffe0cc;
-    }
-
-    .summary {
-      text-align: right;
-      font-size: 1.2em;
-      color: var(--primary);
-      font-weight: 600;
-    }
+    .delete-btn:hover { background: darkred; }
 
     footer {
       text-align: center;
@@ -277,34 +238,24 @@
       color: white;
       margin-top: auto;
     }
-
-    @media (max-width: 600px) {
-      .date-filter {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      table, th, td {
-        font-size: 0.9em;
-      }
-    }
   </style>
 </head>
-
 <body>
-  <!-- Navbar -->
   <nav>
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
       <a href="manager_dash.html">Home</a>
+      <a href="manager_menu.html">Menu</a>
+      <a href="manager_employees.html">Employee</a>  
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
           <a href="ingredient_stock.html">Ingredient Stock</a>
-          <a href="lowstock.html">Low Stock Alerts</a>
+          <a href="lowstock.html">Low Stock</a>
         </div>
       </div>
+
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
         <div class="dropdown-content">
@@ -312,15 +263,9 @@
           <a href="purchase_order.html">Enter PO Details</a>
         </div>
       </div>
-      <div class="nav-item">
-        <a href="#">Reports</a>
-        <div class="dropdown-content">
-          <a href="daily_sales.html">Daily Sales</a>
-          <a href="monthly_sales.html">Monthly Sales</a>
-          <a href="expense_report.html">Expense Report</a>
-        </div>
-      </div>
-      <a href="analytics.html">Analytics</a>
+
+      
+      <a href="manager_reports.html">Reports</a>
     </div>
 
     <div class="nav-actions">
@@ -341,88 +286,62 @@
     <button class="logout">Logout</button>
   </div>
 
-  <!-- Expenses Report -->
   <main>
-    <h2>Expenses Report</h2>
+    <h1>👨‍🍳 Manage Employees</h1>
 
-    <form class="date-filter">
-      <label for="from-date">From:</label>
-      <input type="date" id="from-date" name="from-date" required>
-      <label for="to-date">To:</label>
-      <input type="date" id="to-date" name="to-date" required>
-      <button type="submit">View Report</button>
+    <!-- Add Employee Form -->
+    <form id="empForm">
+      <input type="text" id="empName" placeholder="Employee Name" required />
+      <select id="empRole">
+        <option value="Waiter">Waiter</option>
+        <option value="Chef">Chef</option>
+        <option value="Manager">Manager</option>
+      </select>
+      <input type="email" id="empEmail" placeholder="Email" required />
+      <button type="submit">Add Employee</button>
     </form>
 
-    <table>
+    <!-- Employee Table -->
+    <table id="empTable">
       <thead>
         <tr>
-          <th>Expense ID</th>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Supplier/Payee</th>
-          <th>Amount (₹)</th>
-          <th>Payment Mode</th>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Email</th>
+          <th>Action</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>EXP001</td>
-          <td>2025-10-01</td>
-          <td>Ingredient Purchase</td>
-          <td>ABC Foods</td>
-          <td>12,000</td>
-          <td>Cheque</td>
-        </tr>
-        <tr>
-          <td>EXP002</td>
-          <td>2025-10-02</td>
-          <td>Utilities</td>
-          <td>Electricity</td>
-          <td>5,000</td>
-          <td>Bank Transfer</td>
-        </tr>
-        <tr>
-          <td>EXP003</td>
-          <td>2025-10-05</td>
-          <td>Ingredient Purchase</td>
-          <td>XYZ Supplies</td>
-          <td>8,500</td>
-          <td>Cash</td>
-        </tr>
-      </tbody>
+      <tbody></tbody>
     </table>
-
-    <div class="summary">
-      <p><strong>Total Expenses:</strong> ₹25,500</p>
-    </div>
   </main>
 
   <footer>
-    <p>© 2025 Manager Dashboard | Restaurant Automation System</p>
+    <p>© 2025 Manage Employees | Restaurant Automation System</p>
   </footer>
 
   <script>
-    // Profile Modal
+    // === Profile Modal ===
     const profileBtn = document.getElementById("profileBtn");
     const profileModal = document.getElementById("profileModal");
-    profileBtn.addEventListener("click", () => {
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
       profileModal.classList.toggle("active");
     });
-
-    // Dark Mode Toggle
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.body.getAttribute("data-theme");
-      if (currentTheme === "dark") {
-        document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
-      } else {
-        document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+    document.addEventListener("click", (e) => {
+      if (!profileModal.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileModal.classList.remove("active");
       }
     });
 
-    // Navbar Dropdowns
+    // === Theme Toggle ===
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const isDark = document.body.getAttribute("data-theme") === "dark";
+      document.body.setAttribute("data-theme", isDark ? "" : "dark");
+      themeToggle.textContent = isDark ? "🌙 Dark Mode" : "☀️ Light Mode";
+    });
+
+    // === Dropdowns ===
     const navItems = document.querySelectorAll(".nav-item");
     navItems.forEach(item => {
       item.addEventListener("click", (e) => {
@@ -436,6 +355,45 @@
     document.addEventListener("click", () => {
       navItems.forEach(item => item.classList.remove("open"));
     });
+
+    // === Employee Logic ===
+    const empForm = document.getElementById('empForm');
+    const empTable = document.querySelector('#empTable tbody');
+    let employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+    function renderEmployees() {
+      empTable.innerHTML = '';
+      employees.forEach((emp, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${emp.name}</td>
+          <td>${emp.role}</td>
+          <td>${emp.email}</td>
+          <td><button class="delete-btn" onclick="deleteEmp(${i})">Delete</button></td>
+        `;
+        empTable.appendChild(row);
+      });
+      localStorage.setItem('employees', JSON.stringify(employees));
+    }
+
+    empForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('empName').value.trim();
+      const role = document.getElementById('empRole').value;
+      const email = document.getElementById('empEmail').value.trim();
+      if (name && email) {
+        employees.push({ name, role, email });
+        renderEmployees();
+        empForm.reset();
+      }
+    });
+
+    function deleteEmp(i) {
+      employees.splice(i, 1);
+      renderEmployees();
+    }
+
+    renderEmployees();
   </script>
 </body>
 </html>
