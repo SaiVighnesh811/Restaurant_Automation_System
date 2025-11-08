@@ -1,40 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment</title>
-<style>
-  body { font-family: Poppins, sans-serif; background: #fffaf5; padding: 40px; }
-  h1 { color: #ff7b00; }
-  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-  th, td { border: 1px solid #ddd; padding: 10px; }
-  th { background: #ff7b00; color: white; }
-  .total { font-weight: bold; margin-top: 20px; text-align: right; }
-  button { background: #ff7b00; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <!-- 1. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Load Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+      /* 3. Apply Inter font */
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
 </head>
-<body>
-  <h1>💳 Payment Page</h1>
-  <table id="orderTable">
-    <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
-  </table>
-  <p class="total">Total: ₹<span id="totalAmount"></span></p>
-  <button>Proceed to Pay</button>
+<body class="bg-orange-50 min-h-screen flex items-center justify-center p-4">
 
-<script>
-  // Load cart data from localStorage
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const total = localStorage.getItem("total");
-  const table = document.getElementById("orderTable");
-  const totalAmount = document.getElementById("totalAmount");
-  totalAmount.textContent = total;
+  <!-- Main Payment Card -->
+  <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-2xl my-8">
+    <h1 class="text-3xl font-bold text-orange-600 mb-6 text-center">💳 Payment Summary</h1>
+    
+    <!-- Order Table -->
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+      <table class="w-full" id="orderTable">
+        <thead>
+          <tr class="bg-orange-500 text-white">
+            <th class="p-3 text-left text-sm font-semibold uppercase">Item</th>
+            <th class="p-3 text-center text-sm font-semibold uppercase">Qty</th>
+            <th class="p-3 text-right text-sm font-semibold uppercase">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Items will be injected here by JS -->
+        </tbody>
+      </table>
+    </div>
 
-  cart.forEach(item => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${item.name}</td><td>${item.qty}</td><td>₹${item.price * item.qty}</td>`;
-    table.appendChild(row);
-  });
-</script>
+    <!-- Totals Section -->
+    <div class="mt-6 space-y-3">
+      <div class="flex justify-between items-center text-gray-700">
+        <span class="font-medium">Subtotal:</span>
+        <span class="font-bold text-lg">₹<span id="totalAmount">0.00</span></span>
+      </div>
+      
+      <div class="flex justify-between items-center text-blue-600" id="discountRow" style="display: none;">
+        <span class="font-medium">Discount Applied:</span>
+        <span class="font-bold text-lg" id="discountText"></span>
+      </div>
+
+      <div class="flex justify-between items-center text-gray-900 border-t pt-3 mt-3">
+        <span class="font-bold text-xl">Final Total:</span>
+        <span class="font-bold text-2xl text-green-700">₹<span id="finalTotal">0.00</span></span>
+      </div>
+    </div>
+
+    <!-- Discount Input Section -->
+    <div class="mt-8 pt-6 border-t">
+      <label for="discountInput" class="block text-sm font-medium text-gray-600 mb-2">🏷️ Have a discount code?</label>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input type="number" id="discountInput" placeholder="e.g. 10" class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:outline-none w-full sm:w-auto" min="0" max="100">
+        <button onclick="applyDiscount()" class="bg-orange-500 text-white p-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors shadow-sm w-full sm:w-auto">
+          Apply
+        </button>
+      </div>
+    </div>
+
+    <!-- Proceed to Pay Button -->
+    <button onclick="proceedToPay()" class="bg-green-600 text-white p-4 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg w-full mt-8 text-lg">
+      Proceed to Pay
+    </button>
+  </div>
+
+  <!-- Custom Modal for Alerts -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm text-center">
+      <p id="modalMessage" class="text-gray-800 text-lg mb-6"></p>
+      <button onclick="closeModal()" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+        OK
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // 🛒 Load cart data from localStorage
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const total = parseFloat(localStorage.getItem("total")) || 0;
+
+    const tableBody = document.querySelector("#orderTable tbody");
+    const totalAmount = document.getElementById("totalAmount");
+    const finalTotal = document.getElementById("finalTotal");
+    const discountText = document.getElementById("discountText");
+    const discountRow = document.getElementById("discountRow");
+
+    let discountValue = 0; // store current discount amount
+
+    // 🧾 Display items
+    totalAmount.textContent = total.toFixed(2);
+    finalTotal.textContent = total.toFixed(2);
+
+    if (cart.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="3" class="p-4 text-center text-gray-500">Your cart is empty.</td>`;
+        tableBody.appendChild(row);
+    } else {
+        cart.forEach(item => {
+          const row = document.createElement("tr");
+          // Apply Tailwind classes to table cells
+          row.innerHTML = `
+            <td class="p-3 border-b border-gray-200 text-gray-800 text-left">${item.name}</td>
+            <td class="p-3 border-b border-gray-200 text-gray-800 text-center">${item.qty}</td>
+            <td class="p-3 border-b border-gray-200 text-gray-800 text-right font-medium">₹${(item.price * item.qty).toFixed(2)}</td>`;
+          tableBody.appendChild(row);
+        });
+    }
+
+    // --- Modal Functions ---
+    const modal = document.getElementById("modal");
+    const modalMessage = document.getElementById("modalMessage");
+
+    function showModal(message) {
+      modalMessage.textContent = message;
+      modal.classList.remove("hidden");
+    }
+
+    function closeModal() {
+      modal.classList.add("hidden");
+    }
+
+    // 💸 Apply discount
+    function applyDiscount() {
+      const discountInput = document.getElementById("discountInput").value;
+      const discountPercent = parseFloat(discountInput);
+
+      if (isNaN(discountPercent) || discountPercent < 0 || discountPercent > 100) {
+        // Use custom modal instead of alert
+        showModal("Please enter a valid discount percentage (0–100).");
+        return;
+      }
+
+      discountValue = (total * discountPercent) / 100;
+      const discountedTotal = total - discountValue;
+
+      // Display the discount info
+      discountText.textContent = `- ₹${discountValue.toFixed(2)} (${discountPercent}%)`;
+      discountRow.style.display = 'flex'; // Show the discount row
+      finalTotal.textContent = discountedTotal.toFixed(2);
+      
+      showModal("Discount applied successfully!");
+    }
+
+    // ✅ Proceed to payment (simulate)
+    function proceedToPay() {
+      const finalAmount = finalTotal.textContent;
+      // Use custom modal instead of alert
+      showModal(`Proceeding to payment for ₹${finalAmount}. Thank you for your order!`);
+      // You could redirect to payment gateway or save order details here.
+      // Optionally, clear cart after payment
+      // localStorage.removeItem("cart");
+      // localStorage.removeItem("total");
+    }
+    
+    // Close modal if user clicks outside of it
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
+  </script>
 </body>
 </html>
