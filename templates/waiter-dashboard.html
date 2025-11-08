@@ -1,160 +1,436 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Waiter Dashboard</title>
-<style>
-  body{
-    font-family: "Poppins", sans-serif;
-  }
-  /* Reset & base */
-  * { box-sizing: border-box; margin:0; padding:0; font-family: Arial, sans-serif; }
-  body { background-color:#f4dfbd; color:#1f2937; transition: background 0.3s, color 0.3s; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Waiter Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  /* Navbar */
-  nav {
-    position:sticky; top:0; z-index:100;
-    display:flex; justify-content:space-between; align-items:center;
-    background-color:#f3e0b4; color:rgb(235, 109, 6); padding:15px 30px;
-    box-shadow:0 3px 6px rgba(0,0,0,0.1);
-  }
-  nav h1 { font-size:22px; }
-
-  .nav-buttons { display:flex; gap:12px; }
-  .nav-buttons button {
-    background-color:#f39e0b; border:none; padding:8px 15px; border-radius:6px;
-    font-weight:bold; cursor:pointer; transition:0.3s;
-  }
-  .nav-buttons button:hover { background-color:#f85700; color:white; }
-
-  .profile-container { position:relative; display:flex; align-items:center; }
-  .profile-pic { width:45px; height:45px; border-radius:50%; border:2px solid #fba847; cursor:pointer; transition:0.3s; }
-  .profile-pic:hover { transform:scale(1.05); }
-
-  .dropdown {
-    position:absolute; top:55px; right:0; background:white; border-radius:10px;
-    display:none; flex-direction:column; min-width:160px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
-  }
-  .dropdown.active { display:flex; animation:fadeIn 0.2s ease-in-out; }
-  .dropdown button {
-    background:none; border:none; padding:12px 16px; width:100%; text-align:left;
-    cursor:pointer; transition:0.2s; color:#1f2937; font-weight:500;
-  }
-  .dropdown button:hover { background-color:#fff3e0; color:#ea7f32; }
-
-  @keyframes fadeIn { from {opacity:0; transform:translateY(-5px);} to {opacity:1; transform:translateY(0);} }
-
-  /* Header */
-  main { padding:30px; max-width:1200px; margin:0 auto; }
-  header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
-  header h2 { font-size:28px; color:#ea7f32; }
-  header p { color:#f97316; margin-top:5px; }
-  #clock { font-weight:bold; color:#ea7f32; }
-
-  /* Dashboard Cards */
-  .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
-  .card { background:rgb(240, 234, 223); border-radius:16px; padding:20px; text-align:center; box-shadow:0 3px 8px rgba(0,0,0,0.1); transition:0.3s; }
-  .card:hover { transform:translateY(-5px); box-shadow:0 6px 15px rgba(0,0,0,0.15); }
-  .card .icon { font-size:40px; margin-bottom:10px; display:inline-block; width:50px; height:50px; line-height:50px; border-radius:50%; background:#fba847; color:white; }
-  .card .value { font-size:2rem; font-weight:bold; color:#ea7f32; margin-top:5px; }
-
-  /* Dark Mode */
-  body.dark { background-color:#1f2937; color:#f3f4f6; }
-  body.dark header h2 { color:#fcd34d; }
-  body.dark header p, body.dark #clock { color:#fbbf24; }
-  body.dark .card { background-color:#374151; color:#f3f4f6; }
-  body.dark .dropdown { background-color:#4b5563; }
-  body.dark .dropdown button { color:#f3f4f6; }
-  body.dark .dropdown button:hover { background-color:#6b7280; color:#fcd34d; }
-</style>
-</head>
-<body>
-
-<!-- Navbar -->
-<nav>
-  <h1>🍽️ Waiter Dashboard</h1>
-  <div class="nav-buttons">
-    <button onclick="alert('Active Orders')">Active Orders</button>
-    <button onclick="alert('Table Status')">Table Status</button>
-    <button onclick="alert('Payments')">Payments</button>
-    <button onclick="alert('Customer Feedback')">Feedback</button>
-    <button onclick="toggleDarkMode()">🌓 Dark Mode</button>
-  </div>
-  <div class="profile-container">
-    <img src="https://i.pravatar.cc/100?img=5" class="profile-pic" id="profilePic">
-    <div class="dropdown" id="dropdownMenu">
-      <button onclick="alert('View Profile')">👤 View Profile</button>
-      <button onclick="logout()">🚪 Logout</button>
-    </div>
-  </div>
-</nav>
-
-<!-- Main -->
-<main>
-  <header>
-    <div>
-      <h2>Welcome, Waiter 👨‍🍳</h2>
-      <p>Manage orders, tables, and customer satisfaction.</p>
-    </div>
-    <div style="text-align:right;">
-      <p id="clock"></p>
-    </div>
-  </header>
-
-  <section class="dashboard">
-    <div class="card">
-      <div class="icon">🪑</div>
-      <p>Active Tables</p>
-      <div class="value" id="tables">12</div>
-    </div>
-    <div class="card">
-      <div class="icon">✅</div>
-      <p>Orders Served</p>
-      <div class="value" id="served">46</div>
-    </div>
-    <div class="card">
-      <div class="icon">💵</div>
-      <p>Tips Collected</p>
-      <div class="value" id="tips">$235</div>
-    </div>
-    <div class="card">
-      <div class="icon">📦</div>
-      <p>Pending Requests</p>
-      <div class="value" id="pending">8</div>
-    </div>
-  </section>
-</main>
-
-<script>
-  // Clock
-  function updateClock(){ document.getElementById("clock").textContent = new Date().toLocaleTimeString(); }
-  setInterval(updateClock,1000); updateClock();
-
-  // Dark Mode
-  function toggleDarkMode(){ document.body.classList.toggle("dark"); }
-
-  // Profile Dropdown
-  const profilePic = document.getElementById("profilePic");
-  const dropdownMenu = document.getElementById("dropdownMenu");
-  profilePic.addEventListener("click",()=>{ dropdownMenu.classList.toggle("active"); });
-  document.addEventListener("click",(e)=>{
-    if(!profilePic.contains(e.target) && !dropdownMenu.contains(e.target)){
-      dropdownMenu.classList.remove("active");
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --card-bg: #ffffff;
     }
-  });
 
-  // Logout
-  function logout(){ alert("Logged out!"); window.location.reload(); }
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
 
-  // Simulate changing numbers
-  setInterval(()=>{
-    document.getElementById("tables").textContent = 10 + Math.floor(Math.random()*5);
-    document.getElementById("served").textContent = 40 + Math.floor(Math.random()*10);
-    document.getElementById("tips").textContent = "$" + (200 + Math.floor(Math.random()*50));
-    document.getElementById("pending").textContent = 5 + Math.floor(Math.random()*5);
-  },4000);
-</script>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
 
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    .logo span {
+      color: #fff2e6;
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-left: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      background-color: white;
+      left: 0;
+      bottom: -4px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .theme-toggle {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background: #fff2e6;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .profile img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+    }
+
+    .profile span {
+      font-weight: 600;
+      color: white;
+      font-size: 15px;
+      display: inline-block;
+      line-height: 1;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 60px;
+    }
+
+    header h1 {
+      color: var(--secondary);
+      font-size: 30px;
+    }
+
+    header p {
+      color: #555;
+      margin-top: 5px;
+    }
+
+    /* Cards Section */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-top: 40px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    /* Active Orders Table */
+    .table-section {
+      margin-top: 50px;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-section h2 {
+      color: var(--secondary);
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      padding: 12px;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    tr:hover {
+      background-color: rgba(255, 123, 0, 0.05);
+    }
+
+    /* Charts */
+    .chart-section {
+      margin-top: 50px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 40px;
+    }
+
+    .chart-container {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-container h2 {
+      color: var(--secondary);
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+
+    /* Profile Modal */
+    .profile-modal {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 30px;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      border-radius: 12px;
+      padding: 20px;
+      width: 250px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      z-index: 2000;
+    }
+
+    .profile-modal.active {
+      display: block;
+    }
+
+    .profile-modal h3 {
+      color: var(--secondary);
+      margin-bottom: 10px;
+    }
+
+    .logout {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.3s;
+    }
+
+    .logout:hover {
+      background: var(--secondary);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">WAITER <span>DASHBOARD</span></div>
+
+    <div class="nav-container">
+      <div class="nav-links">
+        <a href="waiter-dashboard.html">Home</a>
+        <a href="pending_orders.html">Pending Orders</a>
+        <a href="completed_orders.html">Completed Orders</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+        <div class="profile" id="profileBtn">
+          <img src="https://cdn-icons-png.flaticon.com/512/2922/2922561.png" alt="Waiter" />
+          <span>Waiter</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Modal -->
+  <div class="profile-modal" id="profileModal">
+    <h3>Profile</h3>
+    <p><strong>Name:</strong> Ramesh Kumar</p>
+    <p><strong>Role:</strong> Waiter</p>
+    <p><strong>Email:</strong> waiter@restaurant.com</p>
+    <button class="logout" onclick="window.location.href='login.html'">Logout</button>
+  </div>
+
+  <!-- Main -->
+  <main>
+    <header>
+      <h1>Welcome, Waiter 👋</h1>
+      <p>Here’s your daily overview and tasks summary.</p>
+    </header>
+
+    <section class="cards">
+      <div class="card"><h3>Assigned Tables</h3><p>8</p></div>
+      <div class="card"><h3>Active Orders</h3><p>14</p></div>
+      <div class="card"><h3>Delivered Orders</h3><p>32</p></div>
+      <div class="card"><h3>Pending Payments</h3><p>4</p></div>
+    </section>
+
+    <section class="table-section">
+      <h2>Active Orders</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Table No</th>
+            <th>Customer</th>
+            <th>Dish</th>
+            <th>Status</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>5</td><td>Ravi Kumar</td><td>Pasta Alfredo</td><td>Serving</td><td>12:30 PM</td></tr>
+          <tr><td>2</td><td>Anita S.</td><td>Grilled Chicken</td><td>Ready to Serve</td><td>12:45 PM</td></tr>
+          <tr><td>8</td><td>Rahul Mehta</td><td>Veg Burger</td><td>Preparing</td><td>1:00 PM</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-container">
+        <h2>Orders Served per Day</h2>
+        <canvas id="ordersChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h2>Customer Satisfaction</h2>
+        <canvas id="satisfactionChart"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Waiter Dashboard | Restaurant Automation System</p>
+  </footer>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const currentTheme = document.body.getAttribute("data-theme");
+      if (currentTheme === "dark") {
+        document.body.removeAttribute("data-theme");
+        themeToggle.textContent = "🌙 Dark Mode";
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        themeToggle.textContent = "☀️ Light Mode";
+      }
+    });
+
+    // Profile Modal Toggle
+    const profileBtn = document.getElementById("profileBtn");
+    const profileModal = document.getElementById("profileModal");
+
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileModal.classList.toggle("active");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileModal.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileModal.classList.remove("active");
+      }
+    });
+
+    // Chart.js
+    const ordersCtx = document.getElementById("ordersChart").getContext("2d");
+    new Chart(ordersCtx, {
+      type: "bar",
+      data: {
+        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        datasets: [{
+          label: "Orders Served",
+          data: [22, 18, 25, 30, 27, 35, 40],
+          backgroundColor: "rgba(255, 123, 0, 0.7)"
+        }]
+      },
+      options: { plugins: { legend: { display: false } } }
+    });
+
+    const satisfactionCtx = document.getElementById("satisfactionChart").getContext("2d");
+    new Chart(satisfactionCtx, {
+      type: "doughnut",
+      data: {
+        labels: ["Excellent", "Good", "Average", "Poor"],
+        datasets: [{
+          data: [50, 30, 15, 5],
+          backgroundColor: ["#ff7b00", "#d86f00", "#ffae42", "#ffd07f"]
+        }]
+      },
+      options: { plugins: { legend: { position: "bottom" } } }
+    });
+  </script>
 </body>
 </html>

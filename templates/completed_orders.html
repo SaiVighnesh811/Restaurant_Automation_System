@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Completed Orders - Waiter Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --card-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    .logo span {
+      color: #fff2e6;
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-left: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      background-color: white;
+      left: 0;
+      bottom: -4px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .theme-toggle {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background: #fff2e6;
+    }
+
+    .profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap; /* prevents the name from wrapping under the image */
+}
+
+.profile img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid white;
+  object-fit: cover;
+}
+
+.profile span {
+  font-weight: 600;
+  color: white;
+  font-size: 15px;
+  display: inline-block;
+  line-height: 1; /* keeps vertical alignment neat */
+}
+
+
+    main {
+      flex: 1;
+      padding: 40px 60px;
+    }
+
+    header h1 {
+      color: var(--secondary);
+      font-size: 30px;
+    }
+
+    header p {
+      color: #555;
+      margin-top: 5px;
+    }
+
+    .table-section {
+      margin-top: 50px;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-section h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: rgba(255, 123, 0, 0.05);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+      background: #28a745;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+
+    .no-orders {
+      text-align: center;
+      color: #777;
+      padding: 30px 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">WAITER <span>DASHBOARD</span></div>
+    <div class="nav-container">
+      <div class="nav-links">
+        <a href="waiter-dashboard.html">Home</a>
+        <a href="pending_orders.html">Pending Orders</a>
+        <a href="completed_orders.html">Completed Orders</a>
+      </div>
+
+      <div class="nav-actions">
+  <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+  <div class="profile">
+    <img src="https://cdn-icons-png.flaticon.com/512/2922/2922561.png" alt="Waiter" />
+    <span>Waiter</span>
+  </div>
+</div>
+
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main>
+    <header>
+      <h1>Completed Orders ✅</h1>
+      <p>All orders that have been successfully delivered.</p>
+    </header>
+
+    <section class="table-section">
+      <h2>Delivered Orders</h2>
+      <table id="completedTable">
+        <thead>
+          <tr>
+            <th>Table No</th>
+            <th>Items Ordered</th>
+            <th>Chef Status</th>
+            <th>Order Time</th>
+            <th>Delivered At</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p id="noOrders" class="no-orders">No completed orders yet.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Waiter Dashboard | Restaurant Automation System</p>
+  </footer>
+
+  <script>
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const currentTheme = document.body.getAttribute("data-theme");
+      if (currentTheme === "dark") {
+        document.body.removeAttribute("data-theme");
+        themeToggle.textContent = "🌙 Dark Mode";
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        themeToggle.textContent = "☀️ Light Mode";
+      }
+    });
+
+    const completedOrders = JSON.parse(localStorage.getItem("completedOrders")) || [];
+    const tableBody = document.querySelector("#completedTable tbody");
+    const noOrdersMsg = document.getElementById("noOrders");
+
+    if (completedOrders.length > 0) {
+      noOrdersMsg.style.display = "none";
+      completedOrders.forEach(order => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${order.tableNo}</td>
+          <td>${order.items}</td>
+          <td>${order.chefStatus}</td>
+          <td>${order.orderTime}</td>
+          <td>${order.deliveredAt}</td>
+          <td><span class="status">Delivered</span></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    } else {
+      noOrdersMsg.style.display = "block";
+    }
+  </script>
+</body>
+</html>

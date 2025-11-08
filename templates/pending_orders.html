@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pending Orders - Waiter Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --card-bg: #ffffff;
+      --pending: #ffb347;
+      --ready: #28a745;
+    }
+
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    .logo span {
+      color: #fff2e6;
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-left: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      background-color: white;
+      left: 0;
+      bottom: -4px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .theme-toggle {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background: #fff2e6;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .profile img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 60px;
+    }
+
+    header h1 {
+      color: var(--secondary);
+      font-size: 30px;
+    }
+
+    header p {
+      color: #555;
+      margin-top: 5px;
+    }
+
+    /* Table Section */
+    .table-section {
+      margin-top: 50px;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-section h2 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: rgba(255, 123, 0, 0.05);
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+    }
+
+    .pending { background-color: var(--pending); }
+    .ready { background-color: var(--ready); }
+
+    .deliver-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .deliver-btn:hover {
+      background: var(--secondary);
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+
+    @media (max-width: 800px) {
+      table, thead, tbody, th, td, tr { display: block; }
+      th { display: none; }
+      td {
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+      }
+      td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: 45%;
+        font-weight: 600;
+        text-align: left;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">WAITER <span>DASHBOARD</span></div>
+
+    <div class="nav-container">
+      <div class="nav-links">
+        <a href="waiter-dashboard.html">Home</a>
+        <a href="pending_orders.html">Pending Orders</a>
+        <a href="completed_orders.html">Completed Orders</a>
+      </div>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+        <div class="profile" id="profileBtn">
+          <img src="https://cdn-icons-png.flaticon.com/512/2922/2922561.png" alt="Waiter" />
+          <span>Waiter</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <header>
+      <h1>Pending Orders 📦</h1>
+      <p>Orders assigned to you that are not yet delivered.</p>
+    </header>
+
+    <section class="table-section">
+      <h2>Orders to Deliver</h2>
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>Table No</th>
+            <th>Items Ordered</th>
+            <th>Chef Status</th>
+            <th>Order Time</th>
+            <th>Delivery Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td data-label="Table No">3</td>
+            <td data-label="Items Ordered">
+              • Margherita Pizza<br>
+              • Coke
+            </td>
+            <td data-label="Chef Status"><span class="status ready">Ready</span></td>
+            <td data-label="Order Time">12:45 PM</td>
+            <td data-label="Delivery Status"><span class="status pending">Pending</span></td>
+            <td data-label="Action"><button class="deliver-btn" onclick="markDelivered(this)">Mark as Delivered</button></td>
+          </tr>
+          <tr>
+            <td data-label="Table No">6</td>
+            <td data-label="Items Ordered">
+              • Pasta Alfredo<br>
+              • Brownie
+            </td>
+            <td data-label="Chef Status"><span class="status ready">Ready</span></td>
+            <td data-label="Order Time">1:10 PM</td>
+            <td data-label="Delivery Status"><span class="status pending">Pending</span></td>
+            <td data-label="Action"><button class="deliver-btn" onclick="markDelivered(this)">Mark as Delivered</button></td>
+          </tr>
+          <tr>
+            <td data-label="Table No">9</td>
+            <td data-label="Items Ordered">
+              • Veg Burger<br>
+              • Lemon Juice
+            </td>
+            <td data-label="Chef Status"><span class="status pending">Preparing</span></td>
+            <td data-label="Order Time">1:30 PM</td>
+            <td data-label="Delivery Status"><span class="status pending">Pending</span></td>
+            <td data-label="Action"><button class="deliver-btn" disabled>Mark as Delivered</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Waiter Dashboard | Restaurant Automation System</p>
+  </footer>
+
+ <script>
+  const themeToggle = document.getElementById("themeToggle");
+  themeToggle.addEventListener("click", () => {
+    const currentTheme = document.body.getAttribute("data-theme");
+    if (currentTheme === "dark") {
+      document.body.removeAttribute("data-theme");
+      themeToggle.textContent = "🌙 Dark Mode";
+    } else {
+      document.body.setAttribute("data-theme", "dark");
+      themeToggle.textContent = "☀️ Light Mode";
+    }
+  });
+
+  function markDelivered(button) {
+    const row = button.closest("tr");
+    const tableNo = row.querySelector('td[data-label="Table No"]').textContent.trim();
+    const items = row.querySelector('td[data-label="Items Ordered"]').innerHTML.trim();
+    const chefStatus = row.querySelector('td[data-label="Chef Status"] span').textContent.trim();
+    const orderTime = row.querySelector('td[data-label="Order Time"]').textContent.trim();
+
+    // Change status on UI
+    const statusCell = row.querySelector('td[data-label="Delivery Status"] span');
+    statusCell.textContent = "Delivered";
+    statusCell.style.backgroundColor = "#28a745";
+    button.textContent = "Delivered";
+    button.disabled = true;
+
+    // Save to localStorage
+    const completedOrder = { tableNo, items, chefStatus, orderTime, deliveredAt: new Date().toLocaleTimeString() };
+    const completedOrders = JSON.parse(localStorage.getItem("completedOrders")) || [];
+    completedOrders.push(completedOrder);
+    localStorage.setItem("completedOrders", JSON.stringify(completedOrders));
+  }
+</script>
+
+</body>
+</html>
