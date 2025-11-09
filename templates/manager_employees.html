@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Employees | RAS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --card-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+
+    body {
+      font-family: "Poppins";
+      background: var(--bg-light);
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo { font-weight: 700; font-size: 24px; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      position: relative;
+    }
+
+    .nav-item { position: relative; cursor: pointer; }
+
+    .nav-links a {
+      color: white; text-decoration: none;
+      font-weight: 500; position: relative;
+    }
+
+    .nav-links a:hover::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: white;
+      left: 0;
+      bottom: -4px;
+    }
+
+    /* Dropdown Menu */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: var(--card-bg);
+      min-width: 180px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .dropdown-content a {
+      color: var(--text-dark);
+      padding: 10px 15px;
+      display: block;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .dropdown-content a:hover { background-color: rgba(255, 123, 0, 0.1); }
+
+    .nav-item.open .dropdown-content { display: block; }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    .icon-btn {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 6px 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    .icon-btn:hover { background: #fff2e6; }
+
+    main { flex: 1; padding: 40px 60px; }
+
+    h1 { color: var(--secondary); margin-bottom: 20px; }
+
+    /* Form */
+    form {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    input, select, button {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-family: "Poppins";
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover { background: var(--secondary); }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: var(--primary);
+      color: white;
+    }
+
+    .delete-btn {
+      background: crimson;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover { background: darkred; }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">MANAGER <span>DASHBOARD</span></div>
+
+   <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="{{ url_for(manager_menu)}}">Menu</a>
+      <a href="{{ url_for(manager_employees)}}">Employee</a>
+      <div class="nav-item">
+        <a href="#">Inventory</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+          <a href="{{ url_for('low_stock') }}">Low Stock</a>
+        </div>
+      </div>
+
+      <div class="nav-item">
+        <a href="#">Purchase Orders</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+          <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
+        </div>
+      </div>
+
+      <div class="nav-item">
+        <a href="#">Reports</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+          <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+          <a href="{{ url_for('expense_report') }}">Expense Report</a>
+        </div>
+      </div>
+
+      <a href="{{ url_for('analytics') }}">Analytics</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeToggle" title="Toggle Theme">🌙</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1>👨‍🍳 Manage Employees</h1>
+
+    <!-- Add Employee Form -->
+    <form id="empForm">
+      <input type="text" id="empName" placeholder="Employee Name" required />
+      <select id="empRole">
+        <option value="Waiter">Waiter</option>
+        <option value="Chef">Chef</option>
+        <option value="Manager">Manager</option>
+      </select>
+      <input type="email" id="empEmail" placeholder="Email" required />
+      <button type="submit">Add Employee</button>
+      <button type="submit">Delete Employee</button>
+    </form>
+
+    <!-- Employee Table -->
+    <table id="empTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Email</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </main>
+
+  <footer>
+    <p>© 2025 Manage Employees | Restaurant Automation System</p>
+  </footer>
+
+  <script>
+    // === Theme Toggle ===
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const isDark = document.body.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        document.body.removeAttribute("data-theme");
+        themeToggle.textContent = "🌙";
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        themeToggle.textContent = "☀️";
+      }
+    });
+
+    // === Dropdowns ===
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        item.classList.toggle("open");
+        navItems.forEach(other => {
+          if (other !== item) other.classList.remove("open");
+        });
+      });
+    });
+    document.addEventListener("click", () => navItems.forEach(item => item.classList.remove("open")));
+
+    // === Employee Logic ===
+    const empForm = document.getElementById('empForm');
+    const empTable = document.querySelector('#empTable tbody');
+    let employees = JSON.parse(localStorage.getItem('employees')) || [];
+
+    function renderEmployees() {
+      empTable.innerHTML = '';
+      employees.forEach((emp, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${emp.name}</td>
+          <td>${emp.role}</td>
+          <td>${emp.email}</td>
+          <td><button class="delete-btn" onclick="deleteEmp(${i})">Delete</button></td>
+        `;
+        empTable.appendChild(row);
+      });
+      localStorage.setItem('employees', JSON.stringify(employees));
+    }
+
+    empForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('empName').value.trim();
+      const role = document.getElementById('empRole').value;
+      const email = document.getElementById('empEmail').value.trim();
+      if (name && email) {
+        employees.push({ name, role, email });
+        renderEmployees();
+        empForm.reset();
+      }
+    });
+
+    function deleteEmp(i) {
+      employees.splice(i, 1);
+      renderEmployees();
+    }
+
+    renderEmployees();
+  </script>
+</body>
+</html>

@@ -129,36 +129,22 @@
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 10px;
     }
 
-    .theme-toggle {
+    .icon-btn {
       background: white;
       color: var(--secondary);
       border: none;
-      padding: 8px 14px;
-      border-radius: 20px;
+      padding: 6px 10px;
+      border-radius: 50%;
       cursor: pointer;
-      font-weight: 600;
+      font-size: 18px;
       transition: 0.3s;
     }
 
-    .theme-toggle:hover {
+    .icon-btn:hover {
       background: #fff2e6;
-    }
-
-    .profile {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-
-    .profile img {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 2px solid white;
     }
 
     main {
@@ -237,13 +223,14 @@
 </head>
 
 <body>
-  <!-- Navbar (kept exactly same) -->
+  <!-- Navbar -->
   <nav>
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
       <a href="#">Home</a>
-
+      <a href="{{ url_for(manager_menu)}}">Menu</a>
+      <a href="{{ url_for(manager_employees)}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
@@ -273,12 +260,8 @@
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="refreshBtn">🔄 Refresh</button>
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
-      <div class="profile" id="profileBtn">
-        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
-      </div>
+      <button class="icon-btn" id="refreshBtn" title="Refresh">🔄</button>
+      <button class="icon-btn" id="themeToggle" title="Toggle Theme">🌙</button>
     </div>
   </nav>
 
@@ -319,10 +302,10 @@
       const currentTheme = document.body.getAttribute("data-theme");
       if (currentTheme === "dark") {
         document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
+        themeToggle.textContent = "🌙";
       } else {
         document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+        themeToggle.textContent = "☀️";
       }
     });
 
