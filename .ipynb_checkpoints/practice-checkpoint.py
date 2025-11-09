@@ -730,13 +730,131 @@ def generate_purchase_order():
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
-
 # -----------------------
 # Purchase Order Routes
 # -----------------------
 
 # Get all purchase orders
+@app.route('/api/purchase-orders', methods# -----------------------
+# Purchase Order Routes
+# -----------------------
+
+# Get all purchase orders
 @app.route('/api/purchase-orders', methods=['GET'])
+@login_required
+@role_required('owner')
+def get_purchase_orders():
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("""
+            SELECT id, po_number, status, total_amount, supplier_info, created_at, updated_at
+            FROM purchase_orders 
+            ORDER BY created_at DESC
+        """)
+        purchase_orders = []
+        for row in cursor.fetchall():
+            po = dict_from_row(cursor, row)
+            if po.get('supplier_info'):
+                po['supplier_info'] = json.loads(po['supplier_info'])
+            purchase_orders.append(po)
+        
+        return jsonify({"success": True, "purchase_orders": purchase_orders})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+# Get specific purchase order with items
+@app.route('/api/purchase-orders/<int:po_id>', methods=['GET'])
+@login_required
+@role_required('owner')
+def get_purchase_order(po_id):
+    cursor = mysql.connection.cursor()
+    try:
+        # Get PO details
+        cursor.execute("""
+            SELECT id, po_number, status, total_amount, supplier_info, created_at, updated_at
+            FROM purchase_orders WHERE id = %s
+        """, (po_id,))
+        po = cursor.fetchone()
+        
+        if not po:
+            return jsonify({"success": False, "message": "Purchase order not found"}), 404
+        
+        po_dict = dict_from_row(cursor, po)
+        if po_dict.get('supplier_info'):
+            po_dict['supplier_info'] = json.loads(po_dict['supplier_info'])
+        
+        # Get PO items
+        cursor.execute("""
+            SELECT poi.id, poi.ingredient_id, poi.quantity, poi.unit_price, poi.total_price,
+                   i.name as ingredient_name, i.unit
+            FROM purchase_order_items poi
+            LEFT JOIN ingredients i ON poi.ingredient_id = i.id
+            WHERE poi.po_id = %s
+        """, (po_id,))
+        items = [dict_from_row(cursor, row) for row in cursor.fetchall()]
+        po_dict['items'] = items
+        
+        return jsonify({"success": True, "purchase_order": po_dict})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+# Update PO status
+@app.route('/api/purchase-orders/<int:po_id>/status', methods=['PUT'])
+@login_required
+@role_required('owner')
+def update_po_status(po_id):
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "message": "Invalid JSON"}), 400
+    
+    new_status = data.get('status')
+    allowed_statuses = ['pending', 'ordered', 'received', 'cancelled']
+    
+    if new_status not in allowed_statuses:
+        return jsonify({"success": False, "message": "Invalid status"}), 400
+    
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute(
+            "UPDATE purchase_orders SET status = %s, updated_at = NOW() WHERE id = %s",
+            (new_status, po_id)
+        )
+        
+        # If status is 'received', update ingredient stock
+        if new_status == 'received':
+            cursor.execute("""
+                SELECT poi.ingredient_id, poi.quantity 
+                FROM purchase_order_items poi 
+                WHERE poi.po_id = %s
+            """, (po_id,))
+            items = cursor.fetchall()
+            
+            for ingredient_id, quantity in items:
+                cursor.execute("""
+                    UPDATE ingredients 
+                    SET current_stock = current_stock + %s 
+                    WHERE id = %s
+                """, (quantity, ingredient_id))
+                
+                # Record inventory transaction
+                cursor.execute("""
+                    INSERT INTO inventory_transactions 
+                    (ingredient_id, transaction_type, quantity, note, created_by)
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (ingredient_id, 'purchase', quantity, f'PO #{po_id} received', session['user_id']))
+        
+        mysql.connection.commit()
+        return jsonify({"success": True, "message": f"PO status updated to {new_status}"})
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()=['GET'])
 def get_purchase_orders():
     cursor = mysql.connection.cursor()
     try:
@@ -845,143 +963,6 @@ def update_po_status(po_id):
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
-# -----------------------
-# Expenses Report Routes
-# -----------------------
-
-# Get expenses with date range filtering
-@app.route('/api/expenses', methods=['GET'])
-def get_expenses():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    
-    if not start_date or not end_date:
-        return jsonify({"success": False, "message": "Start date and end date are required"}), 400
-    
-    cursor = mysql.connection.cursor()
-    try:
-        # First, check if expenses table exists
-        cursor.execute("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'restaurent_db' AND table_name = 'expenses'
-        """)
-        expenses_table_exists = cursor.fetchone() is not None
-        
-        if not expenses_table_exists:
-            # Return sample data structure for demonstration
-            sample_expenses = []
-            sample_summary = {
-                "total_amount": 0,
-                "expense_count": 0,
-                "average_amount": 0
-            }
-            return jsonify({
-                "success": True, 
-                "expenses": sample_expenses, 
-                "summary": sample_summary,
-                "message": "Expenses table not found - using sample data structure"
-            })
-        
-        # Get expenses within date range
-        cursor.execute("""
-            SELECT id, expense_number, expense_date, expense_type, supplier_name, 
-                   payee, description, amount, payment_mode, created_at
-            FROM expenses 
-            WHERE expense_date BETWEEN %s AND %s
-            ORDER BY expense_date DESC, created_at DESC
-        """, (start_date, end_date))
-        
-        expenses = [dict_from_row(cursor, row) for row in cursor.fetchall()]
-        
-        # Get summary statistics
-        cursor.execute("""
-            SELECT 
-                COUNT(*) as expense_count,
-                COALESCE(SUM(amount), 0) as total_amount,
-                COALESCE(AVG(amount), 0) as average_amount
-            FROM expenses 
-            WHERE expense_date BETWEEN %s AND %s
-        """, (start_date, end_date))
-        
-        summary_row = cursor.fetchone()
-        summary = dict_from_row(cursor, summary_row) if summary_row else {
-            "expense_count": 0,
-            "total_amount": 0,
-            "average_amount": 0
-        }
-        
-        return jsonify({
-            "success": True, 
-            "expenses": expenses, 
-            "summary": summary
-        })
-        
-    except Exception as e:
-        app.logger.exception("get_expenses error")
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        cursor.close()
-
-# Create expenses table (run this once to set up the table)
-def create_expenses_table():
-    cursor = mysql.connection.cursor()
-    try:
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS expenses (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                expense_number VARCHAR(50) UNIQUE,
-                expense_date DATE NOT NULL,
-                expense_type VARCHAR(100) NOT NULL,
-                supplier_name VARCHAR(255),
-                payee VARCHAR(255),
-                description TEXT,
-                amount DECIMAL(10,2) NOT NULL,
-                payment_mode VARCHAR(50) DEFAULT 'Cash',
-                created_by INT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )
-        """)
-        mysql.connection.commit()
-        print("Expenses table created successfully")
-    except Exception as e:
-        print(f"Error creating expenses table: {e}")
-    finally:
-        cursor.close()
-
-# Add sample expenses data (optional - for testing)
-def add_sample_expenses():
-    cursor = mysql.connection.cursor()
-    try:
-        sample_expenses = [
-            ('EXP001', '2025-10-01', 'Ingredient Purchase', 'ABC Foods', None, 'Monthly ingredient restock', 12000.00, 'Cheque'),
-            ('EXP002', '2025-10-02', 'Utilities', None, 'Electricity Board', 'Monthly electricity bill', 5000.00, 'Bank Transfer'),
-            ('EXP003', '2025-10-05', 'Ingredient Purchase', 'XYZ Supplies', None, 'Special order for weekend', 8500.00, 'Cash'),
-            ('EXP004', '2025-10-10', 'Equipment Maintenance', 'Tech Services Ltd', None, 'Oven repair service', 3200.00, 'Online Payment'),
-            ('EXP005', '2025-10-15', 'Rent', None, 'Property Owner', 'Monthly restaurant rent', 25000.00, 'Bank Transfer'),
-            ('EXP006', '2025-10-20', 'Marketing', 'Digital Ads Co', None, 'Social media campaign', 7500.00, 'Online Payment'),
-            ('EXP007', '2025-10-25', 'Staff Salary', None, 'Employee Payments', 'October staff salaries', 45000.00, 'Bank Transfer'),
-            ('EXP008', '2025-10-28', 'Ingredient Purchase', 'Fresh Produce Co', None, 'Vegetables and fruits', 6800.00, 'Cash')
-        ]
-        
-        for expense in sample_expenses:
-            cursor.execute("""
-                INSERT IGNORE INTO expenses 
-                (expense_number, expense_date, expense_type, supplier_name, payee, description, amount, payment_mode)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, expense)
-        
-        mysql.connection.commit()
-        print("Sample expenses added successfully")
-    except Exception as e:
-        print(f"Error adding sample expenses: {e}")
-    finally:
-        cursor.close()
-
-# Uncomment the lines below to create the table and add sample data:
-# create_expenses_table()
-# add_sample_expenses()
 # ---------------------------------
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5050)

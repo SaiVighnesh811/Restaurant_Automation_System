@@ -226,41 +226,6 @@
       margin-bottom: 15px;
     }
 
-    .profile-modal {
-      display: none;
-      position: fixed;
-      top: 70px;
-      right: 30px;
-      background: var(--card-bg);
-      color: var(--text-dark);
-      border-radius: 12px;
-      padding: 20px;
-      width: 250px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-      z-index: 2000;
-    }
-
-    .profile-modal.active {
-      display: block;
-    }
-
-    .logout {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-weight: 600;
-      margin-top: 10px;
-      cursor: pointer;
-      width: 100%;
-      transition: 0.3s;
-    }
-
-    .logout:hover {
-      background: var(--secondary);
-    }
-
     footer {
       text-align: center;
       padding: 15px;
@@ -272,43 +237,43 @@
 </head>
 
 <body>
-  <!-- Navbar -->
+  <!-- Navbar (kept exactly same) -->
   <nav>
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href="#">Home</a> <!-- 🏠 Added Home Button -->
+      <a href="#">Home</a>
 
-              <div class="nav-item">
-            <a href="#">Inventory</a>
-            <div class="dropdown-content">
-              <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
-              <a href="{{ url_for('low_stock') }}">Low Stock</a>
-            </div>
-          </div>
+      <div class="nav-item">
+        <a href="#">Inventory</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+          <a href="{{ url_for('low_stock') }}">Low Stock</a>
+        </div>
+      </div>
 
-          <div class="nav-item">
-            <a href="#">Purchase Orders</a>
-            <div class="dropdown-content">
-              <a href="{{ url_for('generate_po') }}">Generate PO</a>
-              <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
-            </div>
-          </div>
+      <div class="nav-item">
+        <a href="#">Purchase Orders</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+          <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
+        </div>
+      </div>
 
-          <div class="nav-item">
-            <a href="#">Reports</a>
-            <div class="dropdown-content">
-              <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
-              <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
-              <a href="{{ url_for('expense_report') }}">Expense Report</a>
-            </div>
-          </div>
+      <div class="nav-item">
+        <a href="#">Reports</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+          <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+          <a href="{{ url_for('expense_report') }}">Expense Report</a>
+        </div>
+      </div>
 
       <a href="{{ url_for('analytics') }}">Analytics</a>
-
-
+    </div>
 
     <div class="nav-actions">
+      <button class="theme-toggle" id="refreshBtn">🔄 Refresh</button>
       <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
       <div class="profile" id="profileBtn">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
@@ -317,36 +282,27 @@
     </div>
   </nav>
 
-  <!-- Profile Modal -->
-  <div class="profile-modal" id="profileModal">
-    <h3>Profile</h3>
-    <p><strong>Name:</strong> Manager</p>
-    <p><strong>Role:</strong> Restaurant Manager</p>
-    <p><strong>Email:</strong> manager@restaurant.com</p>
-    <button class="logout">Logout</button>
-  </div>
-
   <!-- Dashboard -->
   <main>
     <header>
       <h1>Welcome, Manager 👋</h1>
-      <p>Here’s today’s restaurant overview.</p>
+      <p>Here’s today’s restaurant overview — updated live from database.</p>
     </header>
 
     <section class="cards">
-      <div class="card"><h3>Total Sales</h3><p>₹58,800</p></div>
-      <div class="card"><h3>Total Orders</h3><p>270</p></div>
-      <div class="card"><h3>Low Stock Items</h3><p>5</p></div>
-      <div class="card"><h3>Pending POs</h3><p>3</p></div>
+      <div class="card"><h3>Total Sales (Today)</h3><p id="totalSales">₹0</p></div>
+      <div class="card"><h3>Total Orders (Today)</h3><p id="totalOrders">0</p></div>
+      <div class="card"><h3>Low Stock Items</h3><p id="lowStock">0</p></div>
+      <div class="card"><h3>Pending POs</h3><p id="pendingPOs">0</p></div>
     </section>
 
     <section class="chart-section">
       <div class="chart-container">
-        <h2>Monthly Sales Overview</h2>
+        <h2>Daily Sales (Last 30 Days)</h2>
         <canvas id="salesChart"></canvas>
       </div>
       <div class="chart-container">
-        <h2>Ingredient Usage</h2>
+        <h2>Top Items Sold (Last 30 Days)</h2>
         <canvas id="ingredientChart"></canvas>
       </div>
     </section>
@@ -357,12 +313,7 @@
   </footer>
 
   <script>
-    const profileBtn = document.getElementById("profileBtn");
-    const profileModal = document.getElementById("profileModal");
-    profileBtn.addEventListener("click", () => {
-      profileModal.classList.toggle("active");
-    });
-
+    // Theme toggle
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
       const currentTheme = document.body.getAttribute("data-theme");
@@ -375,9 +326,10 @@
       }
     });
 
+    // Dropdown logic
     const navItems = document.querySelectorAll(".nav-item");
     navItems.forEach(item => {
-      item.addEventListener("click", (e) => {
+      item.addEventListener("click", e => {
         e.stopPropagation();
         item.classList.toggle("open");
         navItems.forEach(other => {
@@ -385,46 +337,83 @@
         });
       });
     });
-
     document.addEventListener("click", () => {
       navItems.forEach(item => item.classList.remove("open"));
     });
 
+    // Chart rendering
     const salesCtx = document.getElementById("salesChart").getContext("2d");
-    new Chart(salesCtx, {
-      type: "line",
-      data: {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-        datasets: [{
-          label: "Revenue (₹)",
-          data: [22000, 28000, 32000, 41000, 37000, 58800],
-          borderColor: "#ff7b00",
-          backgroundColor: "rgba(255, 123, 0, 0.2)",
-          tension: 0.4,
-          fill: true
-        }]
-      },
-      options: {
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
-      }
-    });
-
     const ingredientCtx = document.getElementById("ingredientChart").getContext("2d");
-    new Chart(ingredientCtx, {
-      type: "doughnut",
-      data: {
-        labels: ["Cheese", "Buns", "Pasta", "Sauce", "Chicken"],
-        datasets: [{
-          data: [30, 20, 15, 25, 10],
-          backgroundColor: ["#ff7b00", "#d86f00", "#ffae42", "#ffa94d", "#ffd07f"],
-          borderWidth: 2
-        }]
-      },
-      options: {
-        plugins: { legend: { position: "bottom" } }
+
+    function formatINR(amount) {
+      return "₹" + Number(amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 });
+    }
+
+    async function loadMetrics() {
+      const res = await fetch("/owner/manager_metrics");
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById("totalSales").textContent = formatINR(data.total_sales_today);
+        document.getElementById("totalOrders").textContent = data.total_orders_today;
+        document.getElementById("lowStock").textContent = data.low_stock_count;
+        document.getElementById("pendingPOs").textContent = data.pending_pos;
       }
-    });
+    }
+
+    async function loadSalesChart() {
+      const res = await fetch("/owner/sales_summary?days=30");
+      const data = await res.json();
+      const labels = data.summary.map(r => r.day);
+      const values = data.summary.map(r => r.total_sales);
+
+      new Chart(salesCtx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Sales (₹)",
+            data: values,
+            borderColor: "#ff7b00",
+            backgroundColor: "rgba(255,123,0,0.2)",
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: { plugins: { legend: { display: false } } }
+      });
+    }
+
+    async function loadIngredientChart() {
+      const res = await fetch("/owner/ingredient_usage?days=30");
+      const data = await res.json();
+      const labels = data.usage.map(r => r.item);
+      const qty = data.usage.map(r => r.qty);
+
+      new Chart(ingredientCtx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "Quantity Sold",
+            data: qty,
+            backgroundColor: "#ffae42"
+          }]
+        },
+        options: { plugins: { legend: { display: false } } }
+      });
+    }
+
+    async function refreshDashboard() {
+      await loadMetrics();
+      await loadSalesChart();
+      await loadIngredientChart();
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", refreshDashboard);
+
+    // Auto-refresh every 6s
+    refreshDashboard();
+    setInterval(refreshDashboard, 6000);
   </script>
 </body>
 </html>

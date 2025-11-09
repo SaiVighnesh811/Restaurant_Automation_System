@@ -1,160 +1,338 @@
+<!-- templates/waiter-dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Waiter Dashboard</title>
 <style>
-  body{
-    font-family: "Poppins", sans-serif;
+  :root { --accent:#ea7f32; --muted:#666; --card:#f0eadf; --bg:#f4dfbd; }
+  *{box-sizing:border-box} body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);color:#111;margin:0}
+  nav{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#f3e0b4;border-bottom:1px solid rgba(0,0,0,0.04)}
+  nav h1{margin:0;color:var(--accent);font-size:20px}
+  .nav-right{display:flex;align-items:center;gap:10px}
+  .btn{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(0,0,0,0.06)}
+  main{max-width:1100px;margin:22px auto;padding:0 18px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:18px}
+  header h2{color:var(--accent);margin:0}
+  header p{color:rgba(0,0,0,0.6);margin:6px 0 0}
+  #clock{font-weight:700;color:var(--accent)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px}
+  .card{background:var(--card);padding:16px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.04);text-align:center}
+  .card .label{color:var(--muted);font-size:13px}
+  .card .value{font-size:20px;font-weight:700;margin-top:8px;color:#1f2937}
+  .table-wrap{overflow:auto;background:white;border-radius:10px;padding:8px;border:1px solid rgba(0,0,0,0.04)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:10px 12px;border-bottom:1px solid #f2f2f2;text-align:left;vertical-align:top}
+  thead th{background:#fff7ef;color:var(--accent);font-weight:700}
+  td.items{white-space:pre-line;font-size:13px;color:#333}
+  .small{font-size:12px;color:var(--muted)}
+  .actions{display:flex;gap:8px}
+  .actions .btn{padding:6px 10px;font-size:13px}
+  .status-badge{display:inline-block;padding:6px 8px;border-radius:8px;background:#fff;color:#444;border:1px solid #eee;font-weight:600}
+  @media(max-width:720px){
+    header{flex-direction:column;align-items:flex-start}
+    .actions{flex-direction:column}
+    th:nth-child(3),td:nth-child(3){display:none}
   }
-  /* Reset & base */
-  * { box-sizing: border-box; margin:0; padding:0; font-family: Arial, sans-serif; }
-  body { background-color:#f4dfbd; color:#1f2937; transition: background 0.3s, color 0.3s; }
-
-  /* Navbar */
-  nav {
-    position:sticky; top:0; z-index:100;
-    display:flex; justify-content:space-between; align-items:center;
-    background-color:#f3e0b4; color:rgb(235, 109, 6); padding:15px 30px;
-    box-shadow:0 3px 6px rgba(0,0,0,0.1);
-  }
-  nav h1 { font-size:22px; }
-
-  .nav-buttons { display:flex; gap:12px; }
-  .nav-buttons button {
-    background-color:#f39e0b; border:none; padding:8px 15px; border-radius:6px;
-    font-weight:bold; cursor:pointer; transition:0.3s;
-  }
-  .nav-buttons button:hover { background-color:#f85700; color:white; }
-
-  .profile-container { position:relative; display:flex; align-items:center; }
-  .profile-pic { width:45px; height:45px; border-radius:50%; border:2px solid #fba847; cursor:pointer; transition:0.3s; }
-  .profile-pic:hover { transform:scale(1.05); }
-
-  .dropdown {
-    position:absolute; top:55px; right:0; background:white; border-radius:10px;
-    display:none; flex-direction:column; min-width:160px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
-  }
-  .dropdown.active { display:flex; animation:fadeIn 0.2s ease-in-out; }
-  .dropdown button {
-    background:none; border:none; padding:12px 16px; width:100%; text-align:left;
-    cursor:pointer; transition:0.2s; color:#1f2937; font-weight:500;
-  }
-  .dropdown button:hover { background-color:#fff3e0; color:#ea7f32; }
-
-  @keyframes fadeIn { from {opacity:0; transform:translateY(-5px);} to {opacity:1; transform:translateY(0);} }
-
-  /* Header */
-  main { padding:30px; max-width:1200px; margin:0 auto; }
-  header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
-  header h2 { font-size:28px; color:#ea7f32; }
-  header p { color:#f97316; margin-top:5px; }
-  #clock { font-weight:bold; color:#ea7f32; }
-
-  /* Dashboard Cards */
-  .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
-  .card { background:rgb(240, 234, 223); border-radius:16px; padding:20px; text-align:center; box-shadow:0 3px 8px rgba(0,0,0,0.1); transition:0.3s; }
-  .card:hover { transform:translateY(-5px); box-shadow:0 6px 15px rgba(0,0,0,0.15); }
-  .card .icon { font-size:40px; margin-bottom:10px; display:inline-block; width:50px; height:50px; line-height:50px; border-radius:50%; background:#fba847; color:white; }
-  .card .value { font-size:2rem; font-weight:bold; color:#ea7f32; margin-top:5px; }
-
-  /* Dark Mode */
-  body.dark { background-color:#1f2937; color:#f3f4f6; }
-  body.dark header h2 { color:#fcd34d; }
-  body.dark header p, body.dark #clock { color:#fbbf24; }
-  body.dark .card { background-color:#374151; color:#f3f4f6; }
-  body.dark .dropdown { background-color:#4b5563; }
-  body.dark .dropdown button { color:#f3f4f6; }
-  body.dark .dropdown button:hover { background-color:#6b7280; color:#fcd34d; }
+  body.dark{background:#0f1724;color:#e6eef8}
+  /* Modal */
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:1200}
+  .modal{background:white;border-radius:12px;padding:18px;max-width:520px;width:95%;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+  .modal h3{margin:0 0 8px;color:#111}
+  .modal pre{white-space:pre-wrap;background:#faf7f2;padding:12px;border-radius:8px;border:1px solid #f2e9dd;color:#333}
+  .modal .close{margin-top:12px;padding:8px 12px;border-radius:8px;border:0;background:var(--accent);color:white;cursor:pointer}
 </style>
 </head>
 <body>
-
-<!-- Navbar -->
 <nav>
   <h1>🍽️ Waiter Dashboard</h1>
-  <div class="nav-buttons">
-    <button onclick="alert('Active Orders')">Active Orders</button>
-    <button onclick="alert('Table Status')">Table Status</button>
-    <button onclick="alert('Payments')">Payments</button>
-    <button onclick="alert('Customer Feedback')">Feedback</button>
-    <button onclick="toggleDarkMode()">🌓 Dark Mode</button>
-  </div>
-  <div class="profile-container">
-    <img src="https://i.pravatar.cc/100?img=5" class="profile-pic" id="profilePic">
-    <div class="dropdown" id="dropdownMenu">
-      <button onclick="alert('View Profile')">👤 View Profile</button>
-      <button onclick="logout()">🚪 Logout</button>
+  <div class="nav-right">
+    <button class="btn" id="btn-refresh">Refresh</button>
+    <button class="btn ghost" id="toggle-dark">🌓</button>
+    <div style="position:relative">
+      <img id="profilePic" src="{{ url_for('static', filename='chef_avatar.png') }}" alt="profile" style="width:40px;height:40px;border-radius:50%;border:2px solid #f7c27a;cursor:pointer">
+      <div id="profileMenu" style="display:none;position:absolute;right:0;top:46px;background:white;border-radius:8px;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,0.08)">
+        <button class="btn ghost" id="btn-profile" style="width:100%;margin-bottom:6px">Profile</button>
+        <button class="btn ghost" id="btn-logout" style="width:100%">Logout</button>
+      </div>
     </div>
   </div>
 </nav>
 
-<!-- Main -->
 <main>
   <header>
     <div>
-      <h2>Welcome, Waiter 👨‍🍳</h2>
-      <p>Manage orders, tables, and customer satisfaction.</p>
+      <h2>Welcome, {{ session.username if session.username is defined else 'Staff' }}</h2>
+      <p>Live orders for serving. Items and quantities only (no prices).</p>
     </div>
-    <div style="text-align:right;">
-      <p id="clock"></p>
+    <div style="text-align:right">
+      <div class="small">Local time</div>
+      <div id="clock">--:--:--</div>
     </div>
   </header>
 
-  <section class="dashboard">
+  <section class="cards" aria-hidden="false">
     <div class="card">
-      <div class="icon">🪑</div>
-      <p>Active Tables</p>
-      <div class="value" id="tables">12</div>
+      <div class="label">Active Orders</div>
+      <div class="value" id="activeCount">—</div>
     </div>
     <div class="card">
-      <div class="icon">✅</div>
-      <p>Orders Served</p>
-      <div class="value" id="served">46</div>
+      <div class="label">Ready to Serve</div>
+      <div class="value" id="readyCount">—</div>
     </div>
     <div class="card">
-      <div class="icon">💵</div>
-      <p>Tips Collected</p>
-      <div class="value" id="tips">$235</div>
+      <div class="label">Pending Delivery</div>
+      <div class="value" id="pendingDeliveryCount">—</div>
     </div>
     <div class="card">
-      <div class="icon">📦</div>
-      <p>Pending Requests</p>
-      <div class="value" id="pending">8</div>
+      <div class="label">Tables Busy</div>
+      <div class="value" id="tablesBusy">—</div>
+    </div>
+  </section>
+
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div>
+        <button class="btn" onclick="loadOrders('placed')">Placed</button>
+        <button class="btn" onclick="loadOrders('preparing')">Preparing</button>
+        <button class="btn" onclick="loadOrders('ready')">Ready</button>
+        <button class="btn" onclick="loadOrders('all')">All</button>
+      </div>
+      <div class="small">Auto-refresh every 6s</div>
+    </div>
+
+    <div class="table-wrap" role="region" aria-live="polite">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:80px">Order</th>
+            <th>Customer</th>
+            <th style="width:160px">Time</th>
+            <th>Items (name × qty)</th>
+            <th style="width:90px">Table</th>
+            <th style="width:120px">Status</th>
+            <th style="width:180px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody">
+          <tr><td colspan="7" style="text-align:center;color:#777;padding:18px">Loading orders…</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 </main>
 
+<!-- Modal (items view) -->
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
+  <div class="modal" role="document">
+    <h3 id="modalTitle">Order items</h3>
+    <pre id="modalContent">...</pre>
+    <button class="close" id="modalClose">Close</button>
+  </div>
+</div>
+
 <script>
-  // Clock
-  function updateClock(){ document.getElementById("clock").textContent = new Date().toLocaleTimeString(); }
-  setInterval(updateClock,1000); updateClock();
+const $ = sel => document.querySelector(sel);
+const ordersBody = document.getElementById('ordersBody');
+let currentFilter = 'placed';
+let pollInterval = null;
 
-  // Dark Mode
-  function toggleDarkMode(){ document.body.classList.toggle("dark"); }
+/* Role provided by server (if not provided, fallback to 'clerk')
+   IMPORTANT: server should render template with `user_role` context (see app change below) */
+const USER_ROLE = "{{ user_role if (user_role is defined) else 'clerk' }}";
 
-  // Profile Dropdown
-  const profilePic = document.getElementById("profilePic");
-  const dropdownMenu = document.getElementById("dropdownMenu");
-  profilePic.addEventListener("click",()=>{ dropdownMenu.classList.toggle("active"); });
-  document.addEventListener("click",(e)=>{
-    if(!profilePic.contains(e.target) && !dropdownMenu.contains(e.target)){
-      dropdownMenu.classList.remove("active");
+/* Clock */
+function updateClock(){ $('#clock').textContent = new Date().toLocaleString(); }
+setInterval(updateClock,1000); updateClock();
+
+/* Profile menu */
+$('#profilePic').addEventListener('click', e => {
+  const m = $('#profileMenu');
+  m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+});
+document.addEventListener('click', (e)=> {
+  if (!e.target.closest('#profilePic') && !e.target.closest('#profileMenu')) $('#profileMenu').style.display = 'none';
+});
+$('#btn-logout').addEventListener('click', ()=> { window.location.href = "{{ logout_url if (logout_url is defined) else url_for('home') }}"; });
+
+/* Dark toggle & refresh */
+$('#toggle-dark').addEventListener('click', ()=> document.body.classList.toggle('dark'));
+$('#btn-refresh').addEventListener('click', ()=> loadOrders(currentFilter));
+
+/* Modal helpers */
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalTitle = document.getElementById('modalTitle');
+const modalContent = document.getElementById('modalContent');
+const modalClose = document.getElementById('modalClose');
+function openModal(title, text){
+  modalTitle.textContent = title;
+  modalContent.textContent = text;
+  modalBackdrop.style.display = 'flex';
+  modalBackdrop.setAttribute('aria-hidden','false');
+}
+function closeModal(){
+  modalBackdrop.style.display = 'none';
+  modalBackdrop.setAttribute('aria-hidden','true');
+}
+modalClose.addEventListener('click', closeModal);
+modalBackdrop.addEventListener('click', (e)=>{ if (e.target === modalBackdrop) closeModal(); });
+
+/* Render items as lines */
+function renderItemsList(items){
+  if (!items || !items.length) return 'No items';
+  return items.map(it => {
+    const name = it.item_name || it.name || 'Item';
+    const qty = (it.qty !== undefined) ? it.qty : (it.quantity || 1);
+    return `${name} ×${qty}`;
+  }).join('\\n');
+}
+
+/* Adaptive action buttons based on role and status */
+function createActionButtons(order){
+  const wrapper = document.createElement('div');
+  wrapper.className = 'actions';
+
+  // View details -> modal
+  const btnView = document.createElement('button');
+  btnView.className = 'btn ghost';
+  btnView.textContent = 'View';
+  btnView.onclick = () => {
+    const title = `Order #${order.id}`;
+    const lines = [];
+    lines.push(`Customer: ${order.customer_name || 'Guest'}`);
+    lines.push(`Table: ${order.table_no || '—'}`);
+    lines.push('');
+    lines.push('Items:');
+    lines.push(renderItemsList(order.items));
+    openModal(title, lines.join('\\n'));
+  };
+  wrapper.appendChild(btnView);
+
+  const status = (order.current_status || order.order_status || '').toLowerCase();
+
+  async function postChefStatus(newStatus){
+    try {
+      const resp = await fetch('/chef/update_order_status', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ order_id: order.id, new_status: newStatus })
+      });
+      const data = await resp.json().catch(()=>null);
+      if (!resp.ok) return alert('Failed: ' + (data && data.message ? data.message : resp.statusText));
+      await loadOrders(currentFilter);
+    } catch (err) { console.error(err); alert('Server error'); }
+  }
+
+  async function postDeliver(){
+    try {
+      const resp = await fetch('/clerk/complete_order', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ order_id: order.id, payment_status: 'paid' })
+      });
+      const data = await resp.json().catch(()=>null);
+      if (!resp.ok) return alert('Failed: ' + (data && data.message ? data.message : resp.statusText));
+      await loadOrders(currentFilter);
+    } catch (err) { console.error(err); alert('Server error'); }
+  }
+
+  // Role-based controls:
+  // - CHEF: can Start Preparing and Mark Ready
+  // - CLERK/WAITER: can Mark Delivered only (but can View)
+  if (USER_ROLE === 'chef'){
+    if (status === 'placed' || status === 'pending') {
+      const b = document.createElement('button'); b.className='btn'; b.textContent='Start Preparing';
+      b.onclick = ()=> { if (confirm('Start preparing order #' + order.id + '?')) postChefStatus('preparing'); };
+      wrapper.appendChild(b);
+    } else if (status === 'preparing' || status === 'cooking') {
+      const b = document.createElement('button'); b.className='btn'; b.textContent='Mark Ready';
+      b.onclick = ()=> { if (confirm('Mark order #' + order.id + ' Ready?')) postChefStatus('ready'); };
+      wrapper.appendChild(b);
+    } else if (status === 'ready') {
+      const b = document.createElement('button'); b.className='btn'; b.textContent='Mark Delivered';
+      b.onclick = ()=> { if (confirm('Mark order #' + order.id + ' delivered?')) postDeliver(); };
+      wrapper.appendChild(b);
     }
-  });
+  } else { // waiter/clerk
+    if (status === 'ready') {
+      const b = document.createElement('button'); b.className='btn'; b.textContent='Mark Delivered';
+      b.onclick = ()=> { if (confirm('Mark order #' + order.id + ' delivered?')) postDeliver(); };
+      wrapper.appendChild(b);
+    }
+    // optionally waiters could request "Start Preparing" if you prefer; currently only chefs start preparing
+  }
 
-  // Logout
-  function logout(){ alert("Logged out!"); window.location.reload(); }
+  return wrapper;
+}
 
-  // Simulate changing numbers
-  setInterval(()=>{
-    document.getElementById("tables").textContent = 10 + Math.floor(Math.random()*5);
-    document.getElementById("served").textContent = 40 + Math.floor(Math.random()*10);
-    document.getElementById("tips").textContent = "$" + (200 + Math.floor(Math.random()*50));
-    document.getElementById("pending").textContent = 5 + Math.floor(Math.random()*5);
-  },4000);
+/* Load orders and populate table */
+async function loadOrders(status='placed'){
+  currentFilter = status;
+  ordersBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#777;padding:16px">Loading…</td></tr>';
+  try {
+    const res = await fetch('/chef/orders?status=' + encodeURIComponent(status), {cache:'no-store'});
+    if (!res.ok) {
+      ordersBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#b91c1c">Server error ${res.status}</td></tr>`;
+      setSummaryCounts([], true); return;
+    }
+    const payload = await res.json().catch(()=>null);
+    if (!payload || !payload.success) {
+      ordersBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#b91c1c">Invalid response</td></tr>`;
+      setSummaryCounts([], true); return;
+    }
+
+    const orders = payload.orders || [];
+    setSummaryCounts(orders);
+    if (!orders.length) {
+      ordersBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#666;padding:16px">No orders found.</td></tr>';
+      return;
+    }
+
+    ordersBody.innerHTML = '';
+    for (const o of orders){
+      const tr = document.createElement('tr');
+      const tdOrder = document.createElement('td'); tdOrder.textContent = '#' + o.id; tr.appendChild(tdOrder);
+      const tdCustomer = document.createElement('td'); tdCustomer.innerHTML = `<strong>${o.customer_name || 'Guest'}</strong><div class="small">${o.customer_email || ''}</div>`; tr.appendChild(tdCustomer);
+      const tdTime = document.createElement('td'); tdTime.textContent = o.created_at ? new Date(o.created_at).toLocaleString() : ''; tr.appendChild(tdTime);
+      const tdItems = document.createElement('td'); tdItems.className = 'items'; tdItems.textContent = renderItemsList(o.items); tr.appendChild(tdItems);
+      const tdTable = document.createElement('td'); tdTable.textContent = o.table_no || '—'; tr.appendChild(tdTable);
+      const tdStatus = document.createElement('td'); tdStatus.innerHTML = `<span class="status-badge">${o.current_status || o.order_status || 'placed'}</span>`; tr.appendChild(tdStatus);
+      const tdActions = document.createElement('td'); tdActions.appendChild(createActionButtons(o)); tr.appendChild(tdActions);
+      ordersBody.appendChild(tr);
+    }
+  } catch (err) {
+    console.error('loadOrders err', err);
+    ordersBody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#b91c1c">Error loading orders (see console)</td></tr>';
+    setSummaryCounts([], true);
+  }
+}
+
+function setSummaryCounts(orders, error=false){
+  if (error){
+    $('#activeCount').textContent = '—'; $('#readyCount').textContent = '—'; $('#pendingDeliveryCount').textContent = '—'; $('#tablesBusy').textContent = '—';
+    return;
+  }
+  let active=0, ready=0, pendingDelivery=0;
+  const tables = new Set();
+  for (const o of orders){
+    const s = (o.current_status || o.order_status || '').toLowerCase();
+    if (s === 'ready') ready++;
+    if (s === 'placed' || s === 'preparing' || s === 'cooking') active++;
+    if (s === 'placed' || s === 'ready') pendingDelivery++;
+    if (o.table_no) tables.add(o.table_no);
+  }
+  $('#activeCount').textContent = active;
+  $('#readyCount').textContent = ready;
+  $('#pendingDeliveryCount').textContent = pendingDelivery;
+  $('#tablesBusy').textContent = tables.size || '—';
+}
+
+/* Start polling */
+loadOrders(currentFilter);
+if (pollInterval) clearInterval(pollInterval);
+pollInterval = setInterval(()=> loadOrders(currentFilter), 6000);
 </script>
-
 </body>
 </html>

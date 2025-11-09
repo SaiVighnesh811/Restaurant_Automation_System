@@ -210,210 +210,64 @@ def analytics():
 # ---------------------------------
 @app.route("/payment")
 def payment():
+    def create_order():
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "message": "Invalid JSON"}), 400
+
+    cart = data.get('cart', [])
+    subtotal = float(data.get('subtotal', 0) or 0)
+    discount_amount = float(data.get('discount_amount', 0) or 0)
+    final_total = float(data.get('final_total', subtotal) or subtotal)
+    customer_name = data.get('customer_name') or None
+    customer_email = data.get('customer_email') or None
+    payment_status = data.get('payment_status') or 'pending'
+    meta = data.get('meta') or {}
+
+    if not cart or len(cart) == 0:
+        return jsonify({"success": False, "message": "Cart is empty"}), 400
+
+    cursor = mysql.connection.cursor()
+    try:
+        # Insert order
+        cursor.execute(
+            "INSERT INTO orders (customer_name, customer_email, subtotal, discount_amount, final_total, currency, payment_status, order_status, meta) "
+            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+            (customer_name, customer_email, subtotal, discount_amount, final_total, "INR", payment_status, "pending", json.dumps(meta))
+        )
+        order_id = cursor.lastrowid
+
+        # Insert order items
+        for item in cart:
+            name = item.get('name')
+            qty = int(item.get('qty', 1))
+            unit_price = float(item.get('price', 0))
+            line_total = round(unit_price * qty, 2)
+            note = item.get('notes') if isinstance(item.get('notes'), str) else None
+
+            cursor.execute(
+            "INSERT INTO order_items (order_id, item_name, unit_price, qty, line_total, notes) VALUES (%s,%s,%s,%s,%s,%s)",
+                (order_id, name, unit_price, qty, line_total, note)
+            )
+
+        mysql.connection.commit()
+
+    except Exception as e:
+        mysql.connection.rollback()
+        cursor.close()
+        return jsonify({"success": False, "message": "DB error: " + str(e)}), 500
+
+    cursor.close()
+    return jsonify({"success": True, "order_id": order_id}), 201
+
+        # -----------------------
+        # Chef: list orders by status (pending or preparing)
+        # GET /chef/orders?status=pending
+        # -----------------------
+    
+    
     return render_template("paymentpage.html")
 
-
-
-
-
-
-'''
-
-
-# ---------- READ ----------
-@app.route("/ingredient_stock")
-def ingredient_stock():
-    # --- FIX: Use the 'mysql' object and a DictCursor ---
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT * FROM ingredients")
-    ingredients = cursor.fetchall()
-    cursor.close() # --- FIX: Close the cursor ---
-
-    for i in ingredients:
-        if i["stock_quantity"] <= i["reorder_level"]:
-            i["status"] = "⚠️ Low"
-        else:
-            i["status"] = "✅ Sufficient"
-
-    return render_template("ingredient_stock.html", ingredients=ingredients)
-
-# ---------- CREATE ----------
-@app.route("/add_ingredient", methods=["GET", "POST"])
-def add_ingredient():
-    if request.method == "POST":
-        name = request.form["name"]
-        stock_quantity = request.form["stock_quantity"]
-        unit = request.form["unit"]
-        reorder_level = request.form["reorder_level"]
-
-        # --- FIX: Use the 'mysql' object ---
-        cursor = mysql.connection.cursor()
-        cursor.execute(
-            "INSERT INTO ingredients (name, stock_quantity, unit, reorder_level) VALUES (%s, %s, %s, %s)",
-            (name, stock_quantity, unit, reorder_level)
-        )
-        mysql.connection.commit() # --- FIX: Commit using mysql.connection ---
-        cursor.close() # --- FIX: Close the cursor ---
-        
-        flash("Ingredient added successfully!", "success")
-        return redirect(url_for("ingredient_stock"))
-    
-    return render_template("ingredient_form.html", action="Add", ingredient=None) # Pass ingredient=None for safety
-
-# ---------- UPDATE ----------
-@app.route("/edit_ingredient/<int:id>", methods=["GET", "POST"])
-def edit_ingredient(id):
-    # --- FIX: Use the 'mysql' object and a DictCursor to fetch ---
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT * FROM ingredients WHERE id = %s", (id,))
-    ingredient = cursor.fetchone()
-    
-    if request.method == "POST":
-        name = request.form["name"]
-        stock_quantity = request.form["stock_quantity"]
-        unit = request.form["unit"]
-        reorder_level = request.form["reorder_level"]
-
-        # --- FIX: Use the same cursor (or a new one) for the update ---
-        cursor.execute("""
-            UPDATE ingredients 
-            SET name=%s, stock_quantity=%s, unit=%s, reorder_level=%s 
-            WHERE id=%s
-        """, (name, stock_quantity, unit, reorder_level, id))
-        mysql.connection.commit() # --- FIX: Commit using mysql.connection ---
-        cursor.close() # --- FIX: Close the cursor ---
-        
-        flash("Ingredient updated successfully!", "success")
-        return redirect(url_for("ingredient_stock"))
-
-    cursor.close() # --- FIX: Close cursor if it was a GET request ---
-    if not ingredient:
-        flash("Ingredient not found!", "danger")
-        return redirect(url_for("ingredient_stock"))
-        
-    return render_template("ingredient_form.html", ingredient=ingredient, action="Edit")
-
-# ---------- DELETE ----------
-@app.route("/delete_ingredient/<int:id>")
-def delete_ingredient(id):
-    # --- FIX: Use the 'mysql' object ---
-    cursor = mysql.connection.cursor()
-    cursor.execute("DELETE FROM ingredients WHERE id = %s", (id,))
-    mysql.connection.commit() # --- FIX: Commit using mysql.connection ---
-    cursor.close() # --- FIX: Close the cursor ---
-    
-    flash("Ingredient deleted successfully.", "success")
-    return redirect(url_for("ingredient_stock"))
-
-
-
-
-
-
-
-
-
-'''
-
-
-
-'''
-# ---------------------------------
-# PAGE 1: New Order
-# ---------------------------------
-@app.route('/new_order', methods=['GET', 'POST'])
-def new_order():
-    if request.method == 'POST':
-        customer_name = request.form['customer_name']
-
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO orders (customer_name) VALUES (%s)", [customer_name])
-        mysql.connection.commit()
-        order_id = cur.lastrowid
-        cur.close()
-
-        return redirect(url_for('add_items', order_id=order_id))
-
-    return render_template('new_order.html')
-
-# ---------------------------------
-# PAGE 2: Add Items (AUTO PRICE)
-# ---------------------------------
-@app.route('/add_items/<int:order_id>', methods=['GET', 'POST'])
-def add_items(order_id):
-    cur = mysql.connection.cursor()
-
-    # Fetch menu items for dropdown
-    cur.execute("SELECT menu_id, item_name, price FROM menu_items")
-    menu_items = cur.fetchall()
-
-    if request.method == 'POST':
-        menu_id = int(request.form['menu_item_id'])
-        quantity = int(request.form['quantity'])
-
-        # Get item details from menu_items
-        cur.execute("SELECT item_name, price FROM menu_items WHERE menu_id = %s", [menu_id])
-        item = cur.fetchone()
-        item_name, price = item[0], float(item[1])
-
-        # Insert into order_items
-        cur.execute("""
-            INSERT INTO order_items (order_id, item_name, quantity, price)
-            VALUES (%s, %s, %s, %s)
-        """, (order_id, item_name, quantity, price))
-        mysql.connection.commit()
-
-    # Fetch current items for display
-    cur.execute("SELECT item_name, quantity, price FROM order_items WHERE order_id = %s", [order_id])
-    items = cur.fetchall()
-    cur.close()
-
-    return render_template('add_items.html', order_id=order_id, items=items, menu_items=menu_items)
-
-# ---------------------------------
-# PAGE 3: Generate Bill
-# ---------------------------------
-@app.route('/generate_bill/<int:order_id>')
-def generate_bill(order_id):
-    cur = mysql.connection.cursor()
-
-    # Order info
-    cur.execute("SELECT customer_name, order_date FROM orders WHERE order_id = %s", [order_id])
-    order = cur.fetchone()
-
-    # Items
-    cur.execute("SELECT item_name, quantity, price FROM order_items WHERE order_id = %s", [order_id])
-    items = cur.fetchall()
-
-    # Total calculation
-    total = sum(q * p for _, q, p in items)
-    cur.execute("UPDATE orders SET total_amount = %s WHERE order_id = %s", (total, order_id))
-    mysql.connection.commit()
-
-    # Daily sales
-    today = date.today()
-    cur.execute("""
-        INSERT INTO daily_sales (date, total_sales)
-        VALUES (%s, %s)
-        ON DUPLICATE KEY UPDATE total_sales = total_sales + %s
-    """, (today, total, total))
-    mysql.connection.commit()
-    cur.close()
-
-    return render_template('generate_bill.html', order=order, items=items, total=total)
-
-# ---------------------------------
-# PAGE 4: Order History
-# ---------------------------------
-@app.route('/order_history')
-def order_history():
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT order_id, customer_name, order_date, total_amount FROM orders ORDER BY order_date DESC")
-    orders = cur.fetchall()
-    cur.close()
-    return render_template('order_history.html', orders=orders)
-    git token -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
-    '''
 # ---------------------------------
 if __name__ == '__main__':
     app.run( host='0.0.0.0' , debug=True,port=5050)

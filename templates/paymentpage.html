@@ -85,92 +85,187 @@
       </button>
     </div>
   </div>
+<script>
+  // ---------------------------
+  // Cache DOM nodes
+  // ---------------------------
+  const tableBody = document.querySelector("#orderTable tbody");
+  const totalAmountEl = document.getElementById("totalAmount");
+  const finalTotalEl = document.getElementById("finalTotal");
+  const discountText = document.getElementById("discountText");
+  const discountRow = document.getElementById("discountRow");
+  const discountInputEl = document.getElementById("discountInput");
 
-  <script>
-    // 🛒 Load cart data from localStorage
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const total = parseFloat(localStorage.getItem("total")) || 0;
+  const modal = document.getElementById("modal");
+  const modalMessage = document.getElementById("modalMessage");
+  const modalCloseBtn = document.getElementById("modalClose"); // optional close button if present
 
-    const tableBody = document.querySelector("#orderTable tbody");
-    const totalAmount = document.getElementById("totalAmount");
-    const finalTotal = document.getElementById("finalTotal");
-    const discountText = document.getElementById("discountText");
-    const discountRow = document.getElementById("discountRow");
+  // ---------------------------
+  // Load cart & totals once
+  // ---------------------------
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const total = parseFloat(localStorage.getItem("total") || 0);
 
-    let discountValue = 0; // store current discount amount
+  let discountValue = 0; // current discount in currency (₹)
 
-    // 🧾 Display items
-    totalAmount.textContent = total.toFixed(2);
-    finalTotal.textContent = total.toFixed(2);
+  // ---------------------------
+  // Small helper functions
+  // ---------------------------
+  function showModal(message) {
+    if (modalMessage) modalMessage.textContent = message;
+    if (modal) modal.classList.remove("hidden");
+  }
 
-    if (cart.length === 0) {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td colspan="3" class="p-4 text-center text-gray-500">Your cart is empty.</td>`;
-        tableBody.appendChild(row);
+  function closeModal() {
+    if (modal) modal.classList.add("hidden");
+  }
+
+  // Close modal when clicking outside or on close button
+  window.addEventListener("click", (event) => {
+    if (event.target === modal) closeModal();
+  });
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener("click", closeModal);
+  }
+
+  // ---------------------------
+  // Display cart items & totals
+  // ---------------------------
+  function formatCurrency(n) {
+    // keep 2 decimals; you can localize if needed
+    return "₹" + Number(n).toFixed(2);
+  }
+
+  if (totalAmountEl) totalAmountEl.textContent = Number(total || 0).toFixed(2);
+  if (finalTotalEl) finalTotalEl.textContent = Number(total || 0).toFixed(2);
+
+  if (!tableBody) {
+    console.warn("#orderTable tbody not found in DOM.");
+  } else {
+    tableBody.innerHTML = ""; // clear existing rows
+    if (!cart || cart.length === 0) {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td colspan="3" class="p-4 text-center text-gray-500">Your cart is empty.</td>`;
+      tableBody.appendChild(row);
     } else {
-        cart.forEach(item => {
-          const row = document.createElement("tr");
-          // Apply Tailwind classes to table cells
-          row.innerHTML = `
-            <td class="p-3 border-b border-gray-200 text-gray-800 text-left">${item.name}</td>
-            <td class="p-3 border-b border-gray-200 text-gray-800 text-center">${item.qty}</td>
-            <td class="p-3 border-b border-gray-200 text-gray-800 text-right font-medium">₹${(item.price * item.qty).toFixed(2)}</td>`;
-          tableBody.appendChild(row);
-        });
+      cart.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="p-3 border-b border-gray-200 text-gray-800 text-left">${item.name}</td>
+          <td class="p-3 border-b border-gray-200 text-gray-800 text-center">${item.qty}</td>
+          <td class="p-3 border-b border-gray-200 text-gray-800 text-right font-medium">${formatCurrency(item.price * item.qty)}</td>`;
+        tableBody.appendChild(row);
+      });
+    }
+  }
+
+  // Hide discount row initially if present
+  if (discountRow) {
+    discountRow.style.display = (discountValue > 0 ? "" : "none");
+  }
+
+  // ---------------------------
+  // Apply discount
+  // ---------------------------
+  function applyDiscount() {
+    if (!discountInputEl) {
+      showModal("Discount input not found.");
+      return;
     }
 
-    // --- Modal Functions ---
-    const modal = document.getElementById("modal");
-    const modalMessage = document.getElementById("modalMessage");
+    const raw = discountInputEl.value;
+    const discountPercent = parseFloat(raw === "" ? "0" : raw);
 
-    function showModal(message) {
-      modalMessage.textContent = message;
-      modal.classList.remove("hidden");
+    if (Number.isNaN(discountPercent) || discountPercent < 0 || discountPercent > 100) {
+      showModal("Please enter a valid discount percentage (0–100).");
+      return;
     }
 
-    function closeModal() {
-      modal.classList.add("hidden");
+    discountValue = (total * discountPercent) / 100;
+    const discountedTotal = total - discountValue;
+
+    if (discountText) discountText.textContent = `- ${formatCurrency(discountValue)} (${discountPercent}%)`;
+    if (discountRow) discountRow.style.display = ""; // show
+    if (finalTotalEl) finalTotalEl.textContent = Number(discountedTotal).toFixed(2);
+
+    showModal("Discount applied successfully!");
+  }
+
+  // If you have a DOM button to apply discount, attach listener:
+  const applyDiscountBtn = document.getElementById("applyDiscountBtn");
+  if (applyDiscountBtn) applyDiscountBtn.addEventListener("click", applyDiscount);
+
+  // ---------------------------
+  // Proceed to payment (async)
+  // ---------------------------
+  async function proceedToPay() {
+    // Re-read cart & totals in case they changed
+    const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (!currentCart || currentCart.length === 0) {
+      showModal("Cart is empty.");
+      return;
     }
 
-    // 💸 Apply discount
-    function applyDiscount() {
-      const discountInput = document.getElementById("discountInput").value;
-      const discountPercent = parseFloat(discountInput);
+    const subtotal = parseFloat(localStorage.getItem("total") || 0);
+    const discountPercent = parseFloat(discountInputEl ? (discountInputEl.value || "0") : "0") || 0;
+    const discountAmount = Number(((subtotal * discountPercent) / 100).toFixed(2)) || 0;
+    const finalTotal = parseFloat(finalTotalEl ? finalTotalEl.textContent : subtotal) || subtotal;
 
-      if (isNaN(discountPercent) || discountPercent < 0 || discountPercent > 100) {
-        // Use custom modal instead of alert
-        showModal("Please enter a valid discount percentage (0–100).");
+    const payload = {
+      cart: currentCart,
+      subtotal: subtotal,
+      discount_percent: discountPercent,
+      discount_amount: discountAmount,
+      final_total: finalTotal,
+      currency: "INR",
+      payment_provider: null,
+      provider_payment_id: null,
+      payment_status: "pending",
+      customer_name: null,
+      customer_email: null,
+      meta: { source: "web_payment" }
+    };
+
+    try {
+      const resp = await fetch("/create_order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await resp.json().catch(() => null);
+
+      if (!resp.ok) {
+        const msg = data && data.message ? data.message : "Failed to place order";
+        showModal(msg);
         return;
       }
 
-      discountValue = (total * discountPercent) / 100;
-      const discountedTotal = total - discountValue;
+      // Success
+      const orderId = data && data.order_id ? data.order_id : "(unknown)";
+      showModal(`Order placed successfully! Order #${orderId}`);
 
-      // Display the discount info
-      discountText.textContent = `- ₹${discountValue.toFixed(2)} (${discountPercent}%)`;
-      discountRow.style.display = 'flex'; // Show the discount row
-      finalTotal.textContent = discountedTotal.toFixed(2);
-      
-      showModal("Discount applied successfully!");
-    }
+      // Clear client cart
+      localStorage.removeItem("cart");
+      localStorage.removeItem("total");
 
-    // ✅ Proceed to payment (simulate)
-    function proceedToPay() {
-      const finalAmount = finalTotal.textContent;
-      // Use custom modal instead of alert
-      showModal(`Proceeding to payment for ₹${finalAmount}. Thank you for your order!`);
-      // You could redirect to payment gateway or save order details here.
-      // Optionally, clear cart after payment
-      // localStorage.removeItem("cart");
-      // localStorage.removeItem("total");
+      // Optionally redirect:
+      // window.location.href = `/order_confirm?order_id=${orderId}`;
+
+    } catch (err) {
+      console.error(err);
+      showModal("Server error while placing order. Try again.");
     }
-    
-    // Close modal if user clicks outside of it
-    window.onclick = function(event) {
-      if (event.target == modal) {
-        closeModal();
-      }
-    }
-  </script>
+  }
+
+  // Expose proceedToPay to global scope if buttons call it inline
+  window.proceedToPay = proceedToPay;
+
+  // If you have a pay button with ID "payBtn", attach listener:
+  const payBtn = document.getElementById("payBtn");
+  if (payBtn) payBtn.addEventListener("click", proceedToPay);
+
+</script>
+
 </body>
 </html>
