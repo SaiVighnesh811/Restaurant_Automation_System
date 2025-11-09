@@ -321,7 +321,8 @@
 
     <div class="nav-links" role="navigation" aria-label="Main navigation">
       <a href="{{ url_for('owner_dashboard') }}">Home</a>
-
+      <a href="{{ url_for(manager_menu)}}">Menu</a>
+      <a href="{{ url_for(manager_employees)}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content" role="menu">
@@ -351,11 +352,11 @@
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="refreshBtn">🔄 Refresh</button>
-      <button class="theme-toggle" id="themeToggle" aria-pressed="false">🌙 Dark Mode</button>
+      <button class="theme-toggle" id="refreshBtn">🔄</button>
+      <button class="theme-toggle" id="themeToggle" aria-pressed="false">🌙</button>
       <div class="profile" id="profileBtn" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
+        
       </div>
     </div>
   </nav>
@@ -695,10 +696,10 @@
       const cur = document.body.getAttribute('data-theme');
       if (cur === 'dark') {
         document.body.removeAttribute('data-theme');
-        themeToggle.textContent = '🌙 Dark Mode';
+        themeToggle.textContent = '🌙';
       } else {
         document.body.setAttribute('data-theme', 'dark');
-        themeToggle.textContent = '☀️ Light Mode';
+        themeToggle.textContent = '☀️';
       }
     });
 

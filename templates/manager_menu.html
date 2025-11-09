@@ -46,12 +46,7 @@
       z-index: 1000;
     }
 
-    .logo {
-      font-weight: 700;
-      font-size: 24px;
-      letter-spacing: 1px;
-    }
-
+    .logo { font-weight: 700; font-size: 24px; letter-spacing: 1px; }
     .logo span { color: #fff2e6; }
 
     .nav-links {
@@ -107,7 +102,7 @@
     .dropdown-content a:hover { background-color: rgba(255, 123, 0, 0.1); }
     .nav-item.open .dropdown-content { display: block; }
 
-    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; position: relative; }
 
     .icon-btn {
       background: white;
@@ -122,12 +117,61 @@
 
     .icon-btn:hover { background: #fff2e6; }
 
+    .profile-img img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid white;
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .profile-img img:hover { transform: scale(1.1); }
+
+    /* Profile Modal */
+    .profile-modal {
+      display: none;
+      position: absolute;
+      top: 70px;
+      right: 0;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      width: 220px;
+      text-align: left;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .profile-modal h3 { margin-bottom: 10px; color: var(--secondary); font-size: 18px; }
+
+    .profile-modal button {
+      width: 100%;
+      margin-top: 10px;
+      background: crimson;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .profile-modal button:hover { background: darkred; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     main { flex: 1; padding: 40px 60px; }
 
     header h1 { color: var(--secondary); font-size: 30px; }
     header p { color: #555; margin-top: 5px; }
 
-    /* Menu Management */
+    /* Menu Form */
     form {
       display: flex;
       gap: 15px;
@@ -156,6 +200,7 @@
 
     button:hover { background: var(--secondary); }
 
+    /* Table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -203,10 +248,12 @@
   <!-- Navbar -->
   <nav>
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
+
     <div class="nav-links">
       <a href="#">Home</a>
       <a href="{{ url_for(manager_menu)}}">Menu</a>
       <a href="{{ url_for(manager_employees)}}">Employee</a>
+
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
@@ -237,6 +284,15 @@
 
     <div class="nav-actions">
       <button class="icon-btn" id="themeToggle" title="Toggle Theme">🌙</button>
+      <div class="profile-img">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" id="profileBtn" />
+      </div>
+      <div class="profile-modal" id="profileModal">
+        <h3>Profile</h3>
+        <p><strong>Name:</strong> Manager</p>
+        <p><strong>Role:</strong> Restaurant Manager</p>
+        <button onclick="window.location.href='/logout'">Logout</button>
+      </div>
     </div>
   </nav>
 
@@ -339,6 +395,22 @@
     }
 
     renderMenu();
+
+    // Profile Modal Toggle
+    const profileBtn = document.getElementById("profileBtn");
+    const profileModal = document.getElementById("profileModal");
+
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileModal.style.display =
+        profileModal.style.display === "block" ? "none" : "block";
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileModal.contains(e.target) && e.target !== profileBtn) {
+        profileModal.style.display = "none";
+      }
+    });
   </script>
 </body>
 </html>

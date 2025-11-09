@@ -246,7 +246,9 @@
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href=" {{ url_for('owner_dashboard') }}>Home</a>
+      <a href=" {{ url_for('owner_dashboard') }}">Home</a>
+      <a href="{{ url_for(manager_menu)}}">Menu</a>
+      <a href="{{ url_for(manager_employees)}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
@@ -273,10 +275,10 @@
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
       <div class="profile" id="profileBtn">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
+        
       </div>
     </div>
   </nav>
@@ -335,10 +337,10 @@
       const currentTheme = document.body.getAttribute("data-theme");
       if (currentTheme === "dark") {
         document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
+        themeToggle.textContent = "🌙";
       } else {
         document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+        themeToggle.textContent = "☀️";
       }
     });
 
