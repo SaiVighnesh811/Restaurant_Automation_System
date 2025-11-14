@@ -84,20 +84,11 @@ def signup():
 
         cursor = mysql.connection.cursor()
         try:
-            # Insert into users table
+            # NOTE: currently storing plain password; change to hashed if desired:
             cursor.execute(
                 "INSERT INTO users (username, email, password, role) VALUES (%s, %s, %s, %s)",
                 (username, email, password, role)
             )
-            user_id = cursor.lastrowid
-            
-            # Also insert into employees table (exclude 'Customer' role)
-            if role.lower() != 'customer':
-                cursor.execute(
-                    "INSERT INTO employees (user_id, name, email, role) VALUES (%s, %s, %s, %s)",
-                    (user_id, username, email, role)
-                )
-            
             mysql.connection.commit()
             flash("Account created successfully! Please login.", "success")
             return redirect(url_for('login'))
@@ -110,6 +101,8 @@ def signup():
             cursor.close()
 
     return render_template('signup.html')
+
+
 # ---------------------------------
 # LOGIN PAGE
 # ---------------------------------
@@ -219,9 +212,7 @@ def manager_menu():
 # ---------------------------------
 @app.route('/manager-employees')
 def manager_employees():
-    return render_template('manager_employees.html', 
-                         logout_url=url_for('logout'), 
-                         user_role=session.get('role'))
+    return render_template('manager_employees.html', logout_url=url_for('logout'), user_role=session.get('role'))
 # ---------------------------------
 # Inventory Pages (open access)
 # ---------------------------------
@@ -1001,72 +992,324 @@ def add_sample_expenses():
         print(f"Error adding sample expenses: {e}")
     finally:
         cursor.close()
+
+
+
+# ---------------------------------
+# Analytics Data Endpoints
+# ---------------------------------
+
+@app.route('/api/analytics/monthly-sales')
+def analytics_monthly_sales():
+    """Get monthly sales data for the current year"""
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("""
+            SELECT 
+                DATE_FORMAT(created_at, '%Y-%m') as month,
+                SUM(final_total) as total_sales,
+                COUNT(*) as order_count
+            FROM orders 
+            WHERE YEAR(created_at) = YEAR(CURDATE())
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+            ORDER BY month
+        """)
+        rows = cursor.fetchall()
+        monthly_data = [dict_from_row(cursor, row) for row in rows]
+        
+        # Format for chart (all months, even if no data)
+        months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        sales_data = [0] * 12
+        order_counts = [0] * 12
+        
+        for data in monthly_data:
+            month_num = int(data['month'].split('-')[1]) - 1
+            sales_data[month_num] = float(data['total_sales'] or 0)
+            order_counts[month_num] = int(data['order_count'] or 0)
+        
+        return jsonify({
+            "success": True,
+            "labels": months,
+            "sales_data": sales_data,
+            "order_counts": order_counts
+        })
+    except Exception as e:
+        app.logger.exception("analytics_monthly_sales error")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/analytics/ingredient-stock')
+def analytics_ingredient_stock():
+    """Get current ingredient stock levels"""
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("""
+            SELECT name, current_stock, unit, reorder_level
+            FROM ingredients 
+            ORDER BY current_stock ASC
+            LIMIT 10
+        """)
+        rows = cursor.fetchall()
+        ingredients = [dict_from_row(cursor, row) for row in rows]
+        
+        labels = [ing['name'] for ing in ingredients]
+        stock_data = [float(ing['current_stock']) for ing in ingredients]
+        reorder_levels = [float(ing['reorder_level']) for ing in ingredients]
+        
+        return jsonify({
+            "success": True,
+            "labels": labels,
+            "stock_data": stock_data,
+            "reorder_levels": reorder_levels,
+            "unit": ingredients[0]['unit'] if ingredients else 'units'
+        })
+    except Exception as e:
+        app.logger.exception("analytics_ingredient_stock error")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/analytics/expense-distribution')
+def analytics_expense_distribution():
+    """Get expense distribution by category"""
+    cursor = mysql.connection.cursor()
+    try:
+        # Check if expenses table exists
+        cursor.execute("""
+            SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema = 'restaurent_db' AND table_name = 'expenses'
+        """)
+        expenses_exists = cursor.fetchone() is not None
+        
+        if expenses_exists:
+            cursor.execute("""
+                SELECT 
+                    expense_type,
+                    SUM(amount) as total_amount,
+                    COUNT(*) as count
+                FROM expenses 
+                WHERE expense_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                GROUP BY expense_type
+                ORDER BY total_amount DESC
+            """)
+        else:
+            # Fallback: estimate expenses from purchase orders and other sources
+            cursor.execute("""
+                SELECT 
+                    'Ingredient Purchase' as expense_type,
+                    COALESCE(SUM(total_amount), 0) as total_amount,
+                    COUNT(*) as count
+                FROM purchase_orders 
+                WHERE status = 'received' 
+                AND created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                
+                UNION ALL
+                
+                SELECT 
+                    'Employee Salaries' as expense_type,
+                    COUNT(*) * 15000 as total_amount,  # Estimate
+                    COUNT(*) as count
+                FROM employees 
+                WHERE status = 'active'
+                
+                UNION ALL
+                
+                SELECT 
+                    'Utilities' as expense_type,
+                    5000 as total_amount,  # Estimate
+                    1 as count
+                
+                UNION ALL
+                
+                SELECT 
+                    'Maintenance' as expense_type,
+                    2000 as total_amount,  # Estimate
+                    1 as count
+            """)
+        
+        rows = cursor.fetchall()
+        expenses = [dict_from_row(cursor, row) for row in rows]
+        
+        labels = [exp['expense_type'] for exp in expenses]
+        amounts = [float(exp['total_amount']) for exp in expenses]
+        
+        return jsonify({
+            "success": True,
+            "labels": labels,
+            "amounts": amounts
+        })
+    except Exception as e:
+        app.logger.exception("analytics_expense_distribution error")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/analytics/sales-vs-expenses')
+def analytics_sales_vs_expenses():
+    """Compare sales vs expenses for the last 6 months"""
+    cursor = mysql.connection.cursor()
+    try:
+        # Get sales data
+        cursor.execute("""
+            SELECT 
+                DATE_FORMAT(created_at, '%Y-%m') as month,
+                SUM(final_total) as sales
+            FROM orders 
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+            ORDER BY month
+        """)
+        sales_rows = cursor.fetchall()
+        sales_data = {row[0]: float(row[1] or 0) for row in sales_rows}
+        
+        # Get expense data (from purchase orders as proxy)
+        cursor.execute("""
+            SELECT 
+                DATE_FORMAT(created_at, '%Y-%m') as month,
+                SUM(total_amount) as expenses
+            FROM purchase_orders 
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+            AND status = 'received'
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+            ORDER BY month
+        """)
+        expense_rows = cursor.fetchall()
+        expense_data = {row[0]: float(row[1] or 0) for row in expense_rows}
+        
+        # Generate last 6 months labels
+        from datetime import datetime, timedelta
+        months = []
+        sales = []
+        expenses = []
+        
+        for i in range(6):
+            date = datetime.now() - timedelta(days=30*i)
+            month_key = date.strftime('%Y-%m')
+            month_label = date.strftime('%b')
+            months.insert(0, month_label)
+            sales.insert(0, sales_data.get(month_key, 0))
+            expenses.insert(0, expense_data.get(month_key, 0))
+        
+        return jsonify({
+            "success": True,
+            "labels": months,
+            "sales": sales,
+            "expenses": expenses
+        })
+    except Exception as e:
+        app.logger.exception("analytics_sales_vs_expenses error")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/analytics/top-selling-items')
+def analytics_top_selling_items():
+    """Get top selling menu items"""
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("""
+            SELECT 
+                oi.item_name,
+                SUM(oi.qty) as total_quantity,
+                SUM(oi.total_price) as total_revenue,
+                COUNT(DISTINCT oi.order_id) as order_count
+            FROM order_items oi
+            JOIN orders o ON o.id = oi.order_id
+            WHERE o.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY oi.item_name
+            ORDER BY total_quantity DESC
+            LIMIT 10
+        """)
+        rows = cursor.fetchall()
+        top_items = [dict_from_row(cursor, row) for row in rows]
+        
+        return jsonify({
+            "success": True,
+            "top_items": top_items
+        })
+    except Exception as e:
+        app.logger.exception("analytics_top_selling_items error")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/analytics/order-metrics')
+def analytics_order_metrics():
+    """Get key order metrics"""
+    cursor = mysql.connection.cursor()
+    try:
+        # Today's metrics
+        cursor.execute("""
+            SELECT 
+                COUNT(*) as today_orders,
+                COALESCE(SUM(final_total), 0) as today_sales,
+                AVG(final_total) as today_avg_order_value
+            FROM orders 
+            WHERE DATE(created_at) = CURDATE()
+        """)
+        today = cursor.fetchone()
+        
+        # Weekly metrics
+        cursor.execute("""
+            SELECT 
+                COUNT(*) as weekly_orders,
+                COALESCE(SUM(final_total), 0) as weekly_sales
+            FROM orders 
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        """)
+        weekly = cursor.fetchone()
+        
+        # Monthly metrics
+        cursor.execute("""
+            SELECT 
+                COUNT(*) as monthly_orders,
+                COALESCE(SUM(final_total), 0) as monthly_sales
+            FROM orders 
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        """)
+        monthly = cursor.fetchone()
+        
+        # Popular hours
+        cursor.execute("""
+            SELECT 
+                HOUR(created_at) as hour,
+                COUNT(*) as order_count
+            FROM orders 
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY HOUR(created_at)
+            ORDER BY order_count DESC
+            LIMIT 5
+        """)
+        popular_hours = cursor.fetchall()
+        
+        return jsonify({
+            "success": True,
+            "today": {
+                "orders": today[0] or 0,
+                "sales": float(today[1] or 0),
+                "avg_order_value": float(today[2] or 0)
+            },
+            "weekly": {
+                "orders": weekly[0] or 0,
+                "sales": float(weekly[1] or 0)
+            },
+            "monthly": {
+                "orders": monthly[0] or 0,
+                "sales": float(monthly[1] or 0)
+            },
+            "popular_hours": [f"{row[0]}:00" for row in popular_hours]
+        })
+    except Exception as e:
+        app.logger.exception("analytics_order_metrics error")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
 # Uncomment the lines below to create the table and add sample data:
 # create_expenses_table()
 # add_sample_expenses()
 # ---------------------------------
-
-# Get all employees for manager
-@app.route('/api/employees', methods=['GET'])
-def get_employees():
-    cursor = mysql.connection.cursor()
-    try:
-        cursor.execute("""
-            SELECT id, name, email, role, status, hire_date 
-            FROM employees 
-            WHERE status = 'active'
-            ORDER BY name
-        """)
-        employees = [dict_from_row(cursor, row) for row in cursor.fetchall()]
-        return jsonify({"success": True, "employees": employees})
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        cursor.close()
-
-# Add new employee
-@app.route('/api/employees', methods=['POST'])
-def add_employee():
-    data = request.get_json(silent=True)
-    if not data:
-        return jsonify({"success": False, "message": "Invalid JSON"}), 400
-    
-    name = data.get('name')
-    email = data.get('email')
-    role = data.get('role')
-    
-    if not name or not email or not role:
-        return jsonify({"success": False, "message": "All fields are required"}), 400
-    
-    cursor = mysql.connection.cursor()
-    try:
-        cursor.execute(
-            "INSERT INTO employees (name, email, role) VALUES (%s, %s, %s)",
-            (name, email, role)
-        )
-        mysql.connection.commit()
-        return jsonify({"success": True, "message": "Employee added successfully"})
-    except Exception as e:
-        mysql.connection.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        cursor.close()
-
-# Delete employee (soft delete)
-@app.route('/api/employees/<int:employee_id>', methods=['DELETE'])
-def delete_employee(employee_id):
-    cursor = mysql.connection.cursor()
-    try:
-        cursor.execute(
-            "UPDATE employees SET status = 'inactive' WHERE id = %s",
-            (employee_id,)
-        )
-        mysql.connection.commit()
-        return jsonify({"success": True, "message": "Employee deleted successfully"})
-    except Exception as e:
-        mysql.connection.rollback()
-        return jsonify({"success": False, "message": str(e)}), 500
-    finally:
-        cursor.close()
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5050)
