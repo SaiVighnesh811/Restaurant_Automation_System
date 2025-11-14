@@ -84,11 +84,20 @@ def signup():
 
         cursor = mysql.connection.cursor()
         try:
-            # NOTE: currently storing plain password; change to hashed if desired:
+            # Insert into users table
             cursor.execute(
                 "INSERT INTO users (username, email, password, role) VALUES (%s, %s, %s, %s)",
                 (username, email, password, role)
             )
+            user_id = cursor.lastrowid
+            
+            # Also insert into employees table (exclude 'Customer' role)
+            if role.lower() != 'customer':
+                cursor.execute(
+                    "INSERT INTO employees (user_id, name, email, role) VALUES (%s, %s, %s, %s)",
+                    (user_id, username, email, role)
+                )
+            
             mysql.connection.commit()
             flash("Account created successfully! Please login.", "success")
             return redirect(url_for('login'))
@@ -101,8 +110,6 @@ def signup():
             cursor.close()
 
     return render_template('signup.html')
-
-
 # ---------------------------------
 # LOGIN PAGE
 # ---------------------------------
@@ -212,7 +219,9 @@ def manager_menu():
 # ---------------------------------
 @app.route('/manager-employees')
 def manager_employees():
-    return render_template('manager_employees.html', logout_url=url_for('logout'), user_role=session.get('role'))
+    return render_template('manager_employees.html', 
+                         logout_url=url_for('logout'), 
+                         user_role=session.get('role'))
 # ---------------------------------
 # Inventory Pages (open access)
 # ---------------------------------
@@ -992,10 +1001,72 @@ def add_sample_expenses():
         print(f"Error adding sample expenses: {e}")
     finally:
         cursor.close()
-
 # Uncomment the lines below to create the table and add sample data:
 # create_expenses_table()
 # add_sample_expenses()
 # ---------------------------------
+
+# Get all employees for manager
+@app.route('/api/employees', methods=['GET'])
+def get_employees():
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("""
+            SELECT id, name, email, role, status, hire_date 
+            FROM employees 
+            WHERE status = 'active'
+            ORDER BY name
+        """)
+        employees = [dict_from_row(cursor, row) for row in cursor.fetchall()]
+        return jsonify({"success": True, "employees": employees})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+# Add new employee
+@app.route('/api/employees', methods=['POST'])
+def add_employee():
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "message": "Invalid JSON"}), 400
+    
+    name = data.get('name')
+    email = data.get('email')
+    role = data.get('role')
+    
+    if not name or not email or not role:
+        return jsonify({"success": False, "message": "All fields are required"}), 400
+    
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute(
+            "INSERT INTO employees (name, email, role) VALUES (%s, %s, %s)",
+            (name, email, role)
+        )
+        mysql.connection.commit()
+        return jsonify({"success": True, "message": "Employee added successfully"})
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+# Delete employee (soft delete)
+@app.route('/api/employees/<int:employee_id>', methods=['DELETE'])
+def delete_employee(employee_id):
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute(
+            "UPDATE employees SET status = 'inactive' WHERE id = %s",
+            (employee_id,)
+        )
+        mysql.connection.commit()
+        return jsonify({"success": True, "message": "Employee deleted successfully"})
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5050)

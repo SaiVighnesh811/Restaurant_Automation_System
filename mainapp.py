@@ -993,6 +993,7 @@ def add_sample_expenses():
     finally:
         cursor.close()
 
+
 # Uncomment the lines below to create the table and add sample data:
 # create_expenses_table()
 # add_sample_expenses()

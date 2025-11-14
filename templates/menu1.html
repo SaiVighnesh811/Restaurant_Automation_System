@@ -271,7 +271,7 @@ nav {
   <h3>Your Cart</h3>
   <div id="cartItems"></div>
   <p><strong>Total:</strong> ₹<span id="cartTotal">0</span></p>
-  <button class="order-btn">Place Order</button>
+  <button class="order-btn" id="placeOrderBtn">Place Order</button>
 </div>
 
 <section class="menu-section" id="menuContainer">
@@ -279,8 +279,8 @@ nav {
 </section>
 
 <script>
-// Extended Menu Data
-const menuData = {
+// Load menu data from localStorage (synced from manager menu) or use default data
+const defaultMenuData = {
   "Tiffins": [
     { name: "Idli Sambar", price: 60, img: "../static/images/idlisambar.jpeg", desc: "Soft idlis served with hot sambar and chutney." },
     { name: "Masala Dosa", price: 90, img: "../static/images/masaladosa.jpeg", desc: "Crispy dosa stuffed with spiced potato masala." },
@@ -383,6 +383,9 @@ const menuData = {
     { name: "Cappuccino", price: 150, img: "../static/images/cappuccino.jpeg", desc: "Frothy Italian coffee." },
   ]
 };
+
+// Load menu from localStorage (synced from manager) or use default data
+const menuData = JSON.parse(localStorage.getItem("customerMenuData")) || defaultMenuData;
 
 const menuContainer = document.getElementById("menu");
 const cartModal = document.getElementById("cartModal");
@@ -493,6 +496,21 @@ document.getElementById("searchInput").addEventListener("input", e => {
     const name = card.querySelector("h3").textContent.toLowerCase();
     card.style.display = name.includes(query) ? "block" : "none";
   });
+});
+
+// ADDED: Payment redirect functionality
+document.getElementById("placeOrderBtn").addEventListener("click", function() {
+  if (cart.length === 0) {
+    alert("Your cart is empty! Please add some items first.");
+    return;
+  }
+  
+  // Store cart details locally so we can show them in payment page
+  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem("total", cartTotal.textContent);
+
+  // Redirect to Flask payment page
+  window.location.href = "/payment";
 });
 </script>
 </body>

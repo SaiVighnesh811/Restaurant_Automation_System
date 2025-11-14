@@ -33,7 +33,48 @@
     .nav-links { display:flex; align-items:center; gap:30px; position:relative; }
     .nav-item { position:relative; cursor:pointer; }
     .nav-links a { color:white; text-decoration:none; font-weight:500; position:relative; }
-    .dropdown-content { display:none; position:absolute; top:40px; left:0; background-color:var(--card-bg); min-width:180px; box-shadow:0 5px 10px rgba(0,0,0,0.1); border-radius:8px; overflow:hidden; z-index:999; }
+    
+    /* ADDED: Hover effect for nav links */
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      background-color: white;
+      left: 0;
+      bottom: -4px;
+      transition: 0.3s;
+    }
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    
+    .dropdown-content { 
+      display:none; 
+      position:absolute; 
+      top:40px; 
+      left:0; 
+      background-color:var(--card-bg); 
+      min-width:180px; 
+      box-shadow:0 5px 10px rgba(0,0,0,0.1); 
+      border-radius:8px; 
+      overflow:hidden; 
+      z-index:999; 
+    }
+    
+    /* ADDED: Dropdown link styling */
+    .dropdown-content a {
+      color: var(--text-dark);
+      padding: 10px 15px;
+      display: block;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .dropdown-content a:hover {
+      background-color: rgba(255, 123, 0, 0.1);
+    }
+    
     .nav-item.open .dropdown-content { display:block; }
     .nav-actions { display:flex; align-items:center; gap:20px; }
     .theme-toggle { background:white; color:var(--secondary); border:none; padding:8px 14px; border-radius:20px; cursor:pointer; font-weight:600; transition:0.3s; }
@@ -182,6 +223,21 @@
   </footer>
 
   <script>
+    // ADDED: Dropdown functionality
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+      item.addEventListener("click", e => {
+        e.stopPropagation();
+        item.classList.toggle("open");
+        navItems.forEach(other => {
+          if (other !== item) other.classList.remove("open");
+        });
+      });
+    });
+    document.addEventListener("click", () => {
+      navItems.forEach(item => item.classList.remove("open"));
+    });
+
     // Utilities
     const $ = sel => document.querySelector(sel);
     const reportBody = document.getElementById('reportBody');
