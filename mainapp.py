@@ -171,9 +171,11 @@ def show_menu():
 # ---------------------------------
 @app.route('/loginpage/forgot')
 def forgot_password():
-    return render_template('forgot-password.html')
+    return render_template('forget_password.html')
 
-
+@app.route('/loginpage/forgot/otp')
+def forgot_password_otp():
+    return render_template('forget_otp.html')
 # ---------------------------------
 # OWNER DASHBOARD PAGE (open access)
 # ---------------------------------
@@ -198,7 +200,19 @@ def chef_dashboard():
 def clerk_dashboard():
     return render_template('waiter-dashboard.html', logout_url=url_for('logout'),user_role=session.get('role'))
 
+# ---------------------------------
+# Manager Menu Page (open access)
+# ---------------------------------
+@app.route('/manager-menu')
+def manager_menu():
+    return render_template('manager_menu.html', logout_url=url_for('logout'), user_role=session.get('role'))
 
+# ---------------------------------
+# Manager Employees Page (open access)
+# ---------------------------------
+@app.route('/manager-employees')
+def manager_employees():
+    return render_template('manager_employees.html', logout_url=url_for('logout'), user_role=session.get('role'))
 # ---------------------------------
 # Inventory Pages (open access)
 # ---------------------------------
