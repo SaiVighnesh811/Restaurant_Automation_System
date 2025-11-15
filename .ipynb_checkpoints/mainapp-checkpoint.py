@@ -84,14 +84,37 @@ def signup():
 
         cursor = mysql.connection.cursor()
         try:
-            # NOTE: currently storing plain password; change to hashed if desired:
+            # Check if email already exists
+            cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+            if cursor.fetchone():
+                flash("Email already registered", "danger")
+                return redirect(url_for('signup'))
+
             cursor.execute(
                 "INSERT INTO users (username, email, password, role) VALUES (%s, %s, %s, %s)",
                 (username, email, password, role)
             )
             mysql.connection.commit()
-            flash("Account created successfully! Please login.", "success")
-            return redirect(url_for('login'))
+            
+            # Auto-login after signup
+            cursor.execute("SELECT id, username, email, role FROM users WHERE email = %s", (email,))
+            user = cursor.fetchone()
+            
+            if user:
+                session['user_id'] = user[0]
+                session['username'] = user[1]
+                session['email'] = user[2]
+                session['role'] = user[3]
+
+            flash("Account created successfully!", "success")
+
+            # Check if there's a return URL from payment page
+            return_url = request.args.get('return_url') or request.form.get('return_url')
+            if return_url:
+                return redirect(return_url)
+                
+            return redirect(url_for('show_menu'))
+                
         except Exception as e:
             mysql.connection.rollback()
             app.logger.exception("Error creating account")
@@ -100,8 +123,9 @@ def signup():
         finally:
             cursor.close()
 
-    return render_template('signup.html')
-
+    # For GET request, check if there's a return URL
+    return_url = request.args.get('return_url')
+    return render_template('signup.html', return_url=return_url)
 
 # ---------------------------------
 # LOGIN PAGE
@@ -110,7 +134,7 @@ def signup():
 def login():
     if request.method == 'POST':
         email = request.form.get('email')
-        password = request.form.get('password')  # user-entered password
+        password = request.form.get('password')
 
         # Validate inputs
         if not email or not password:
@@ -129,7 +153,7 @@ def login():
 
             # DIRECT comparison (plain text)
             if password == db_password:
-                # successful login (session will work because secret_key is set)
+                # successful login
                 session['user_id'] = user_id
                 session['username'] = username
                 session['email'] = db_email
@@ -137,7 +161,12 @@ def login():
 
                 flash("Login successful", "success")
 
-                # redirect by role (example)
+                # Check if there's a return URL from payment page
+                return_url = request.args.get('return_url') or request.form.get('return_url')
+                if return_url:
+                    return redirect(return_url)
+                
+                # redirect by role
                 if role and role.lower() == 'customer':
                     return redirect(url_for('show_menu'))
                 elif role and role.lower() == 'owner':
@@ -155,27 +184,95 @@ def login():
             flash("Email not registered", "danger")
             return redirect(url_for('login'))
 
-    return render_template('login.html')
+    # For GET request, check if there's a return URL
+    return_url = request.args.get('return_url')
+    return render_template('login.html', return_url=return_url)
+# ---------------------------------
+# FORGOT PASSWORD PAGE
+# ---------------------------------
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        
+        if not email:
+            flash("Please enter your email.", "danger")
+            return render_template('forgot_password.html')
 
+        cursor = mysql.connection.cursor()
+        try:
+            cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+            user = cursor.fetchone()
+            
+            if user:
+                # Email exists, redirect to reset password page
+                return redirect(url_for('reset_password', email=email))
+            else:
+                # Email doesn't exist
+                flash("Email not found. Please check your email address.", "danger")
+                return render_template('forgot_password.html')
+                
+        except Exception as e:
+            app.logger.exception("forgot_password error")
+            flash("An error occurred. Please try again.", "danger")
+            return render_template('forgot_password.html')
+        finally:
+            cursor.close()
 
+    return render_template('forget_password.html')
+
+# ---------------------------------
+# RESET PASSWORD PAGE
+# ---------------------------------
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    email = request.args.get('email', '') or request.form.get('email', '')
+    
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
+
+        if not email or not new_password or not confirm_password:
+            flash("All fields are required.", "danger")
+            return render_template('reset_password.html', email=email)
+
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "danger")
+            return render_template('reset_password.html', email=email)
+
+        if len(new_password) < 6:
+            flash("Password must be at least 6 characters long.", "danger")
+            return render_template('reset_password.html', email=email)
+
+        cursor = mysql.connection.cursor()
+        try:
+            # Update password
+            cursor.execute(
+                "UPDATE users SET password = %s WHERE email = %s",
+                (new_password, email)
+            )
+            mysql.connection.commit()
+
+            flash("Password reset successfully! Please login with your new password.", "success")
+            return redirect(url_for('login'))
+                
+        except Exception as e:
+            mysql.connection.rollback()
+            app.logger.exception("reset_password error")
+            flash("An error occurred. Please try again.", "danger")
+            return render_template('reset_password.html', email=email)
+        finally:
+            cursor.close()
+
+    # GET request - show reset password form
+    return render_template('reset_password.html', email=email)
 # ---------------------------------
 # MENU PAGE
 # ---------------------------------
 @app.route('/menupage')
 def show_menu():
     return render_template('menu1.html')
-
-
-# ---------------------------------
-# FORGOT PASSWORD PAGE
-# ---------------------------------
-@app.route('/loginpage/forgot')
-def forgot_password():
-    return render_template('forget_password.html')
-
-@app.route('/loginpage/forgot/otp')
-def forgot_password_otp():
-    return render_template('forget_otp.html')
 # ---------------------------------
 # OWNER DASHBOARD PAGE (open access)
 # ---------------------------------
@@ -594,6 +691,207 @@ def owner_ingredient_usage():
     except Exception as e:
         app.logger.exception("owner_ingredient_usage error")
         return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+
+# ---------------------------------
+# EMPLOYEE MANAGEMENT API ROUTES
+# ---------------------------------
+
+@app.route('/api/employees')
+def get_employees():
+    """Get all employees with details from both users and employees tables"""
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute("""
+            SELECT 
+                e.id as employee_id,
+                e.user_id,
+                e.name,
+                e.email,
+                e.role,
+                e.status,
+                e.hire_date,
+                u.username,
+                u.role as user_role
+            FROM employees e
+            LEFT JOIN users u ON e.user_id = u.id
+            ORDER BY e.role, e.name
+        """)
+        employees = cursor.fetchall()
+        
+        employee_list = []
+        for emp in employees:
+            employee_list.append({
+                'id': emp[0],  # employee_id
+                'user_id': emp[1],
+                'name': emp[2],
+                'email': emp[3],
+                'role': emp[4].capitalize() if emp[4] else '',
+                'status': emp[5],
+                'hire_date': emp[6].strftime('%Y-%m-%d') if emp[6] else '',
+                'username': emp[7],
+                'user_role': emp[8]
+            })
+        
+        return jsonify({'success': True, 'employees': employee_list})
+        
+    except Exception as e:
+        app.logger.exception("Error fetching employees")
+        return jsonify({'success': False, 'message': 'Error fetching employees'})
+    finally:
+        cursor.close()
+
+@app.route('/api/employees', methods=['POST'])
+def add_employee():
+    """Add new employee - creates entry in both users and employees tables"""
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({'success': False, 'message': 'Invalid JSON'}), 400
+    
+    name = data.get('name', '').strip()
+    email = data.get('email', '').strip().lower()
+    role = data.get('role', '').strip().lower()
+    
+    if not name or not email or not role:
+        return jsonify({'success': False, 'message': 'All fields are required'}), 400
+    
+    # Validate role
+    allowed_roles = ['chef', 'waiter', 'clerk']
+    if role.lower() not in allowed_roles:
+        return jsonify({'success': False, 'message': 'Invalid role'}), 400
+    
+    cursor = mysql.connection.cursor()
+    try:
+        # Check if email already exists in users table
+        cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
+        existing_user = cursor.fetchone()
+        
+        if existing_user:
+            return jsonify({'success': False, 'message': 'Email already registered'}), 400
+        
+        # Generate a temporary password (employees can reset later)
+        temp_password = "temp123"  # In production, generate a random password
+        
+        # Create user account first
+        cursor.execute(
+            "INSERT INTO users (username, email, password, role) VALUES (%s, %s, %s, %s)",
+            (name, email, temp_password, role)
+        )
+        user_id = cursor.lastrowid
+        
+        # Create employee record
+        cursor.execute(
+            "INSERT INTO employees (user_id, name, email, role, status) VALUES (%s, %s, %s, %s, %s)",
+            (user_id, name, email, role, 'active')
+        )
+        
+        mysql.connection.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Employee added successfully. Temporary password: {temp_password}',
+            'employee_id': cursor.lastrowid
+        })
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        app.logger.exception("Error adding employee")
+        return jsonify({'success': False, 'message': 'Error adding employee: ' + str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/employees/<int:employee_id>', methods=['DELETE'])
+def delete_employee(employee_id):
+    """Delete employee - removes from both tables"""
+    cursor = mysql.connection.cursor()
+    try:
+        # Get user_id before deletion
+        cursor.execute("SELECT user_id FROM employees WHERE id = %s", (employee_id,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({'success': False, 'message': 'Employee not found'}), 404
+        
+        user_id = result[0]
+        
+        # Delete from employees table
+        cursor.execute("DELETE FROM employees WHERE id = %s", (employee_id,))
+        
+        # Delete from users table
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        
+        mysql.connection.commit()
+        
+        return jsonify({'success': True, 'message': 'Employee deleted successfully'})
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        app.logger.exception("Error deleting employee")
+        return jsonify({'success': False, 'message': 'Error deleting employee'})
+    finally:
+        cursor.close()
+
+@app.route('/api/employees/<int:employee_id>/status', methods=['PUT'])
+def update_employee_status(employee_id):
+    """Update employee status (active/inactive)"""
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({'success': False, 'message': 'Invalid JSON'}), 400
+    
+    new_status = data.get('status')
+    if new_status not in ['active', 'inactive']:
+        return jsonify({'success': False, 'message': 'Invalid status'}), 400
+    
+    cursor = mysql.connection.cursor()
+    try:
+        cursor.execute(
+            "UPDATE employees SET status = %s WHERE id = %s",
+            (new_status, employee_id)
+        )
+        mysql.connection.commit()
+        
+        return jsonify({'success': True, 'message': f'Employee status updated to {new_status}'})
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        app.logger.exception("Error updating employee status")
+        return jsonify({'success': False, 'message': 'Error updating status'})
+    finally:
+        cursor.close()
+
+@app.route('/api/employees/<int:employee_id>/reset-password', methods=['POST'])
+def reset_employee_password(employee_id):
+    """Reset employee password to temporary value"""
+    cursor = mysql.connection.cursor()
+    try:
+        # Get user_id from employee
+        cursor.execute("SELECT user_id FROM employees WHERE id = %s", (employee_id,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({'success': False, 'message': 'Employee not found'}), 404
+        
+        user_id = result[0]
+        temp_password = "temp123"  # Generate a new temporary password
+        
+        # Update password in users table
+        cursor.execute(
+            "UPDATE users SET password = %s WHERE id = %s",
+            (temp_password, user_id)
+        )
+        mysql.connection.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Password reset successfully. New temporary password: {temp_password}'
+        })
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        app.logger.exception("Error resetting password")
+        return jsonify({'success': False, 'message': 'Error resetting password'})
     finally:
         cursor.close()
 
@@ -1307,9 +1605,229 @@ def analytics_order_metrics():
         return jsonify({"success": False, "message": str(e)}), 500
     finally:
         cursor.close()
+
+
+# -----------------------
+# Enhanced Ingredient Management Routes
+# -----------------------
+
+@app.route('/api/ingredients/add', methods=['POST'])
+def add_ingredient():
+    """Add new ingredient to inventory"""
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "message": "Invalid JSON"}), 400
+    
+    name = data.get('name')
+    current_stock = float(data.get('current_stock', 0))
+    unit = data.get('unit')
+    reorder_level = float(data.get('reorder_level', 0))
+    
+    if not name or not unit:
+        return jsonify({"success": False, "message": "Name and unit are required"}), 400
+    
+    cursor = mysql.connection.cursor()
+    try:
+        # Check if ingredient already exists
+        cursor.execute("SELECT id FROM ingredients WHERE name = %s", (name,))
+        if cursor.fetchone():
+            return jsonify({"success": False, "message": "Ingredient with this name already exists"}), 400
+        
+        cursor.execute(
+            "INSERT INTO ingredients (name, current_stock, unit, reorder_level, initial_stock) VALUES (%s, %s, %s, %s, %s)",
+            (name, current_stock, unit, reorder_level, current_stock)
+        )
+        
+        ingredient_id = cursor.lastrowid
+        
+        # Record initial stock transaction
+        if current_stock > 0:
+            cursor.execute(
+                "INSERT INTO inventory_transactions (ingredient_id, transaction_type, quantity, note, created_by) VALUES (%s, %s, %s, %s, %s)",
+                (ingredient_id, 'initial_stock', current_stock, 'Initial stock', session['user_id'])
+            )
+        
+        mysql.connection.commit()
+        return jsonify({"success": True, "message": "Ingredient added successfully", "ingredient_id": ingredient_id})
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/ingredients/<int:ingredient_id>/restock', methods=['POST'])
+def restock_ingredient(ingredient_id):
+    """Restock ingredient (add to current stock)"""
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "message": "Invalid JSON"}), 400
+    
+    quantity = float(data.get('quantity', 0))
+    note = data.get('note', 'Manual restock')
+    
+    if quantity <= 0:
+        return jsonify({"success": False, "message": "Quantity must be positive"}), 400
+    
+    cursor = mysql.connection.cursor()
+    try:
+        # Check if ingredient exists
+        cursor.execute("SELECT current_stock, name FROM ingredients WHERE id = %s", (ingredient_id,))
+        result = cursor.fetchone()
+        if not result:
+            return jsonify({"success": False, "message": "Ingredient not found"}), 404
+        
+        current_stock = float(result[0])
+        ingredient_name = result[1]
+        new_stock = current_stock + quantity
+        
+        # Update stock
+        cursor.execute(
+            "UPDATE ingredients SET current_stock = %s WHERE id = %s",
+            (new_stock, ingredient_id)
+        )
+        
+        # Record transaction
+        cursor.execute(
+            "INSERT INTO inventory_transactions (ingredient_id, transaction_type, quantity, note, created_by) VALUES (%s, %s, %s, %s, %s)",
+            (ingredient_id, 'restock', quantity, note, session['user_id'])
+        )
+        
+        mysql.connection.commit()
+        return jsonify({
+            "success": True, 
+            "new_stock": new_stock,
+            "message": f"Successfully restocked {ingredient_name} by {quantity} {data.get('unit', 'units')}"
+        })
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/ingredients/<int:ingredient_id>/update', methods=['PUT'])
+def update_ingredient(ingredient_id):
+    """Update ingredient details"""
+    data = request.get_json(silent=True)
+    if not data:
+        return jsonify({"success": False, "message": "Invalid JSON"}), 400
+    
+    cursor = mysql.connection.cursor()
+    try:
+        # Check if ingredient exists
+        cursor.execute("SELECT id, name FROM ingredients WHERE id = %s", (ingredient_id,))
+        ingredient = cursor.fetchone()
+        if not ingredient:
+            return jsonify({"success": False, "message": "Ingredient not found"}), 404
+        
+        # Build update query dynamically based on provided fields
+        update_fields = []
+        update_values = []
+        
+        if 'name' in data and data['name']:
+            update_fields.append("name = %s")
+            update_values.append(data['name'])
+        
+        if 'unit' in data and data['unit']:
+            update_fields.append("unit = %s")
+            update_values.append(data['unit'])
+        
+        if 'reorder_level' in data:
+            update_fields.append("reorder_level = %s")
+            update_values.append(float(data['reorder_level']))
+        
+        if not update_fields:
+            return jsonify({"success": False, "message": "No fields to update"}), 400
+        
+        update_values.append(ingredient_id)
+        query = f"UPDATE ingredients SET {', '.join(update_fields)} WHERE id = %s"
+        
+        cursor.execute(query, update_values)
+        mysql.connection.commit()
+        
+        return jsonify({"success": True, "message": "Ingredient updated successfully"})
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        cursor.close()
+
+@app.route('/api/ingredients/units', methods=['GET'])
+def get_common_units():
+    """Get common measurement units for suggestions"""
+    common_units = [
+        'kg', 'g', 'lb', 'oz', 'l', 'ml', 
+        'pieces', 'packets', 'bottles', 'cans',
+        'boxes', 'bags', 'dozen'
+    ]
+    return jsonify({"success": True, "units": common_units})
 # Uncomment the lines below to create the table and add sample data:
-# create_expenses_table()
-# add_sample_expenses()
+# Add this route to your Flask app to get user session
+@app.route('/api/user/session')
+def get_user_session():
+    """Get current user session data"""
+    if 'user_id' in session:
+        cursor = mysql.connection.cursor()
+        try:
+            cursor.execute(
+                "SELECT id, username, email, role FROM users WHERE id = %s", 
+                (session['user_id'],)
+            )
+            user = cursor.fetchone()
+            if user:
+                user_data = {
+                    'id': user[0],
+                    'username': user[1],
+                    'email': user[2],
+                    'role': user[3]
+                }
+                return jsonify({'success': True, 'user': user_data})
+        except Exception as e:
+            app.logger.exception("Error fetching user session")
+            return jsonify({'success': False, 'message': 'Error fetching session'})
+        finally:
+            cursor.close()
+    
+    return jsonify({'success': False, 'message': 'Not logged in'})
+@app.route('/api/ingredients/<int:ingredient_id>', methods=['DELETE'])
+def delete_ingredient(ingredient_id):
+    """Delete ingredient and all related data"""
+    cursor = mysql.connection.cursor()
+    try:
+        # Check if ingredient exists
+        cursor.execute("SELECT name FROM ingredients WHERE id = %s", (ingredient_id,))
+        ingredient = cursor.fetchone()
+        
+        if not ingredient:
+            return jsonify({'success': False, 'message': 'Ingredient not found'}), 404
+        
+        ingredient_name = ingredient[0]
+        
+        # Delete related records first (to maintain referential integrity)
+        
+        # 1. Delete from purchase_order_items
+        cursor.execute("DELETE FROM purchase_order_items WHERE ingredient_id = %s", (ingredient_id,))
+        
+        # 2. Delete from inventory_transactions
+        cursor.execute("DELETE FROM inventory_transactions WHERE ingredient_id = %s", (ingredient_id,))
+        
+        # 3. Finally delete the ingredient itself
+        cursor.execute("DELETE FROM ingredients WHERE id = %s", (ingredient_id,))
+        
+        mysql.connection.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'Ingredient "{ingredient_name}" deleted successfully from all records'
+        })
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        app.logger.exception("Error deleting ingredient")
+        return jsonify({'success': False, 'message': 'Error deleting ingredient: ' + str(e)}), 500
+    finally:
+        cursor.close()
 # ---------------------------------
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5050)

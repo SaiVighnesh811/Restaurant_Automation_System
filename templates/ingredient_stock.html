@@ -292,6 +292,16 @@
       transform: translateY(-2px);
     }
 
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+      transform: translateY(-2px);
+    }
+
     /* Modal styles */
     .modal {
       display: none;
@@ -413,6 +423,12 @@
       margin-bottom: 20px;
     }
 
+    .action-buttons-cell {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 900px) {
       nav {
         flex-direction: column;
@@ -430,6 +446,9 @@
       }
       .po-item-details {
         grid-template-columns: 1fr;
+      }
+      .action-buttons-cell {
+        flex-direction: column;
       }
     }
   </style>
@@ -501,6 +520,7 @@
     <!-- Action Buttons -->
     <div class="action-buttons">
       <button class="btn btn-primary" onclick="loadIngredients()">🔄 Refresh Stock</button>
+      <button class="btn btn-success" onclick="showAddIngredientModal()">➕ Add New Ingredient</button>
       <button class="btn btn-success" onclick="showGeneratePOModal()">📋 Generate Purchase Order</button>
     </div>
 
@@ -542,6 +562,85 @@
           <button type="submit" class="btn btn-primary">Use Ingredient</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Add Ingredient Modal -->
+  <div class="modal" id="addIngredientModal">
+    <div class="modal-content">
+        <h3>Add New Ingredient</h3>
+        <form id="addIngredientForm">
+            <div class="form-group">
+                <label for="ingredientName">Ingredient Name:</label>
+                <input type="text" id="ingredientName" placeholder="Enter ingredient name" required>
+            </div>
+            <div class="form-group">
+                <label for="ingredientUnit">Unit:</label>
+                <input type="text" id="ingredientUnit" placeholder="e.g., kg, pieces, liters" required>
+            </div>
+            <div class="form-group">
+                <label for="initialStock">Initial Stock Quantity:</label>
+                <input type="number" id="initialStock" step="0.01" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label for="reorderLevel">Reorder Level:</label>
+                <input type="number" id="reorderLevel" step="0.01" min="0" value="10" required>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn" onclick="closeAddModal()">Cancel</button>
+                <button type="submit" class="btn btn-success">Add Ingredient</button>
+            </div>
+        </form>
+    </div>
+  </div>
+
+  <!-- Restock Ingredient Modal -->
+  <div class="modal" id="restockIngredientModal">
+    <div class="modal-content">
+        <h3>Restock Ingredient</h3>
+        <form id="restockIngredientForm">
+            <input type="hidden" id="restockIngredientId">
+            <input type="hidden" id="restockIngredientUnit">
+            
+            <div class="form-group">
+                <label for="restockIngredientName">Ingredient:</label>
+                <input type="text" id="restockIngredientName" readonly style="background: #f8f9fa;">
+            </div>
+            <div class="form-group">
+                <label for="restockQuantity">Quantity to Add:</label>
+                <input type="number" id="restockQuantity" step="0.01" min="0.01" required>
+                <span id="restockUnitDisplay" style="margin-left: 5px; font-weight: 600;"></span>
+            </div>
+            <div class="form-group">
+                <label for="restockNote">Note (optional):</label>
+                <textarea id="restockNote" rows="3" placeholder="Reason for restock..."></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn" onclick="closeRestockModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Restock</button>
+            </div>
+        </form>
+    </div>
+  </div>
+
+  <!-- Delete Ingredient Modal -->
+  <div class="modal" id="deleteIngredientModal">
+    <div class="modal-content">
+        <h3>Delete Ingredient</h3>
+        <div class="form-group">
+            <p>Are you sure you want to delete <strong id="deleteIngredientName"></strong>?</p>
+            <p style="color: #dc3545; font-weight: 600;">⚠️ This action cannot be undone. This will remove the ingredient from:</p>
+            <ul style="color: #dc3545; margin-left: 20px; margin-top: 10px;">
+                <li>Ingredient stock database</li>
+                <li>All purchase orders</li>
+                <li>Inventory transactions</li>
+                <li>Low stock alerts</li>
+            </ul>
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="btn" onclick="closeDeleteModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="confirmDeleteIngredient()">Delete Permanently</button>
+        </div>
     </div>
   </div>
 
@@ -605,9 +704,19 @@
               <td>${ingredient.reorder_level}</td>
               <td><span class="stock-badge ${badgeClass}">${statusText}</span></td>
               <td>
-                <button class="btn btn-primary" onclick="showUseModal(${ingredient.id}, '${ingredient.name}')">
-                  Use
-                </button>
+                <div class="action-buttons-cell">
+                  <button class="btn btn-primary" onclick="showUseModal(${ingredient.id}, '${ingredient.name}')">
+                    Use
+                  </button>
+                  <button class="btn" style="background: #17a2b8; color: white;" 
+                          onclick="showRestockModal(${ingredient.id}, '${ingredient.name}', '${ingredient.unit}')">
+                    Restock
+                  </button>
+                  <button class="btn btn-danger" 
+                          onclick="showDeleteModal(${ingredient.id}, '${ingredient.name}')">
+                    Delete
+                  </button>
+                </div>
               </td>
             `;
             tbody.appendChild(row);
@@ -661,6 +770,152 @@
         console.error('Error:', error);
         alert('Error using ingredient');
       }
+    });
+
+    // Show add ingredient modal
+    function showAddIngredientModal() {
+        document.getElementById('addIngredientModal').style.display = 'block';
+    }
+
+    // Close add modal
+    function closeAddModal() {
+        document.getElementById('addIngredientModal').style.display = 'none';
+        document.getElementById('addIngredientForm').reset();
+    }
+
+    // Show restock modal
+    function showRestockModal(ingredientId, ingredientName, unit) {
+        document.getElementById('restockIngredientId').value = ingredientId;
+        document.getElementById('restockIngredientName').value = ingredientName;
+        document.getElementById('restockIngredientUnit').value = unit;
+        document.getElementById('restockUnitDisplay').textContent = unit;
+        document.getElementById('restockIngredientModal').style.display = 'block';
+    }
+
+    // Close restock modal
+    function closeRestockModal() {
+        document.getElementById('restockIngredientModal').style.display = 'none';
+        document.getElementById('restockIngredientForm').reset();
+    }
+
+    // Show delete modal
+    function showDeleteModal(ingredientId, ingredientName) {
+        document.getElementById('deleteIngredientName').textContent = ingredientName;
+        document.getElementById('deleteIngredientModal').setAttribute('data-ingredient-id', ingredientId);
+        document.getElementById('deleteIngredientModal').setAttribute('data-ingredient-name', ingredientName);
+        document.getElementById('deleteIngredientModal').style.display = 'block';
+    }
+
+    // Close delete modal
+    function closeDeleteModal() {
+        document.getElementById('deleteIngredientModal').style.display = 'none';
+    }
+
+    // Confirm and delete ingredient
+    async function confirmDeleteIngredient() {
+        const ingredientId = document.getElementById('deleteIngredientModal').getAttribute('data-ingredient-id');
+        const ingredientName = document.getElementById('deleteIngredientModal').getAttribute('data-ingredient-name');
+        
+        try {
+            const response = await fetch(`/api/ingredients/${ingredientId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(`✅ ${data.message}`);
+                closeDeleteModal();
+                loadIngredients(); // Refresh the table
+            } else {
+                alert(`❌ Error: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Network error while deleting ingredient. Please try again.');
+        }
+    }
+
+    // Add ingredient form submission
+    document.getElementById('addIngredientForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('ingredientName').value.trim();
+        const unit = document.getElementById('ingredientUnit').value.trim();
+        const current_stock = parseFloat(document.getElementById('initialStock').value) || 0;
+        const reorder_level = parseFloat(document.getElementById('reorderLevel').value);
+        
+        if (!name || !unit) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/ingredients/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    unit: unit,
+                    current_stock: current_stock,
+                    reorder_level: reorder_level
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('✅ Ingredient added successfully!');
+                closeAddModal();
+                loadIngredients(); // Refresh the table
+            } else {
+                alert('❌ Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Network error while adding ingredient. Please try again.');
+        }
+    });
+
+    // Restock ingredient form submission
+    document.getElementById('restockIngredientForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const ingredientId = document.getElementById('restockIngredientId').value;
+        const quantity = parseFloat(document.getElementById('restockQuantity').value);
+        const note = document.getElementById('restockNote').value;
+        const unit = document.getElementById('restockIngredientUnit').value;
+        
+        if (!quantity || quantity <= 0) {
+            alert('Please enter a valid quantity');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/ingredients/${ingredientId}/restock`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    quantity: quantity,
+                    note: note,
+                    unit: unit
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('✅ ' + data.message);
+                closeRestockModal();
+                loadIngredients(); // Refresh the table
+            } else {
+                alert('❌ Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Network error while restocking. Please try again.');
+        }
     });
 
     // Show generate PO modal

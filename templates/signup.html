@@ -258,6 +258,10 @@
             </div>
 
             <form id="signupForm" method="POST" action="{{ url_for('signup') }}">
+
+                {% if return_url %}
+                <input type="hidden" name="return_url" value="{{ return_url }}">
+                {% endif %}
                 
                 <!-- USERNAME FIELD -->
                 <div class="form-group">
