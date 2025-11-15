@@ -113,7 +113,7 @@ def signup():
             if return_url:
                 return redirect(return_url)
                 
-            return redirect(url_for('show_menu'))
+            return redirect(url_for('login'))
                 
         except Exception as e:
             mysql.connection.rollback()
