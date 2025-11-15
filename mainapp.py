@@ -954,10 +954,10 @@ def use_ingredient(ingredient_id):
             (new_stock, ingredient_id)
         )
         
-        # Record transaction
+        # Record transaction - FIXED: Use shorter transaction types
         cursor.execute(
             "INSERT INTO inventory_transactions (ingredient_id, transaction_type, quantity, note, created_by) VALUES (%s, %s, %s, %s, %s)",
-            (ingredient_id, 'usage', quantity, note, session['user_id'])
+            (ingredient_id, 'usage', quantity, note, session.get('user_id', 1))
         )
         
         mysql.connection.commit()
@@ -1010,7 +1010,7 @@ def generate_purchase_order():
         # Create purchase order
         cursor.execute(
             "INSERT INTO purchase_orders (po_number, supplier_info, created_by) VALUES (%s, %s, %s)",
-            (po_number, json.dumps(supplier_info), session['user_id'])
+            (po_number, json.dumps(supplier_info), session.get('user_id', 1))
         )
         po_id = cursor.lastrowid
         
@@ -1061,7 +1061,10 @@ def get_purchase_orders():
         for row in cursor.fetchall():
             po = dict_from_row(cursor, row)
             if po.get('supplier_info'):
-                po['supplier_info'] = json.loads(po['supplier_info'])
+                try:
+                    po['supplier_info'] = json.loads(po['supplier_info'])
+                except:
+                    po['supplier_info'] = {}
             purchase_orders.append(po)
         
         return jsonify({"success": True, "purchase_orders": purchase_orders})
@@ -1087,7 +1090,10 @@ def get_purchase_order(po_id):
         
         po_dict = dict_from_row(cursor, po)
         if po_dict.get('supplier_info'):
-            po_dict['supplier_info'] = json.loads(po_dict['supplier_info'])
+            try:
+                po_dict['supplier_info'] = json.loads(po_dict['supplier_info'])
+            except:
+                po_dict['supplier_info'] = {}
         
         # Get PO items
         cursor.execute("""
@@ -1142,12 +1148,12 @@ def update_po_status(po_id):
                     WHERE id = %s
                 """, (quantity, ingredient_id))
                 
-                # Record inventory transaction
+                # Record inventory transaction - FIXED: Use shorter transaction type
                 cursor.execute("""
                     INSERT INTO inventory_transactions 
                     (ingredient_id, transaction_type, quantity, note, created_by)
                     VALUES (%s, %s, %s, %s, %s)
-                """, (ingredient_id, 'purchase', quantity, f'PO #{po_id} received', session['user_id']))
+                """, (ingredient_id, 'purchase', quantity, f'PO #{po_id} received', session.get('user_id', 1)))
         
         mysql.connection.commit()
         return jsonify({"success": True, "message": f"PO status updated to {new_status}"})
@@ -1640,11 +1646,11 @@ def add_ingredient():
         
         ingredient_id = cursor.lastrowid
         
-        # Record initial stock transaction
+        # Record initial stock transaction - FIXED: Use shorter transaction type
         if current_stock > 0:
             cursor.execute(
                 "INSERT INTO inventory_transactions (ingredient_id, transaction_type, quantity, note, created_by) VALUES (%s, %s, %s, %s, %s)",
-                (ingredient_id, 'initial_stock', current_stock, 'Initial stock', session['user_id'])
+                (ingredient_id, 'initial', current_stock, 'Initial stock', session.get('user_id', 1))
             )
         
         mysql.connection.commit()
@@ -1686,10 +1692,10 @@ def restock_ingredient(ingredient_id):
             (new_stock, ingredient_id)
         )
         
-        # Record transaction
+        # Record transaction - FIXED: Use shorter transaction type
         cursor.execute(
             "INSERT INTO inventory_transactions (ingredient_id, transaction_type, quantity, note, created_by) VALUES (%s, %s, %s, %s, %s)",
-            (ingredient_id, 'restock', quantity, note, session['user_id'])
+            (ingredient_id, 'restock', quantity, note, session.get('user_id', 1))
         )
         
         mysql.connection.commit()
@@ -1828,6 +1834,18 @@ def delete_ingredient(ingredient_id):
         return jsonify({'success': False, 'message': 'Error deleting ingredient: ' + str(e)}), 500
     finally:
         cursor.close()
+
+# Initialize database tables
+@app.route('/init-db')
+def init_db():
+    """Initialize database tables (run this once)"""
+    try:
+        create_expenses_table()
+        add_sample_expenses()
+        return "Database initialized successfully"
+    except Exception as e:
+        return f"Error initializing database: {str(e)}"
+
 # ---------------------------------
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5050)

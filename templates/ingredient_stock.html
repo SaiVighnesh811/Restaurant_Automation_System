@@ -594,35 +594,6 @@
     </div>
   </div>
 
-  <!-- Restock Ingredient Modal -->
-  <div class="modal" id="restockIngredientModal">
-    <div class="modal-content">
-        <h3>Restock Ingredient</h3>
-        <form id="restockIngredientForm">
-            <input type="hidden" id="restockIngredientId">
-            <input type="hidden" id="restockIngredientUnit">
-            
-            <div class="form-group">
-                <label for="restockIngredientName">Ingredient:</label>
-                <input type="text" id="restockIngredientName" readonly style="background: #f8f9fa;">
-            </div>
-            <div class="form-group">
-                <label for="restockQuantity">Quantity to Add:</label>
-                <input type="number" id="restockQuantity" step="0.01" min="0.01" required>
-                <span id="restockUnitDisplay" style="margin-left: 5px; font-weight: 600;"></span>
-            </div>
-            <div class="form-group">
-                <label for="restockNote">Note (optional):</label>
-                <textarea id="restockNote" rows="3" placeholder="Reason for restock..."></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn" onclick="closeRestockModal()">Cancel</button>
-                <button type="submit" class="btn btn-primary">Restock</button>
-            </div>
-        </form>
-    </div>
-  </div>
-
   <!-- Delete Ingredient Modal -->
   <div class="modal" id="deleteIngredientModal">
     <div class="modal-content">
@@ -708,10 +679,6 @@
                   <button class="btn btn-primary" onclick="showUseModal(${ingredient.id}, '${ingredient.name}')">
                     Use
                   </button>
-                  <button class="btn" style="background: #17a2b8; color: white;" 
-                          onclick="showRestockModal(${ingredient.id}, '${ingredient.name}', '${ingredient.unit}')">
-                    Restock
-                  </button>
                   <button class="btn btn-danger" 
                           onclick="showDeleteModal(${ingredient.id}, '${ingredient.name}')">
                     Delete
@@ -781,21 +748,6 @@
     function closeAddModal() {
         document.getElementById('addIngredientModal').style.display = 'none';
         document.getElementById('addIngredientForm').reset();
-    }
-
-    // Show restock modal
-    function showRestockModal(ingredientId, ingredientName, unit) {
-        document.getElementById('restockIngredientId').value = ingredientId;
-        document.getElementById('restockIngredientName').value = ingredientName;
-        document.getElementById('restockIngredientUnit').value = unit;
-        document.getElementById('restockUnitDisplay').textContent = unit;
-        document.getElementById('restockIngredientModal').style.display = 'block';
-    }
-
-    // Close restock modal
-    function closeRestockModal() {
-        document.getElementById('restockIngredientModal').style.display = 'none';
-        document.getElementById('restockIngredientForm').reset();
     }
 
     // Show delete modal
@@ -875,46 +827,6 @@
         } catch (error) {
             console.error('Error:', error);
             alert('❌ Network error while adding ingredient. Please try again.');
-        }
-    });
-
-    // Restock ingredient form submission
-    document.getElementById('restockIngredientForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const ingredientId = document.getElementById('restockIngredientId').value;
-        const quantity = parseFloat(document.getElementById('restockQuantity').value);
-        const note = document.getElementById('restockNote').value;
-        const unit = document.getElementById('restockIngredientUnit').value;
-        
-        if (!quantity || quantity <= 0) {
-            alert('Please enter a valid quantity');
-            return;
-        }
-        
-        try {
-            const response = await fetch(`/api/ingredients/${ingredientId}/restock`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    quantity: quantity,
-                    note: note,
-                    unit: unit
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                alert('✅ ' + data.message);
-                closeRestockModal();
-                loadIngredients(); // Refresh the table
-            } else {
-                alert('❌ Error: ' + data.message);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('❌ Network error while restocking. Please try again.');
         }
     });
 
