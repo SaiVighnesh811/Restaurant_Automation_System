@@ -375,7 +375,7 @@ def forgot_password():
         
         if not email:
             flash("Please enter your email.", "danger")
-            return render_template('forgot_password.html')
+            return render_template('forget_password.html')
 
         cursor = mysql.connection.cursor()
         try:
@@ -388,16 +388,16 @@ def forgot_password():
             else:
                 # Email doesn't exist
                 flash("Email not found. Please check your email address.", "danger")
-                return render_template('forgot_password.html')
+                return render_template('forget_password.html')
                 
         except Exception as e:
             app.logger.exception("forgot_password error")
             flash("An error occurred. Please try again.", "danger")
-            return render_template('forgot_password.html')
+            return render_template('forget_password.html')
         finally:
             cursor.close()
 
-    return render_template('forgot_password.html')
+    return render_template('forget_password.html')
 
 # ---------------------------------
 # RESET PASSWORD PAGE
