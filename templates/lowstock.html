@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Low Stock Alerts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --text-light: #fff;
+      --card-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    .logo span {
+      color: #fff2e6;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      position: relative;
+    }
+
+    .nav-item {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      background-color: white;
+      left: 0;
+      bottom: -4px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Dropdown */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: var(--card-bg);
+      min-width: 180px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .dropdown-content a {
+      color: var(--text-dark);
+      padding: 10px 15px;
+      display: block;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .dropdown-content a:hover {
+      background-color: rgba(255, 123, 0, 0.1);
+    }
+
+    .nav-item.open .dropdown-content {
+      display: block;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .theme-toggle {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background: #fff2e6;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .profile img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 60px;
+    }
+
+    header h1 {
+      color: var(--secondary);
+      font-size: 30px;
+      margin-bottom: 15px;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: var(--card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: rgba(255,123,0,0.1);
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+
+    /* Profile Modal */
+    .profile-modal {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 30px;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      border-radius: 12px;
+      padding: 20px;
+      width: 250px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      z-index: 2000;
+    }
+
+    .profile-modal.active {
+      display: block;
+    }
+
+    .logout {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.3s;
+    }
+
+    .logout:hover {
+      background: var(--secondary);
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      table th, table td {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">MANAGER <span>DASHBOARD</span></div>
+
+    <div class="nav-links">
+      <a href="manager_dash.html">Home</a>
+
+      <div class="nav-item">
+        <a href="#">Inventory</a>
+        <div class="dropdown-content">
+          <a href="ingredient_stock.html">Ingredient Stock</a>
+          <a href="lowstock.html">Low Stock Alerts</a>
+        </div>
+      </div>
+
+      <div class="nav-item">
+        <a href="#">Purchase Orders</a>
+        <div class="dropdown-content">
+          <a href="generate_po.html">Generate PO</a>
+          <a href="purchase_order.html">Enter PO Details</a>
+        </div>
+      </div>
+
+      <div class="nav-item">
+        <a href="#">Reports</a>
+        <div class="dropdown-content">
+          <a href="daily_sales.html">Daily Sales</a>
+          <a href="monthly_sales.html">Monthly Sales</a>
+          <a href="expense_report.html">Expense Report</a>
+        </div>
+      </div>
+
+      <a href="analytics.html">Analytics</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <div class="profile" id="profileBtn">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
+        <span>Manager</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Modal -->
+  <div class="profile-modal" id="profileModal">
+    <h3>Profile</h3>
+    <p><strong>Name:</strong> Manager</p>
+    <p><strong>Role:</strong> Restaurant Manager</p>
+    <p><strong>Email:</strong> manager@restaurant.com</p>
+    <button class="logout">Logout</button>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+    <header>
+      <h1>Low Stock Alerts</h1>
+      <p>Items that need immediate restocking.</p>
+    </header>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Ingredient</th>
+          <th>Current Stock</th>
+          <th>Reorder Level</th>
+          <th>Supplier</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Buns</td>
+          <td>40</td>
+          <td>50</td>
+          <td>BreadCo Ltd</td>
+          <td>⚠️ Needs Restock</td>
+        </tr>
+        <tr>
+          <td>Chicken</td>
+          <td>15</td>
+          <td>20</td>
+          <td>FreshMeat Supplies</td>
+          <td>⚠️ Needs Restock</td>
+        </tr>
+        <tr>
+          <td>Cheese</td>
+          <td>45</td>
+          <td>60</td>
+          <td>Dairy Delights</td>
+          <td>⚠️ Needs Restock</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <footer>
+    <p>© 2025 Manager Dashboard | Restaurant Automation System</p>
+  </footer>
+
+  <script>
+    // Profile Modal Toggle
+    const profileBtn = document.getElementById("profileBtn");
+    const profileModal = document.getElementById("profileModal");
+    profileBtn.addEventListener("click", () => {
+      profileModal.classList.toggle("active");
+    });
+
+    // Dark Mode Toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const currentTheme = document.body.getAttribute("data-theme");
+      if (currentTheme === "dark") {
+        document.body.removeAttribute("data-theme");
+        themeToggle.textContent = "🌙 Dark Mode";
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        themeToggle.textContent = "☀️ Light Mode";
+      }
+    });
+
+    // Dropdown Toggle
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        item.classList.toggle("open");
+        navItems.forEach(other => {
+          if (other !== item) other.classList.remove("open");
+        });
+      });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", () => {
+      navItems.forEach(item => item.classList.remove("open"));
+    });
+  </script>
+</body>
+</html>

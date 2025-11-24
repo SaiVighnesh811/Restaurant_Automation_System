@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Food App</title>
+    <!-- Poppins font used everywhere -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+<style>
+        /* CSS Starts Here */
+
+        :root {
+            --primary-orange: #ff6b1d;
+            --light-orange: #fffaf7;
+            --text-dark: #333;
+            --text-medium: #555;
+            --text-light: #888;
+            --border-color: #ddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            /* CRITICAL FIX: Ensure the body can manage the scroll */
+            min-height: 100vh;
+            overflow-y: auto; 
+            overflow-x: hidden; 
+            
+            /* Background Image copied from your login code */
+            background-image: url('../static/images/mutton.jpeg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Keeps background fixed during scroll */
+            background-repeat: no-repeat;
+        }
+
+        .signup-container {
+            /* FIX 2: Removed flex properties and set minimum height for container to span viewport, but allow expansion */
+            min-height: 100vh;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.2); 
+            
+            /* Use padding for spacing and left alignment */
+            padding: 2rem 5vw; 
+            
+            /* Center the card vertically and horizontally within the available space */
+            display: flex;
+            justify-content: flex-start;
+            align-items: center; 
+        }
+
+        .signup-card {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+            
+            /* RESPONSIVE PADDING ADJUSTMENT (Horizontal padding scales with screen size) */
+            padding: 25px max(25px, 2.5vw); 
+            
+            /* Ensure margin bottom is present for proper padding within the scrolling container */
+            margin-bottom: 2rem; 
+        }
+
+        /* --- LOGO STYLES --- */
+        .logo-container {
+            margin-bottom: 15px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 80px; 
+        }
+
+        .logo-container img {
+            width: 80px; 
+            height: 80px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 4px solid var(--primary-orange); 
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Title and Subtitle */
+        .form-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-header h2 {
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .form-header p { 
+            font-size: 1rem;
+            color: var(--text-medium);
+            line-height: 1.5;
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input,
+        .input-wrapper select {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            transition: border-color 0.3s;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        /* Adjust padding for elements without a left icon */
+        .input-wrapper select {
+            padding-left: 15px; 
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23555555%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-5.4H18.8c-5%200-9.3%201.8-13.2%205.4A17.6%2017.6%200%200%200%200%2082.2c0%204.8%201.8%209.1%205.4%2013.2l128.9%20128.9c3.9%203.9%208.7%205.9%2013.3%205.9s9.3-2%2013.2-5.9L287%2095.4a17.6%2017.6%200%200%200%205.4-13.2c0-4.8-1.8-9.1-5.4-13.2z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat, repeat;
+            background-position: right 15px top 50%, 0 0;
+            background-size: 12px auto, 100%;
+        }
+        
+        .input-wrapper input:focus, 
+        .input-wrapper select:focus {
+            border-color: var(--primary-orange);
+        }
+
+        .input-wrapper .emoji-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+        
+        .input-wrapper .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        /* Links */
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .login-link a {
+            font-size: 0.9rem;
+            color: var(--primary-orange);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 15px 0;
+            background-color: var(--primary-orange);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 107, 29, 0.4);
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #e65a16;
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.99);
+        }
+
+        /* Message Box */
+        #message {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #dc2626;
+            min-height: 1.5rem; /* Reserve space for message */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                background-image: none;
+                background-color: #f0f0f0;
+            }
+            .signup-container {
+                /* Center the content horizontally on mobile */
+                justify-content: center;
+                background-color: transparent;
+                /* Remove left padding on mobile */
+                padding: 40px 0; 
+                /* Ensures the content flows naturally on smaller screens */
+                align-items: flex-start; 
+                min-height: auto;
+            }
+            .signup-card {
+                width: 95%;
+                padding: 30px; /* Fixed padding for mobile */
+                margin-top: 0; 
+                margin-bottom: 0; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="signup-card">
+            
+            <div class="logo-container">
+                <!-- LOGO SOURCE: Update this source path/URL to your logo image -->
+                <img src="../static/images/image.png" alt="TasteBuds Logo">
+            </div>
+
+            <div class="form-header">
+                <h2>Create Account</h2>
+                <p>Join the team and streamline your restaurant operations.</p>
+            </div>
+
+            <form id="signupForm" method="POST" action="{{ url_for('signup') }}">
+                
+                <!-- USERNAME FIELD -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <span class="emoji-icon">👤</span> 
+                        <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                    </div>
+                </div>
+                
+                <!-- EMAIL FIELD -->
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <div class="input-wrapper">
+                        <span class="emoji-icon">📧</span> 
+                        <input type="email" id="email" name="email" placeholder="Your email address" required>
+                    </div>
+                </div>
+
+                <!-- PASSWORD FIELD -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="emoji-icon">🔒</span> 
+                        <input type="password" id="password" name="password" placeholder="Create a password" required>
+                        <!-- Password Toggle Icon -->
+                        <span class="password-toggle" data-target="password" onclick="togglePasswordVisibility(this)">
+                            &#128065; <!-- Closed Eye Emoji -->
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- CONFIRM PASSWORD FIELD -->
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <span class="emoji-icon">🔒</span> 
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                        <!-- Password Toggle Icon -->
+                        <span class="password-toggle" data-target="confirm_password" onclick="togglePasswordVisibility(this)">
+                            &#128065; <!-- Closed Eye Emoji -->
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- ROLE SELECT FIELD -->
+                <div class="form-group">
+                    <label for="role">Sign Up As</label>
+                    <div class="input-wrapper">
+                        <select id="role" name="role">
+                            <option value="">Select Role</option>
+                            <option value="owner">Owner</option>
+                            <option value="chef">Chef</option>
+                            <option value="clerk">Clerk</option>
+                            <option value="Customer">Customer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Message Box -->
+                <p id="message"></p>
+
+                <!-- BUTTON TEXT UPDATED TO 'Sign Up' -->
+                <button type="submit" class="submit-btn">Sign Up</button>
+            </for>
+            
+            <div class="login-link">
+                <a href="{{ url_for('login') }}">Already have an account? Login here</a>
+            </div>
+           <!---- {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                 {% for category, message in messages %}
+                    <p style="color: {% if category == 'success' %}green{% else %}red{% endif %};">
+                {{ message }}
+                     </p>
+                {% endfor %}
+                {% endif %}
+            {% endwith %} -->
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        /**
+         * Toggles the visibility of a password input field and updates the icon.
+         * @param {HTMLElement} toggleElement The clicked span element.
+         */
+        function togglePasswordVisibility(toggleElement) {
+            const input = toggleElement.previousElementSibling;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                // Open Eye Emoji (Represents Visible)
+                toggleElement.innerHTML = '&#128064;'; 
+            } else {
+                input.type = 'password';
+                // Closed Eye Emoji (Represents Hidden)
+                toggleElement.innerHTML = '&#128065;'; 
+            }
+        }
+
+        // DUMMY SIGNUP HANDLER 
+        function handleSignUp(event) {
+            event.preventDefault();
+            const messageElement = document.getElementById('message');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+            
+            if (password !== confirmPassword) {
+                messageElement.textContent = 'Error: Passwords do not match!';
+                messageElement.style.color = '#dc2626';
+            } else {
+                messageElement.textContent = `Success! Account created for ${username}.`;
+                messageElement.style.color = '#10b981';
+                // document.getElementById('signupForm').reset(); 
+            }
+        }
+    </script>
+</body>
+</html>

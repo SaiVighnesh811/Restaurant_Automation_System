@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Restaurant Menu</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #ff7b00;
+  --secondary: #d86f00;
+  --bg-light: #fffaf5;
+  --text-dark: #333;
+  --text-light: #fff;
+  --card-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+  --bg-light: #1e1e1e;
+  --text-dark: #ffffff;
+  --card-bg: #2a2a2a;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+body { font-family: "Poppins", sans-serif; background-color: var(--bg-light); color: var(--text-dark); min-height: 100vh; }
+
+/* Navbar */
+nav {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(90deg, #ff7b00, #ffae42); padding: 15px 40px; color: white;
+  position: sticky; top: 0; z-index: 1000;
+}
+.logo { font-weight: 700; font-size: 24px; letter-spacing: 1px; }
+.nav-actions { display: flex; align-items: center; gap: 15px; }
+.theme-toggle, .cart { 
+  background: white; color: var(--secondary); border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600;
+}
+.search-bar input { padding: 8px 15px; border-radius: 20px; border: none; outline: none; font-size: 14px; }
+.cart { position: relative; }
+.cart-count { position: absolute; top: -6px; right: -6px; background: red; color: white; border-radius: 50%; font-size: 12px; padding: 2px 6px; display: none; }
+
+/* Profile like dashboard */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.profile img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+/* Menu Section */
+.menu-section { padding: 50px 60px; }
+.menu-section h2 { color: var(--primary); font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid var(--primary); display: inline-block; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; margin-top: 20px; }
+.menu-card { background: var(--card-bg); border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s ease; text-align: center; padding-bottom: 15px; }
+.menu-card:hover { transform: translateY(-5px); }
+.menu-card img { width: 100%; height: 180px; object-fit: cover; }
+.menu-card h3 { color: var(--primary); margin: 10px 0; }
+.menu-card p { font-size: 14px; margin: 0 15px 10px; color: #555; }
+.price { font-weight: bold; color: var(--text-dark); }
+.add-btn { background: var(--primary); border: none; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-top: 5px; transition: 0.3s; }
+.add-btn:hover { background: var(--secondary); }
+
+/* Cart Modal */
+.cart-modal { display: none; position: fixed; top: 70px; right: 20px; background: var(--card-bg); color: var(--text-dark); border-radius: 12px; padding: 20px; width: 350px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 2000; }
+.cart-modal.active { display: block; }
+.cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 8px; }
+.cart-item span { font-size: 14px; }
+.qty-controls { display: flex; gap: 5px; align-items: center; }
+.qty-controls button { background: var(--primary); color: white; border: none; border-radius: 5px; padding: 2px 8px; cursor: pointer; font-weight: bold; }
+.order-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 10px; width: 100%; margin-top: 10px; font-weight: bold; cursor: pointer; }
+.order-btn:hover { background: var(--secondary); }
+
+/* Profile Modal */
+.profile-modal { display: none; position: fixed; top: 70px; right: 70px; background: var(--card-bg); color: var(--text-dark); border-radius: 12px; padding: 20px; width: 250px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 2000; }
+.profile-modal.active { display: block; }
+.profile-modal h3 { color: var(--secondary); margin-bottom: 10px; font-size: 18px; }
+.profile-modal p { font-size: 14px; margin: 5px 0; }
+.logout { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; margin-top: 10px; cursor: pointer; width: 100%; transition: 0.3s; }
+.logout:hover { background: var(--secondary); }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">🍴 RESTAURANT MENU</div>
+  <div class="nav-actions">
+    <div class="search-bar"><input type="text" id="searchInput" placeholder="Search dishes..."></div>
+    <div class="cart" id="cartBtn">🛒 Cart <span class="cart-count" id="cartCount">0</span></div>
+    <button class="theme-toggle" id="themeToggle">🌙 Dark mode</button>
+    <div class="profile" id="profileBtn">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
+      <span>John</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Cart Modal -->
+<div class="cart-modal" id="cartModal">
+  <h3>Your Cart</h3>
+  <div id="cartItems"></div>
+  <p><strong>Total:</strong> ₹<span id="cartTotal">0</span></p>
+  <button class="order-btn">Place Order</button>
+</div>
+
+<!-- Profile Modal -->
+<div class="profile-modal" id="profileModal">
+  <h3>Profile</h3>
+  <p><strong>Name:</strong> John Doe</p>
+  <p><strong>Role:</strong> Customer</p>
+  <p><strong>Email:</strong> john@example.com</p>
+  <button class="logout">Logout</button>
+</div>
+
+<!-- Menu Section -->
+<section class="menu-section" id="menuContainer">
+  <div id="menu"></div>
+</section>
+
+<script>
+// Menu data
+const menuData = {
+  "Starters": [
+    { name: "Paneer Tikka", price: 220, img: "https://i.imgur.com/8JYxC2B.jpg" },
+    { name: "Chicken Lollipop", price: 250, img: "https://i.imgur.com/LvW1AMQ.jpg" },
+    { name: "Spring Rolls", price: 180, img: "https://i.imgur.com/tRLbd7S.jpg" }
+  ],
+  "Main Course": [
+    { name: "Butter Chicken", price: 320, img: "https://i.imgur.com/JbFZc4y.jpg" },
+    { name: "Veg Biryani", price: 280, img: "https://i.imgur.com/7Y5mZtG.jpg" },
+    { name: "Paneer Butter Masala", price: 300, img: "https://i.imgur.com/Q1iD5xZ.jpg" }
+  ],
+  "Desserts": [
+    { name: "Gulab Jamun", price: 120, img: "https://i.imgur.com/w7Cbb5A.jpg" },
+    { name: "Ice Cream Sundae", price: 150, img: "https://i.imgur.com/Ss0DkVq.jpg" },
+    { name: "Chocolate Lava Cake", price: 170, img: "https://i.imgur.com/D7Zt6pX.jpg" }
+  ],
+  "Beverages": [
+    { name: "Lassi", price: 90, img: "https://i.imgur.com/I6zJgQW.jpg" },
+    { name: "Cold Coffee", price: 130, img: "https://i.imgur.com/W5xTg2P.jpg" },
+    { name: "Lemon Iced Tea", price: 110, img: "https://i.imgur.com/5Y7Y4BA.jpg" }
+  ]
+};
+
+const menuContainer = document.getElementById("menu");
+const cartBtn = document.getElementById("cartBtn");
+const cartModal = document.getElementById("cartModal");
+const cartItemsDiv = document.getElementById("cartItems");
+const cartCountEl = document.getElementById("cartCount");
+const cartTotal = document.getElementById("cartTotal");
+const profileBtn = document.getElementById("profileBtn");
+const profileModal = document.getElementById("profileModal");
+
+let cart = [];
+
+// Render menu
+for(const [section, items] of Object.entries(menuData)){
+  const sectionDiv = document.createElement("div");
+  sectionDiv.innerHTML = `<h2>${section}</h2><div class='menu-grid'></div>`;
+  const grid = sectionDiv.querySelector(".menu-grid");
+  items.forEach(item=>{
+    const card = document.createElement("div");
+    card.classList.add("menu-card");
+    card.innerHTML = `<img src="${item.img}" alt="${item.name}">
+                      <h3>${item.name}</h3>
+                      <p>Delicious and freshly prepared!</p>
+                      <span class="price">₹${item.price}</span><br>
+                      <button class="add-btn">Add to Cart</button>`;
+    card.querySelector(".add-btn").addEventListener("click",()=>addToCart(item));
+    grid.appendChild(card);
+  });
+  menuContainer.appendChild(sectionDiv);
+}
+
+// Cart functions
+function addToCart(item){const existing=cart.find(i=>i.name===item.name); if(existing) existing.qty++; else cart.push({...item, qty:1}); updateCart();}
+function increaseQty(name){const item=cart.find(i=>i.name===name); if(item) item.qty++; updateCart();}
+function decreaseQty(name){const item=cart.find(i=>i.name===name); if(item){if(item.qty>1) item.qty--; else cart=cart.filter(i=>i.name!==name);} updateCart();}
+function updateCart(){
+  cartItemsDiv.innerHTML="";
+  let total=0,count=0;
+  cart.forEach(item=>{
+    total+=item.price*item.qty; count+=item.qty;
+    const div=document.createElement("div");
+    div.classList.add("cart-item");
+    div.innerHTML=`<span>${item.name}</span>
+                   <div class="qty-controls">
+                     <button class="decrease">−</button>
+                     <span>${item.qty}</span>
+                     <button class="increase">+</button>
+                   </div>`;
+    div.querySelector(".increase").addEventListener("click",()=>increaseQty(item.name));
+    div.querySelector(".decrease").addEventListener("click",()=>decreaseQty(item.name));
+    cartItemsDiv.appendChild(div);
+  });
+  cartCountEl.textContent=count;
+  cartCountEl.style.display=count>0?"inline-block":"none";
+  cartTotal.textContent=total;
+}
+
+// Toggle modals
+cartBtn.addEventListener("click",()=>cartModal.classList.toggle("active"));
+profileBtn.addEventListener("click",()=>profileModal.classList.toggle("active"));
+
+// Theme toggle
+const themeToggle=document.getElementById("themeToggle");
+themeToggle.addEventListener("click",()=>{
+  if(document.body.getAttribute("data-theme")==="dark"){
+    document.body.removeAttribute("data-theme"); themeToggle.textContent="🌙 Dark mode";
+  } else {
+    document.body.setAttribute("data-theme","dark"); themeToggle.textContent="☀️ Light mode";
+  }
+});
+
+// Search
+document.getElementById("searchInput").addEventListener("input",e=>{
+  const query=e.target.value.toLowerCase();
+  document.querySelectorAll(".menu-card").forEach(card=>{
+    const name=card.querySelector("h3").textContent.toLowerCase();
+    card.style.display=name.includes(query)?"block":"none";
+  });
+});
+
+document.querySelector(".order-btn").addEventListener("click", () => {
+  if (cart.length === 0) {
+    alert("Your cart is empty! Please add items before placing an order.");
+    return;
+  }
+
+  // Store cart details locally so we can show them in payment page
+  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem("total", cartTotal.textContent);
+
+  // Redirect to Flask payment page
+  window.location.href = "{{ url_for('payment') }}";
+});
+</script>
+</body>
+</html>

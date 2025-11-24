@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Sales Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --text-light: #fff;
+      --card-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo { font-weight: 700; font-size: 24px; letter-spacing: 1px; }
+    .logo span { color: #fff2e6; }
+
+    .nav-links { display: flex; align-items: center; gap: 30px; position: relative; }
+    .nav-item { position: relative; cursor: pointer; }
+    .nav-links a { color: white; text-decoration: none; font-weight: 500; position: relative; }
+    .nav-links a::after { content: ""; position: absolute; width: 0%; height: 2px; background-color: white; left: 0; bottom: -4px; transition: 0.3s; }
+    .nav-links a:hover::after { width: 100%; }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: var(--card-bg);
+      min-width: 180px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .dropdown-content a { color: var(--text-dark); padding: 10px 15px; display: block; text-decoration: none; font-weight: 500; }
+    .dropdown-content a:hover { background-color: rgba(255, 123, 0, 0.1); }
+    .nav-item.open .dropdown-content { display: block; }
+
+    .nav-actions { display: flex; align-items: center; gap: 20px; }
+    .theme-toggle { background: white; color: var(--secondary); border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .theme-toggle:hover { background: #fff2e6; }
+
+    .profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .profile img { width: 38px; height: 38px; border-radius: 50%; border: 2px solid white; }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    header { text-align: center; margin-bottom: 25px; }
+    header h2 { color: var(--secondary); font-size: 28px; margin-bottom: 8px; }
+    header p { color: var(--text-dark); font-size: 16px; }
+
+    .sales-section {
+      width: 100%;
+      max-width: 900px;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .date-filter { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .date-filter input, .date-filter button { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
+    .date-filter button { background: var(--primary); color: white; border: none; cursor: pointer; transition: 0.3s; }
+    .date-filter button:hover { background: var(--secondary); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    tr:hover { background-color: rgba(255, 123, 0, 0.08); }
+
+    .summary { display: flex; justify-content: space-around; margin-top: 20px; font-weight: 600; }
+    .chart-section { margin-top: 30px; text-align: center; }
+    .chart-section h3 { color: var(--secondary); margin-bottom: 15px; }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+
+    .profile-modal { display: none; position: fixed; top: 70px; right: 30px; background: var(--card-bg); color: var(--text-dark); border-radius: 12px; padding: 20px; width: 250px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 2000; }
+    .profile-modal.active { display: block; }
+    .logout { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; margin-top: 10px; cursor: pointer; width: 100%; transition: 0.3s; }
+    .logout:hover { background: var(--secondary); }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">MANAGER <span>DASHBOARD</span></div>
+
+    <div class="nav-links">
+      <a href="manager_dash.html">Home</a>
+
+      <div class="nav-item">
+        <a href="#">Inventory</a>
+        <div class="dropdown-content">
+          <a href="ingredient_stock.html">Ingredient Stock</a>
+          <a href="lowstock.html">Low Stock Alerts</a>
+        </div>
+      </div>
+
+      <div class="nav-item">
+        <a href="#">Purchase Orders</a>
+        <div class="dropdown-content">
+          <a href="generate_po.html">Generate PO</a>
+          <a href="purchase_order.html">Enter PO Details</a>
+        </div>
+      </div>
+
+      <div class="nav-item">
+        <a href="#">Reports</a>
+        <div class="dropdown-content">
+          <a href="daily_sales.html">Daily Sales</a>
+          <a href="monthly_sales.html">Monthly Sales</a>
+          <a href="expense_report.html">Expense Report</a>
+        </div>
+      </div>
+
+      <a href="analytics.html">Analytics</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <div class="profile" id="profileBtn">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
+        <span>Manager</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Modal -->
+  <div class="profile-modal" id="profileModal">
+    <h3>Profile</h3>
+    <p><strong>Name:</strong> Manager</p>
+    <p><strong>Role:</strong> Restaurant Manager</p>
+    <p><strong>Email:</strong> manager@restaurant.com</p>
+    <button class="logout">Logout</button>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+    <section class="sales-section">
+      <header>
+        <h2>Daily Sales Report</h2>
+      </header>
+
+      <form class="date-filter">
+        <label for="sales-date">Select Date:</label>
+        <input type="date" id="sales-date" name="sales-date" required>
+        <button type="submit">View Report</button>
+      </form>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Item Name</th>
+            <th>Quantity Sold</th>
+            <th>Unit Price (₹)</th>
+            <th>Total Amount (₹)</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ORD001</td>
+            <td>Cheese Pizza</td>
+            <td>5</td>
+            <td>250</td>
+            <td>1250</td>
+            <td>12:30 PM</td>
+          </tr>
+          <tr>
+            <td>ORD002</td>
+            <td>Veg Burger</td>
+            <td>3</td>
+            <td>120</td>
+            <td>360</td>
+            <td>01:15 PM</td>
+          </tr>
+          <tr>
+            <td>ORD003</td>
+            <td>Chicken Pasta</td>
+            <td>2</td>
+            <td>300</td>
+            <td>600</td>
+            <td>02:00 PM</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="summary">
+        <p><strong>Total Orders:</strong> 3</p>
+        <p><strong>Total Items Sold:</strong> 10</p>
+        <p><strong>Total Revenue:</strong> ₹2210</p>
+      </div>
+
+      <section class="chart-section">
+        <h3>Sales Breakdown by Item</h3>
+        <canvas id="dailySalesChart"></canvas>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Manager Dashboard | Restaurant Automation System</p>
+  </footer>
+
+  <script>
+    // Profile Modal Toggle
+    const profileBtn = document.getElementById("profileBtn");
+    const profileModal = document.getElementById("profileModal");
+    profileBtn.addEventListener("click", () => {
+      profileModal.classList.toggle("active");
+    });
+
+    // Dark Mode Toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const currentTheme = document.body.getAttribute("data-theme");
+      if (currentTheme === "dark") {
+        document.body.removeAttribute("data-theme");
+        themeToggle.textContent = "🌙 Dark Mode";
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        themeToggle.textContent = "☀️ Light Mode";
+      }
+    });
+
+    // Dropdown Toggle
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        item.classList.toggle("open");
+        navItems.forEach(other => {
+          if (other !== item) other.classList.remove("open");
+        });
+      });
+    });
+
+    document.addEventListener("click", () => {
+      navItems.forEach(item => item.classList.remove("open"));
+    });
+
+    // Chart.js Data
+    const ctx = document.getElementById('dailySalesChart');
+    const itemNames = ['Cheese Pizza', 'Veg Burger', 'Chicken Pasta'];
+    const salesAmounts = [1250, 360, 600];
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: itemNames,
+        datasets: [{
+          label: 'Sales (₹)',
+          data: salesAmounts,
+          backgroundColor: ['#2ecc71', '#3498db', '#e74c3c'],
+          borderRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: {
+            display: true,
+            text: 'Revenue Generated per Item',
+            color: '#2c3e50',
+            font: { size: 16, weight: 'bold' }
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'Amount (₹)' } },
+          x: { title: { display: true, text: 'Menu Items' } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waiter Dashboard</title>
+<style>
+  body{
+    font-family: "Poppins", sans-serif;
+  }
+  /* Reset & base */
+  * { box-sizing: border-box; margin:0; padding:0; font-family: Arial, sans-serif; }
+  body { background-color:#f4dfbd; color:#1f2937; transition: background 0.3s, color 0.3s; }
+
+  /* Navbar */
+  nav {
+    position:sticky; top:0; z-index:100;
+    display:flex; justify-content:space-between; align-items:center;
+    background-color:#f3e0b4; color:rgb(235, 109, 6); padding:15px 30px;
+    box-shadow:0 3px 6px rgba(0,0,0,0.1);
+  }
+  nav h1 { font-size:22px; }
+
+  .nav-buttons { display:flex; gap:12px; }
+  .nav-buttons button {
+    background-color:#f39e0b; border:none; padding:8px 15px; border-radius:6px;
+    font-weight:bold; cursor:pointer; transition:0.3s;
+  }
+  .nav-buttons button:hover { background-color:#f85700; color:white; }
+
+  .profile-container { position:relative; display:flex; align-items:center; }
+  .profile-pic { width:45px; height:45px; border-radius:50%; border:2px solid #fba847; cursor:pointer; transition:0.3s; }
+  .profile-pic:hover { transform:scale(1.05); }
+
+  .dropdown {
+    position:absolute; top:55px; right:0; background:white; border-radius:10px;
+    display:none; flex-direction:column; min-width:160px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  }
+  .dropdown.active { display:flex; animation:fadeIn 0.2s ease-in-out; }
+  .dropdown button {
+    background:none; border:none; padding:12px 16px; width:100%; text-align:left;
+    cursor:pointer; transition:0.2s; color:#1f2937; font-weight:500;
+  }
+  .dropdown button:hover { background-color:#fff3e0; color:#ea7f32; }
+
+  @keyframes fadeIn { from {opacity:0; transform:translateY(-5px);} to {opacity:1; transform:translateY(0);} }
+
+  /* Header */
+  main { padding:30px; max-width:1200px; margin:0 auto; }
+  header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; }
+  header h2 { font-size:28px; color:#ea7f32; }
+  header p { color:#f97316; margin-top:5px; }
+  #clock { font-weight:bold; color:#ea7f32; }
+
+  /* Dashboard Cards */
+  .dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; }
+  .card { background:rgb(240, 234, 223); border-radius:16px; padding:20px; text-align:center; box-shadow:0 3px 8px rgba(0,0,0,0.1); transition:0.3s; }
+  .card:hover { transform:translateY(-5px); box-shadow:0 6px 15px rgba(0,0,0,0.15); }
+  .card .icon { font-size:40px; margin-bottom:10px; display:inline-block; width:50px; height:50px; line-height:50px; border-radius:50%; background:#fba847; color:white; }
+  .card .value { font-size:2rem; font-weight:bold; color:#ea7f32; margin-top:5px; }
+
+  /* Dark Mode */
+  body.dark { background-color:#1f2937; color:#f3f4f6; }
+  body.dark header h2 { color:#fcd34d; }
+  body.dark header p, body.dark #clock { color:#fbbf24; }
+  body.dark .card { background-color:#374151; color:#f3f4f6; }
+  body.dark .dropdown { background-color:#4b5563; }
+  body.dark .dropdown button { color:#f3f4f6; }
+  body.dark .dropdown button:hover { background-color:#6b7280; color:#fcd34d; }
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+  <h1>🍽️ Waiter Dashboard</h1>
+  <div class="nav-buttons">
+    <button onclick="alert('Active Orders')">Active Orders</button>
+    <button onclick="alert('Table Status')">Table Status</button>
+    <button onclick="alert('Payments')">Payments</button>
+    <button onclick="alert('Customer Feedback')">Feedback</button>
+    <button onclick="toggleDarkMode()">🌓 Dark Mode</button>
+  </div>
+  <div class="profile-container">
+    <img src="https://i.pravatar.cc/100?img=5" class="profile-pic" id="profilePic">
+    <div class="dropdown" id="dropdownMenu">
+      <button onclick="alert('View Profile')">👤 View Profile</button>
+      <button onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Main -->
+<main>
+  <header>
+    <div>
+      <h2>Welcome, Waiter 👨‍🍳</h2>
+      <p>Manage orders, tables, and customer satisfaction.</p>
+    </div>
+    <div style="text-align:right;">
+      <p id="clock"></p>
+    </div>
+  </header>
+
+  <section class="dashboard">
+    <div class="card">
+      <div class="icon">🪑</div>
+      <p>Active Tables</p>
+      <div class="value" id="tables">12</div>
+    </div>
+    <div class="card">
+      <div class="icon">✅</div>
+      <p>Orders Served</p>
+      <div class="value" id="served">46</div>
+    </div>
+    <div class="card">
+      <div class="icon">💵</div>
+      <p>Tips Collected</p>
+      <div class="value" id="tips">$235</div>
+    </div>
+    <div class="card">
+      <div class="icon">📦</div>
+      <p>Pending Requests</p>
+      <div class="value" id="pending">8</div>
+    </div>
+  </section>
+</main>
+
+<script>
+  // Clock
+  function updateClock(){ document.getElementById("clock").textContent = new Date().toLocaleTimeString(); }
+  setInterval(updateClock,1000); updateClock();
+
+  // Dark Mode
+  function toggleDarkMode(){ document.body.classList.toggle("dark"); }
+
+  // Profile Dropdown
+  const profilePic = document.getElementById("profilePic");
+  const dropdownMenu = document.getElementById("dropdownMenu");
+  profilePic.addEventListener("click",()=>{ dropdownMenu.classList.toggle("active"); });
+  document.addEventListener("click",(e)=>{
+    if(!profilePic.contains(e.target) && !dropdownMenu.contains(e.target)){
+      dropdownMenu.classList.remove("active");
+    }
+  });
+
+  // Logout
+  function logout(){ alert("Logged out!"); window.location.reload(); }
+
+  // Simulate changing numbers
+  setInterval(()=>{
+    document.getElementById("tables").textContent = 10 + Math.floor(Math.random()*5);
+    document.getElementById("served").textContent = 40 + Math.floor(Math.random()*10);
+    document.getElementById("tips").textContent = "$" + (200 + Math.floor(Math.random()*50));
+    document.getElementById("pending").textContent = 5 + Math.floor(Math.random()*5);
+  },4000);
+</script>
+
+</body>
+</html>

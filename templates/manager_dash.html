@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manager Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --card-bg: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+
+    .logo span {
+      color: #fff2e6;
+    }
+
+    /* Nav Links */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      position: relative;
+    }
+
+    .nav-item {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      background-color: white;
+      left: 0;
+      bottom: -4px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Dropdown menu */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: var(--card-bg);
+      min-width: 180px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .dropdown-content a {
+      color: var(--text-dark);
+      padding: 10px 15px;
+      display: block;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .dropdown-content a:hover {
+      background-color: rgba(255, 123, 0, 0.1);
+    }
+
+    .nav-item.open .dropdown-content {
+      display: block;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .theme-toggle {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background: #fff2e6;
+    }
+
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .profile img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 60px;
+    }
+
+    header h1 {
+      color: var(--secondary);
+      font-size: 30px;
+    }
+
+    header p {
+      color: #555;
+      margin-top: 5px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-top: 40px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .chart-section {
+      margin-top: 50px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 40px;
+    }
+
+    .chart-container {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .chart-container h2 {
+      color: var(--secondary);
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .profile-modal {
+      display: none;
+      position: fixed;
+      top: 70px;
+      right: 30px;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      border-radius: 12px;
+      padding: 20px;
+      width: 250px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      z-index: 2000;
+    }
+
+    .profile-modal.active {
+      display: block;
+    }
+
+    .logout {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.3s;
+    }
+
+    .logout:hover {
+      background: var(--secondary);
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">MANAGER <span>DASHBOARD</span></div>
+
+    <div class="nav-links">
+      <a href=" {{ url_for('owner_dashboard') }}">Home</a> <!-- 🏠 Added Home Button -->
+
+              <div class="nav-item">
+            <a href="#">Inventory</a>
+            <div class="dropdown-content">
+              <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+              <a href="{{ url_for('low_stock') }}">Low Stock</a>
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <a href="#">Purchase Orders</a>
+            <div class="dropdown-content">
+              <a href="{{ url_for('generate_po') }}">Generate PO</a>
+              <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
+            </div>
+          </div>
+
+          <div class="nav-item">
+            <a href="#">Reports</a>
+            <div class="dropdown-content">
+              <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+              <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+              <a href="{{ url_for('expense_report') }}">Expense Report</a>
+            </div>
+          </div>
+
+      <a href="{{ url_for('analytics') }}">Analytics</a>
+
+
+
+    <div class="nav-actions">
+      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <div class="profile" id="profileBtn">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
+        <span>Manager</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Modal -->
+  <div class="profile-modal" id="profileModal">
+    <h3>Profile</h3>
+    <p><strong>Name:</strong> Manager</p>
+    <p><strong>Role:</strong> Restaurant Manager</p>
+    <p><strong>Email:</strong> manager@restaurant.com</p>
+    <button class="logout">Logout</button>
+  </div>
+
+  <!-- Dashboard -->
+  <main>
+    <header>
+      <h1>Welcome, Manager 👋</h1>
+      <p>Here’s today’s restaurant overview.</p>
+    </header>
+
+    <section class="cards">
+      <div class="card"><h3>Total Sales</h3><p>₹58,800</p></div>
+      <div class="card"><h3>Total Orders</h3><p>270</p></div>
+      <div class="card"><h3>Low Stock Items</h3><p>5</p></div>
+      <div class="card"><h3>Pending POs</h3><p>3</p></div>
+    </section>
+
+    <section class="chart-section">
+      <div class="chart-container">
+        <h2>Monthly Sales Overview</h2>
+        <canvas id="salesChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h2>Ingredient Usage</h2>
+        <canvas id="ingredientChart"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Manager Dashboard | Restaurant Automation System</p>
+  </footer>
+
+  <script>
+    const profileBtn = document.getElementById("profileBtn");
+    const profileModal = document.getElementById("profileModal");
+    profileBtn.addEventListener("click", () => {
+      profileModal.classList.toggle("active");
+    });
+
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const currentTheme = document.body.getAttribute("data-theme");
+      if (currentTheme === "dark") {
+        document.body.removeAttribute("data-theme");
+        themeToggle.textContent = "🌙 Dark Mode";
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        themeToggle.textContent = "☀️ Light Mode";
+      }
+    });
+
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+      item.addEventListener("click", (e) => {
+        e.stopPropagation();
+        item.classList.toggle("open");
+        navItems.forEach(other => {
+          if (other !== item) other.classList.remove("open");
+        });
+      });
+    });
+
+    document.addEventListener("click", () => {
+      navItems.forEach(item => item.classList.remove("open"));
+    });
+
+    const salesCtx = document.getElementById("salesChart").getContext("2d");
+    new Chart(salesCtx, {
+      type: "line",
+      data: {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        datasets: [{
+          label: "Revenue (₹)",
+          data: [22000, 28000, 32000, 41000, 37000, 58800],
+          borderColor: "#ff7b00",
+          backgroundColor: "rgba(255, 123, 0, 0.2)",
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    const ingredientCtx = document.getElementById("ingredientChart").getContext("2d");
+    new Chart(ingredientCtx, {
+      type: "doughnut",
+      data: {
+        labels: ["Cheese", "Buns", "Pasta", "Sauce", "Chicken"],
+        datasets: [{
+          data: [30, 20, 15, 25, 10],
+          backgroundColor: ["#ff7b00", "#d86f00", "#ffae42", "#ffa94d", "#ffd07f"],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        plugins: { legend: { position: "bottom" } }
+      }
+    });
+  </script>
+</body>
+</html>
