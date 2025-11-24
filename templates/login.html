@@ -16,6 +16,8 @@
     --text-medium: #555;
     --text-light: #888;
     --border-color: #ddd;
+    --error-red: #e74c3c;
+    --success-green: #2ecc71;
 }
 
 * {
@@ -103,6 +105,44 @@ body {
     line-height: 1.5;
 }
 
+/* Flash Messages Styling */
+.flash-messages {
+    margin-bottom: 15px;
+}
+
+.flash-message {
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.flash-danger {
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 1px solid var(--error-red);
+    color: var(--error-red);
+}
+
+.flash-danger::before {
+    content: "⚠️";
+    font-size: 1rem;
+}
+
+.flash-success {
+    background-color: rgba(46, 204, 113, 0.1);
+    border: 1px solid var(--success-green);
+    color: var(--success-green);
+}
+
+.flash-success::before {
+    content: "✅";
+    font-size: 1rem;
+}
+
 /* Form Fields */
 .form-group {
     margin-bottom: 15px;
@@ -181,6 +221,11 @@ body {
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(255, 107, 29, 0.4);
+    transition: background-color 0.3s;
+}
+
+.submit-btn:hover {
+    background-color: #e55a0f;
 }
 
 /* End Agreement Text */
@@ -237,25 +282,37 @@ body {
 
 </div>
 
-
-
-<form  method="POST" action="/login">
-
-<!-- EMAIL FIELD -->
-
-<div class="form-group">
-
-<label for="email">Email</label>
-
-<div class="input-wrapper">
-
-<span class="emoji-icon">📧</span>
-
-<input type="email" id="email" name="email" placeholder="Your email address">
-
+<!-- Flash Messages Display -->
+<div class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 </div>
 
-</div>
+
+
+<form method="POST" action="{{ url_for('login') }}">
+
+        {% if return_url %}
+    <input type="hidden" name="return_url" value="{{ return_url }}">
+    {% endif %}
+    
+    <!-- Your existing form fields -->
+    <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+            <span class="emoji-icon">📧</span>
+            <input type="email" id="email" name="email" placeholder="Your email address" required>
+        </div>
+    </div>
+
+
 
 
 
@@ -267,7 +324,7 @@ body {
 <label for="password">Password</label>
 <div class="input-wrapper">
 <span class="emoji-icon">🔒</span>
-<input type="password" id="password" name="password" placeholder="Your password">
+<input type="password" id="password" name="password" placeholder="Your password" required>
 <!-- NEW: Password Toggle Icon -->
 <span class="password-toggle" data-target="password" onclick="togglePasswordVisibility(this)">
     &#128065; <!-- Closed Eye Emoji -->
@@ -279,7 +336,7 @@ body {
 
 <div class="forgot-password">
 
-<a href="#">Forgot password?</a>
+<a href="{{ url_for('forgot_password') }}">Forgot password?</a>
 
 </div>
 
@@ -313,6 +370,20 @@ body {
             toggleElement.innerHTML = '&#128065;'; 
         }
     }
+
+    // Auto-hide flash messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(function(message) {
+            setTimeout(function() {
+                message.style.opacity = '0';
+                message.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    message.remove();
+                }, 500);
+            }, 5000);
+        });
+    });
 </script>
 
 </body>

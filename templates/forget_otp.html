@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify OTP | RAS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --card-bg: #ffffff;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      padding: 40px 35px;
+      text-align: center;
+      position: relative;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .logo span {
+      color: var(--secondary);
+    }
+
+    h2 {
+      color: var(--secondary);
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 25px;
+    }
+
+    .otp-inputs {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+
+    .otp-box {
+      width: 45px;
+      height: 45px;
+      text-align: center;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .otp-box:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 5px rgba(255, 123, 0, 0.3);
+    }
+
+    button {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: var(--secondary);
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--secondary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Notification box */
+    .notification {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 300px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: white;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .notification.success {
+      background: #28a745;
+    }
+
+    .notification.error {
+      background: #e63946;
+    }
+
+    .notification.warning {
+      background: var(--secondary);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, -20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        width: 90%;
+        padding: 30px 20px;
+      }
+
+      .otp-box {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div id="notification" class="notification"></div>
+
+    <div class="logo">🍴 Restaurant Automation System</div>
+    <h2>Verify OTP</h2>
+    <p>Enter the 6-digit OTP sent to your registered email.</p>
+
+    <div class="otp-inputs">
+      <input type="text" maxlength="1" class="otp-box" />
+      <input type="text" maxlength="1" class="otp-box" />
+      <input type="text" maxlength="1" class="otp-box" />
+      <input type="text" maxlength="1" class="otp-box" />
+      <input type="text" maxlength="1" class="otp-box" />
+      <input type="text" maxlength="1" class="otp-box" />
+    </div>
+
+    <button id="verifyBtn">Verify OTP</button>
+
+    <a href="login.html" class="back-link">← Back to Login</a>
+  </div>
+
+  <script>
+    const otpInputs = document.querySelectorAll(".otp-box");
+    const verifyBtn = document.getElementById("verifyBtn");
+    const notification = document.getElementById("notification");
+
+    // Function to show notification
+    function showNotification(type, message) {
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.style.display = "block";
+      setTimeout(() => {
+        notification.style.display = "none";
+      }, 2500);
+    }
+
+    // Auto move between boxes
+    otpInputs.forEach((box, index) => {
+      box.addEventListener("input", (e) => {
+        if (e.target.value.length === 1 && index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+      });
+
+      box.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !box.value && index > 0) {
+          otpInputs[index - 1].focus();
+        }
+      });
+    });
+
+    // OTP verification
+    verifyBtn.addEventListener("click", () => {
+      const enteredOtp = Array.from(otpInputs).map(input => input.value).join("");
+      const storedOtp = localStorage.getItem("otp");
+      const storedEmail = localStorage.getItem("otpEmail");
+
+      if (!storedOtp) {
+        showNotification("warning", "⚠️ No OTP found. Please request a new one.");
+        setTimeout(() => window.location.href = "forgot_password.html", 2500);
+        return;
+      }
+
+      if (enteredOtp === storedOtp) {
+        showNotification("success", `✅ OTP verified for ${storedEmail}. Redirecting...`);
+        localStorage.removeItem("otp");
+        localStorage.removeItem("otpEmail");
+        setTimeout(() => window.location.href = "reset_password.html", 2000);
+      } else {
+        showNotification("error", "❌ Incorrect OTP. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

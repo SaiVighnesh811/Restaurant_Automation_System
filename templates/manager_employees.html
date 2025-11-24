@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Employees | RAS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #ff7b00;
+      --secondary: #d86f00;
+      --bg-light: #fffaf5;
+      --text-dark: #333;
+      --card-bg: #ffffff;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+    }
+
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: "Poppins";
+      background: var(--bg-light);
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      position: relative;
+    }
+
+    .nav-item {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-links a:hover::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: white;
+      left: 0;
+      bottom: -4px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: var(--card-bg);
+      min-width: 180px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .dropdown-content a {
+      color: var(--text-dark);
+      padding: 10px 15px;
+      display: block;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .dropdown-content a:hover {
+      background-color: rgba(255, 123, 0, 0.1);
+    }
+
+    .nav-item.open .dropdown-content {
+      display: block;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      position: relative;
+    }
+
+    .icon-btn {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 6px 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    .icon-btn:hover {
+      background: #fff2e6;
+    }
+
+    .nav-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+
+    .profile-modal {
+      display: none;
+      position: absolute;
+      top: 70px;
+      right: 0;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      width: 220px;
+      text-align: left;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 60px;
+    }
+
+    h1 {
+      color: var(--secondary);
+      margin-bottom: 20px;
+    }
+
+    /* Form */
+    .form-container {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .form-header {
+      margin-bottom: 20px;
+      color: var(--secondary);
+      font-size: 1.2rem;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      align-items: end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    input, select, button {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: "Poppins";
+      font-size: 14px;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(255, 123, 0, 0.1);
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: var(--secondary);
+    }
+
+    /* Table */
+    .table-container {
+      background: var(--card-bg);
+      border-radius: 10px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    /* Status badges */
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status-active {
+      background: #e8f5e8;
+      color: var(--success);
+    }
+
+    .status-inactive {
+      background: #ffebee;
+      color: var(--danger);
+    }
+
+    /* Role badges */
+    .role-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .role-chef {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .role-waiter {
+      background: #e8eaf6;
+      color: #303f9f;
+    }
+
+    .role-clerk {
+      background: #e0f2f1;
+      color: #00695c;
+    }
+
+    /* Action buttons */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--secondary);
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: black;
+    }
+
+    .btn-warning:hover {
+      background: #e0a800;
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    /* Loading and empty states */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-dark);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-light);
+    }
+
+    /* Notifications */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 10000;
+      animation: slideIn 0.3s ease;
+    }
+
+    .notification.success {
+      background: var(--success);
+    }
+
+    .notification.error {
+      background: var(--danger);
+    }
+
+    .notification.warning {
+      background: var(--warning);
+      color: black;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      main {
+        padding: 20px;
+      }
+      
+      form {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      th, td {
+        padding: 10px 8px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="logo">MANAGER <span>DASHBOARD</span></div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="{{ url_for('manager_menu')}}">Menu</a>
+      <a href="{{ url_for('manager_employees')}}">Employee</a>
+      <div class="nav-item">
+        <a href="#">Inventory</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+          <a href="{{ url_for('low_stock') }}">Low Stock</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#">Purchase Orders</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+          <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
+        </div>
+      </div>
+      <div class="nav-item">
+        <a href="#">Reports</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+          <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+          <a href="{{ url_for('expense_report') }}">Expense Report</a>
+        </div>
+      </div>
+      <a href="{{ url_for('analytics') }}">Analytics</a>
+    </div>
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeToggle" title="Toggle Theme">🌙</button>
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" class="nav-image" id="profileBtn" />
+      <div class="profile-modal" id="profileModal">
+        <h3>Profile</h3>
+        <p><strong>Name:</strong> Manager</p>
+        <p><strong>Role:</strong> Restaurant Manager</p>
+        <button onclick="window.location.href='/logout'">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <h1>👨‍🍳 Manage Employees</h1>
+
+    <!-- Add Employee Form -->
+    <div class="form-container">
+      <div class="form-header">Add New Employee</div>
+      <form id="empForm">
+        <div class="form-group">
+          <label for="empName">Full Name</label>
+          <input type="text" id="empName" placeholder="Enter full name" required />
+        </div>
+        <div class="form-group">
+          <label for="empEmail">Email Address</label>
+          <input type="email" id="empEmail" placeholder="Enter email address" required />
+        </div>
+        <div class="form-group">
+          <label for="empRole">Role</label>
+          <select id="empRole" required>
+            <option value="">Select Role</option>
+            <option value="chef">Chef</option>
+            <option value="waiter">Waiter</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">Add Employee</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Employees Table -->
+    <div class="table-container">
+      <table id="empTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Hire Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6" class="loading">Loading employees...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Manage Employees | Restaurant Automation System</p>
+  </footer>
+
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+        const isDark = document.body.getAttribute("data-theme") === "dark";
+        if (isDark) {
+            document.body.removeAttribute("data-theme");
+            themeToggle.textContent = "🌙";
+        } else {
+            document.body.setAttribute("data-theme", "dark");
+            themeToggle.textContent = "☀️";
+        }
+    });
+
+    // Dropdown Logic
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+        item.addEventListener("click", e => {
+            e.stopPropagation();
+            item.classList.toggle("open");
+            navItems.forEach(other => {
+                if (other !== item) other.classList.remove("open");
+            });
+        });
+    });
+    document.addEventListener("click", () => navItems.forEach(item => item.classList.remove("open")));
+
+    // Profile Modal Toggle
+    const profileBtn = document.getElementById("profileBtn");
+    const profileModal = document.getElementById("profileModal");
+    profileBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        profileModal.style.display = profileModal.style.display === "block" ? "none" : "block";
+    });
+    document.addEventListener("click", (e) => {
+        if (!profileModal.contains(e.target) && e.target !== profileBtn) {
+            profileModal.style.display = "none";
+        }
+    });
+
+    // Employee Management
+    const empForm = document.getElementById("empForm");
+    const empTable = document.querySelector("#empTable tbody");
+
+    // Notification system
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+
+    // Load employees from database
+    async function loadEmployees() {
+        try {
+            const response = await fetch('/api/employees');
+            const data = await response.json();
+            
+            if (data.success) {
+                renderEmployees(data.employees);
+            } else {
+                showNotification('Failed to load employees: ' + data.message, 'error');
+                renderEmployees([]);
+            }
+        } catch (error) {
+            console.error('Error loading employees:', error);
+            showNotification('Error loading employees', 'error');
+            renderEmployees([]);
+        }
+    }
+
+    function renderEmployees(employees) {
+        empTable.innerHTML = "";
+        
+        if (employees.length === 0) {
+            empTable.innerHTML = '<tr><td colspan="6" class="empty-state">No employees found</td></tr>';
+            return;
+        }
+        
+        employees.forEach((emp) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${emp.name}</td>
+                <td>${emp.email}</td>
+                <td>
+                    <span class="role-badge role-${emp.role.toLowerCase()}">
+                        ${emp.role}
+                    </span>
+                </td>
+                <td>
+                    <span class="status-badge status-${emp.status}">
+                        ${emp.status}
+                    </span>
+                </td>
+                <td>${emp.hire_date || 'N/A'}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn btn-sm ${emp.status === 'active' ? 'btn-warning' : 'btn-success'}" 
+                                onclick="toggleEmployeeStatus(${emp.id}, '${emp.status}')">
+                            ${emp.status === 'active' ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button class="btn btn-sm btn-primary" 
+                                onclick="resetEmployeePassword(${emp.id}, '${emp.name}')">
+                            Reset Password
+                        </button>
+                        <button class="btn btn-sm btn-danger" 
+                                onclick="deleteEmployee(${emp.id}, '${emp.name}')">
+                            Delete
+                        </button>
+                    </div>
+                </td>
+            `;
+            empTable.appendChild(row);
+        });
+    }
+
+    // Add new employee
+    empForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("empName").value.trim();
+        const email = document.getElementById("empEmail").value.trim();
+        const role = document.getElementById("empRole").value;
+        
+        if (name && email && role) {
+            try {
+                const response = await fetch('/api/employees', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, role })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    await loadEmployees();
+                    empForm.reset();
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error adding employee:', error);
+                showNotification('Error adding employee', 'error');
+            }
+        }
+    });
+
+    // Toggle employee status
+    async function toggleEmployeeStatus(employeeId, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+        const confirmMessage = `Are you sure you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} this employee?`;
+        
+        if (confirm(confirmMessage)) {
+            try {
+                const response = await fetch(`/api/employees/${employeeId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    await loadEmployees();
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error updating employee status:', error);
+                showNotification('Error updating employee status', 'error');
+            }
+        }
+    }
+
+    // Reset employee password
+    async function resetEmployeePassword(employeeId, employeeName) {
+        if (confirm(`Reset password for ${employeeName}? They will receive a temporary password.`)) {
+            try {
+                const response = await fetch(`/api/employees/${employeeId}/reset-password`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error resetting password:', error);
+                showNotification('Error resetting password', 'error');
+            }
+        }
+    }
+
+    // Delete employee
+    async function deleteEmployee(employeeId, employeeName) {
+        if (confirm(`Are you sure you want to delete ${employeeName}? This action cannot be undone.`)) {
+            try {
+                const response = await fetch(`/api/employees/${employeeId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    await loadEmployees();
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting employee:', error);
+                showNotification('Error deleting employee', 'error');
+            }
+        }
+    }
+
+    // Load employees when page loads
+    document.addEventListener('DOMContentLoaded', loadEmployees);
+  </script>
+</body>
+</html>

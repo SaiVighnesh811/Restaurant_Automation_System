@@ -211,6 +211,10 @@
       gap: 15px;
       margin-bottom: 25px;
       flex-wrap: wrap;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     .date-filter label {
@@ -219,17 +223,19 @@
     }
 
     .date-filter input[type="date"] {
-      padding: 6px 10px;
-      border: 1px solid var(--primary);
-      border-radius: 4px;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: var(--bg-light);
+      color: var(--text-dark);
     }
 
     .date-filter button {
       background-color: var(--primary);
       color: #fff;
       border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
+      padding: 8px 20px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
       transition: background 0.3s;
@@ -239,15 +245,45 @@
       background-color: var(--secondary);
     }
 
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--secondary);
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 20px;
+      background: var(--card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
 
     th, td {
       padding: 12px 15px;
       text-align: left;
+      border-bottom: 1px solid #f0f0f0;
     }
 
     thead {
@@ -256,11 +292,11 @@
     }
 
     tbody tr:nth-child(even) {
-      background-color: #fff2e6;
+      background-color: rgba(255, 123, 0, 0.05);
     }
 
     tbody tr:hover {
-      background-color: #ffe0cc;
+      background-color: rgba(255, 123, 0, 0.1);
     }
 
     .summary {
@@ -268,6 +304,23 @@
       font-size: 1.2em;
       color: var(--primary);
       font-weight: 600;
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-dark);
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-style: italic;
     }
 
     footer {
@@ -287,6 +340,10 @@
       table, th, td {
         font-size: 0.9em;
       }
+
+      main {
+        padding: 20px;
+      }
     }
   </style>
 </head>
@@ -297,37 +354,39 @@
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href="manager_dash.html">Home</a>
+      <a href="{{ url_for('owner_dashboard') }}">Home</a>
+      <a href="{{ url_for('manager_menu')}}">Menu</a>
+      <a href="{{ url_for('manager_employees')}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
-          <a href="ingredient_stock.html">Ingredient Stock</a>
-          <a href="lowstock.html">Low Stock Alerts</a>
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+          <a href="{{ url_for('low_stock') }}">Low Stock</a>
         </div>
       </div>
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
         <div class="dropdown-content">
-          <a href="generate_po.html">Generate PO</a>
-          <a href="purchase_order.html">Enter PO Details</a>
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+          <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
         </div>
       </div>
       <div class="nav-item">
         <a href="#">Reports</a>
         <div class="dropdown-content">
-          <a href="daily_sales.html">Daily Sales</a>
-          <a href="monthly_sales.html">Monthly Sales</a>
-          <a href="expense_report.html">Expense Report</a>
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+          <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+          <a href="{{ url_for('expense_report') }}">Expense Report</a>
         </div>
       </div>
-      <a href="analytics.html">Analytics</a>
+      <a href="{{ url_for('analytics') }}">Analytics</a>
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
       <div class="profile" id="profileBtn">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
+        
       </div>
     </div>
   </nav>
@@ -338,14 +397,18 @@
     <p><strong>Name:</strong> Manager</p>
     <p><strong>Role:</strong> Restaurant Manager</p>
     <p><strong>Email:</strong> manager@restaurant.com</p>
-    <button class="logout">Logout</button>
+    <button class="logout" onclick="window.location.href='{{ url_for('logout') }}'">Logout</button>
   </div>
 
   <!-- Expenses Report -->
   <main>
     <h2>Expenses Report</h2>
 
-    <form class="date-filter">
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="loadExpenses()">🔄 Refresh Report</button>
+    </div>
+
+    <form class="date-filter" id="dateFilterForm">
       <label for="from-date">From:</label>
       <input type="date" id="from-date" name="from-date" required>
       <label for="to-date">To:</label>
@@ -353,47 +416,27 @@
       <button type="submit">View Report</button>
     </form>
 
-    <table>
+    <table id="expensesTable">
       <thead>
         <tr>
           <th>Expense ID</th>
           <th>Date</th>
           <th>Type</th>
           <th>Supplier/Payee</th>
+          <th>Description</th>
           <th>Amount (₹)</th>
           <th>Payment Mode</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="expensesBody">
         <tr>
-          <td>EXP001</td>
-          <td>2025-10-01</td>
-          <td>Ingredient Purchase</td>
-          <td>ABC Foods</td>
-          <td>12,000</td>
-          <td>Cheque</td>
-        </tr>
-        <tr>
-          <td>EXP002</td>
-          <td>2025-10-02</td>
-          <td>Utilities</td>
-          <td>Electricity</td>
-          <td>5,000</td>
-          <td>Bank Transfer</td>
-        </tr>
-        <tr>
-          <td>EXP003</td>
-          <td>2025-10-05</td>
-          <td>Ingredient Purchase</td>
-          <td>XYZ Supplies</td>
-          <td>8,500</td>
-          <td>Cash</td>
+          <td colspan="7" class="loading">Loading expenses data...</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="summary">
-      <p><strong>Total Expenses:</strong> ₹25,500</p>
+    <div class="summary" id="expensesSummary">
+      <p><strong>Total Expenses:</strong> ₹0.00</p>
     </div>
   </main>
 
@@ -402,39 +445,141 @@
   </footer>
 
   <script>
-    // Profile Modal
-    const profileBtn = document.getElementById("profileBtn");
-    const profileModal = document.getElementById("profileModal");
-    profileBtn.addEventListener("click", () => {
-      profileModal.classList.toggle("active");
-    });
+    // Set default dates (last 30 days)
+    function setDefaultDates() {
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+      
+      document.getElementById('from-date').value = thirtyDaysAgo.toISOString().split('T')[0];
+      document.getElementById('to-date').value = today.toISOString().split('T')[0];
+    }
 
-    // Dark Mode Toggle
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.body.getAttribute("data-theme");
-      if (currentTheme === "dark") {
-        document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
-      } else {
-        document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+    // Load expenses from API
+    async function loadExpenses() {
+      const fromDate = document.getElementById('from-date').value;
+      const toDate = document.getElementById('to-date').value;
+      
+      if (!fromDate || !toDate) {
+        alert('Please select both start and end dates');
+        return;
       }
-    });
 
-    // Navbar Dropdowns
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach(item => {
-      item.addEventListener("click", (e) => {
-        e.stopPropagation();
-        item.classList.toggle("open");
-        navItems.forEach(other => {
-          if (other !== item) other.classList.remove("open");
+      const tbody = document.getElementById('expensesBody');
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading expenses data...</td></tr>';
+
+      try {
+        const response = await fetch(`/api/expenses?start_date=${fromDate}&end_date=${toDate}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          displayExpenses(data.expenses);
+          updateSummary(data.summary);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="7" class="no-data">Error: ${data.message}</td></tr>`;
+        }
+      } catch (error) {
+        console.error('Error loading expenses:', error);
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">Error loading expenses data</td></tr>';
+      }
+    }
+
+    // Display expenses in table
+    function displayExpenses(expenses) {
+      const tbody = document.getElementById('expensesBody');
+      
+      if (!expenses || expenses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">No expenses found for the selected period</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      
+      expenses.forEach(expense => {
+        const row = document.createElement('tr');
+        const expenseDate = new Date(expense.expense_date).toLocaleDateString();
+        const amount = parseFloat(expense.amount).toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        
+        row.innerHTML = `
+          <td>${expense.expense_number || 'EXP' + expense.id.toString().padStart(3, '0')}</td>
+          <td>${expenseDate}</td>
+          <td>${expense.expense_type || 'General'}</td>
+          <td>${expense.supplier_name || expense.payee || 'N/A'}</td>
+          <td>${expense.description || '-'}</td>
+          <td>₹${amount}</td>
+          <td>${expense.payment_mode || 'Cash'}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Update summary section
+    function updateSummary(summary) {
+      const summaryDiv = document.getElementById('expensesSummary');
+      const totalAmount = parseFloat(summary.total_amount || 0).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      
+      summaryDiv.innerHTML = `
+        <p><strong>Total Expenses:</strong> ₹${totalAmount}</p>
+        <p><strong>Number of Expenses:</strong> ${summary.expense_count || 0}</p>
+        <p><strong>Average per Expense:</strong> ₹${parseFloat(summary.average_amount || 0).toLocaleString('en-IN', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        })}</p>
+      `;
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      setDefaultDates();
+      loadExpenses();
+      
+      // Form submission
+      document.getElementById('dateFilterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        loadExpenses();
+      });
+
+      // Profile Modal
+      const profileBtn = document.getElementById("profileBtn");
+      const profileModal = document.getElementById("profileModal");
+      profileBtn.addEventListener("click", () => {
+        profileModal.classList.toggle("active");
+      });
+
+      // Dark Mode Toggle
+      const themeToggle = document.getElementById("themeToggle");
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme");
+        if (currentTheme === "dark") {
+          document.body.removeAttribute("data-theme");
+          themeToggle.textContent = "🌙";
+        } else {
+          document.body.setAttribute("data-theme", "dark");
+          themeToggle.textContent = "☀️";
+        }
+      });
+
+      // Navbar Dropdowns
+      const navItems = document.querySelectorAll(".nav-item");
+      navItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("open");
+          navItems.forEach(other => {
+            if (other !== item) other.classList.remove("open");
+          });
         });
       });
-    });
-    document.addEventListener("click", () => {
-      navItems.forEach(item => item.classList.remove("open"));
+      
+      document.addEventListener("click", () => {
+        navItems.forEach(item => item.classList.remove("open"));
+      });
     });
   </script>
 </body>

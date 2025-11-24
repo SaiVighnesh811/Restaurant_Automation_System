@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Restaurant Menu</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 <style>
 :root {
   --primary: #ff7b00;
@@ -21,69 +21,238 @@
   --card-bg: #2a2a2a;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
-body { font-family: "Poppins", sans-serif; background-color: var(--bg-light); color: var(--text-dark); min-height: 100vh; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background 0.3s, color 0.3s;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
 
 /* Navbar */
 nav {
-  display: flex; justify-content: space-between; align-items: center;
-  background: linear-gradient(90deg, #ff7b00, #ffae42); padding: 15px 40px; color: white;
-  position: sticky; top: 0; z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #ff7b00, #ffae42);
+  padding: 15px 40px;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
-.logo { font-weight: 700; font-size: 24px; letter-spacing: 1px; }
-.nav-actions { display: flex; align-items: center; gap: 15px; }
-.theme-toggle, .cart { 
-  background: white; color: var(--secondary); border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600;
+.logo {
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 1px;
 }
-.search-bar input { padding: 8px 15px; border-radius: 20px; border: none; outline: none; font-size: 14px; }
-.cart { position: relative; }
-.cart-count { position: absolute; top: -6px; right: -6px; background: red; color: white; border-radius: 50%; font-size: 12px; padding: 2px 6px; display: none; }
-
-/* Profile like dashboard */
-.profile {
+.nav-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  cursor: pointer;
+  gap: 15px;
 }
-.profile img {
-  width: 38px;
-  height: 38px;
+.theme-toggle,
+.cart {
+  background: white;
+  color: var(--secondary);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.search-bar input {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+.cart {
+  position: relative;
+}
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: red;
+  color: white;
   border-radius: 50%;
-  border: 2px solid white;
+  font-size: 12px;
+  padding: 2px 6px;
+  display: none;
 }
 
 /* Menu Section */
-.menu-section { padding: 50px 60px; }
-.menu-section h2 { color: var(--primary); font-size: 24px; margin-bottom: 25px; border-bottom: 2px solid var(--primary); display: inline-block; }
-.menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px; margin-top: 20px; }
-.menu-card { background: var(--card-bg); border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.2s ease; text-align: center; padding-bottom: 15px; }
-.menu-card:hover { transform: translateY(-5px); }
-.menu-card img { width: 100%; height: 180px; object-fit: cover; }
-.menu-card h3 { color: var(--primary); margin: 10px 0; }
-.menu-card p { font-size: 14px; margin: 0 15px 10px; color: #555; }
-.price { font-weight: bold; color: var(--text-dark); }
-.add-btn { background: var(--primary); border: none; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-top: 5px; transition: 0.3s; }
-.add-btn:hover { background: var(--secondary); }
+.menu-section {
+  padding: 40px 30px;
+}
+.menu-section h2 {
+  color: var(--primary);
+  font-size: 26px;
+  margin-bottom: 20px;
+  border-bottom: 3px solid var(--primary);
+  display: inline-block;
+}
+.menu-grid {
+  display: flex;
+  gap: 25px;
+  overflow-x: auto;
+  padding-bottom: 15px;
+  scroll-behavior: smooth;
+}
+
+/* Hide the orange scrollbar completely */
+.menu-grid::-webkit-scrollbar {
+  height: 0;
+}
+
+/* Flip Card */
+.menu-card {
+  flex: 0 0 230px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.menu-card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+.card-front,
+.card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 15px;
+  overflow: hidden;
+}
+.card-front {
+  background: var(--card-bg);
+}
+.card-front img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+.card-front h3 {
+  color: var(--primary);
+  margin: 8px 0;
+}
+.card-front .price {
+  font-weight: bold;
+  color: var(--text-dark);
+}
+.add-btn {
+  background: var(--primary);
+  border: none;
+  color: white;
+  padding: 7px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.3s;
+  margin-top: 8px;
+}
+.add-btn:hover {
+  background: var(--secondary);
+}
+
+.card-back {
+  background: var(--card-bg);
+  color: var(--text-dark);
+  transform: rotateY(180deg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.card-back p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 15px;
+  text-align: center;
+}
+.back-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.back-btn:hover {
+  background: var(--secondary);
+}
 
 /* Cart Modal */
-.cart-modal { display: none; position: fixed; top: 70px; right: 20px; background: var(--card-bg); color: var(--text-dark); border-radius: 12px; padding: 20px; width: 350px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 2000; }
-.cart-modal.active { display: block; }
-.cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 8px; }
-.cart-item span { font-size: 14px; }
-.qty-controls { display: flex; gap: 5px; align-items: center; }
-.qty-controls button { background: var(--primary); color: white; border: none; border-radius: 5px; padding: 2px 8px; cursor: pointer; font-weight: bold; }
-.order-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 10px; width: 100%; margin-top: 10px; font-weight: bold; cursor: pointer; }
-.order-btn:hover { background: var(--secondary); }
-
-/* Profile Modal */
-.profile-modal { display: none; position: fixed; top: 70px; right: 70px; background: var(--card-bg); color: var(--text-dark); border-radius: 12px; padding: 20px; width: 250px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 2000; }
-.profile-modal.active { display: block; }
-.profile-modal h3 { color: var(--secondary); margin-bottom: 10px; font-size: 18px; }
-.profile-modal p { font-size: 14px; margin: 5px 0; }
-.logout { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; margin-top: 10px; cursor: pointer; width: 100%; transition: 0.3s; }
-.logout:hover { background: var(--secondary); }
-
+.cart-modal {
+  display: none;
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: var(--card-bg);
+  color: var(--text-dark);
+  border-radius: 12px;
+  padding: 20px;
+  width: 320px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  z-index: 2000;
+}
+.cart-modal.active {
+  display: block;
+}
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 8px;
+}
+.qty-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.qty-controls button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.order-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  width: 100%;
+  margin-top: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.order-btn:hover {
+  background: var(--secondary);
+}
 </style>
 </head>
 <body>
@@ -91,13 +260,9 @@ nav {
 <nav>
   <div class="logo">🍴 RESTAURANT MENU</div>
   <div class="nav-actions">
-    <div class="search-bar"><input type="text" id="searchInput" placeholder="Search dishes..."></div>
+    <div class="search-bar"><input type="text" id="searchInput" placeholder="Search dishes..." /></div>
     <div class="cart" id="cartBtn">🛒 Cart <span class="cart-count" id="cartCount">0</span></div>
     <button class="theme-toggle" id="themeToggle">🌙 Dark mode</button>
-    <div class="profile" id="profileBtn">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile">
-      <span>John</span>
-    </div>
   </div>
 </nav>
 
@@ -106,139 +271,246 @@ nav {
   <h3>Your Cart</h3>
   <div id="cartItems"></div>
   <p><strong>Total:</strong> ₹<span id="cartTotal">0</span></p>
-  <button class="order-btn">Place Order</button>
+  <button class="order-btn" id="placeOrderBtn">Place Order</button>
 </div>
 
-<!-- Profile Modal -->
-<div class="profile-modal" id="profileModal">
-  <h3>Profile</h3>
-  <p><strong>Name:</strong> John Doe</p>
-  <p><strong>Role:</strong> Customer</p>
-  <p><strong>Email:</strong> john@example.com</p>
-  <button class="logout">Logout</button>
-</div>
-
-<!-- Menu Section -->
 <section class="menu-section" id="menuContainer">
   <div id="menu"></div>
 </section>
 
 <script>
-// Menu data
-const menuData = {
+// Load menu data from localStorage (synced from manager menu) or use default data
+const defaultMenuData = {
+  "Tiffins": [
+    { name: "Idli Sambar", price: 60, img: "../static/images/idlisambar.jpeg", desc: "Soft idlis served with hot sambar and chutney." },
+    { name: "Masala Dosa", price: 90, img: "../static/images/masaladosa.jpeg", desc: "Crispy dosa stuffed with spiced potato masala." },
+    { name: "Uggani Bajji", price: 80, img: "../static/images/ugganibajji.jpeg", desc: "Fluffy puris served with delicious aloo curry." },
+    { name: "Vada Sambar", price: 70, img: "../static/images/vadasambar.jpeg", desc: "Crispy medu vada dipped in flavorful sambar." },
+    { name: "Upma", price: 55, img: "../static/images/upma.jpeg", desc: "Soft roasted semolina cooked with veggies." },
+    { name: "Pongal", price: 70, img: "../static/images/pongal.jpeg", desc: "Traditional South Indian rice-lentil dish." },
+    { name: "Onion Uttapam", price: 85, img: "../static/images/onionuttapam.jpeg", desc: "Thick uttapam topped with onions & spices." },
+    { name: "Ghee Dosa", price: 110, img: "../static/images/gheedosa.jpeg", desc: "Crispy dosa fried with aromatic ghee." },
+    { name: "Rava Dosa", price: 100, img: "../static/images/ravadosa.jpeg", desc: "Thin and crispy semolina dosa." },
+    { name: "Poori Chole", price: 90, img: "../static/images/pootichole.jpeg", desc: "Deep fried pooris with spicy chole." }
+],
+
   "Starters": [
-    { name: "Paneer Tikka", price: 220, img: "https://i.imgur.com/8JYxC2B.jpg" },
-    { name: "Chicken Lollipop", price: 250, img: "https://i.imgur.com/LvW1AMQ.jpg" },
-    { name: "Spring Rolls", price: 180, img: "https://i.imgur.com/tRLbd7S.jpg" }
+    // -------------------- VEG (15) --------------------
+    { name: "Paneer Tikka", price: 220, img: "../static/images/paneertikka.jpeg", desc: "Soft cottage cheese cubes marinated in spices and grilled." },
+    { name: "Veg Manchurian", price: 200, img: "../static/images/vegmanchurian.jpeg", desc: "Crispy veggie balls tossed in spicy Indo-Chinese sauce." },
+    { name: "Spring Rolls", price: 180, img: "../static/images/springrolls.jpeg", desc: "Crispy rolls filled with veggies and noodles." },
+    { name: "Hara Bhara Kabab", price: 190, img: "../static/images/harabarakabab.jpeg", desc: "Nutritious patties made with spinach and peas." },
+    { name: "Veg Crispy", price: 210, img: "../static/images/vegcrispy.jpeg", desc: "Crispy fried vegetables tossed in tangy sauce." },
+    { name: "Corn Cheese Balls", price: 170, img: "../static/images/cheeseballs.jpeg", desc: "Crunchy balls stuffed with sweet corn and cheese." },
+    { name: "Paneer 65", price: 200, img: "../static/images/paneer65.jpeg", desc: "South-Indian style spicy paneer starter." },
+    { name: "Chilli Mushroom", price: 190, img: "../static/images/chillimushroom.jpeg", desc: "Stir-fried mushrooms tossed in chilli sauce." },
+    { name: "Stuffed Aloo Tikki", price: 160, img: "../static/images/stuffedalootikki.jpeg", desc: "Potato patties stuffed with spicy filling." },
+    
+    // -------------------- NON-VEG (15) --------------------
+    { name: "Chicken Lollipop", price: 250, img: "../static/images/chickenlollypop.jfif", desc: "Crispy chicken wings coated in tangy sauce." },
+    { name: "Chicken 65", price: 260, img:  "../static/images/chicken65.jpeg", desc: "Spicy deep-fried chicken bites." },
+    { name: "Fish Fingers", price: 240, img:  "../static/images/fishfingers.jpeg", desc: "Golden fried fish strips." },
+    { name: "Chilli Chicken", price: 260, img:  "../static/images/chillichicken.jpeg", desc: "Chinese style spicy chicken starter." },
+    { name: "Prawn Fry", price: 320, img:   "../static/images/prawnfry.jpeg", desc: "Fried prawns marinated in coastal spices." },
+    { name: "Chicken Tikka", price: 280, img:  "../static/images/chickentikka.jpeg", desc: "Chicken cubes grilled in tandoori spices." },
+    { name: "Mutton Seekh Kabab", price: 350, img:  "../static/images/muttonseekhkabab.jpeg", desc: "Minced mutton kebabs grilled on skewers." },
+    { name: "Chicken Crispy", price: 250, img:  "../static/images/chickencrispy.jpeg", desc: "Crisp chicken tossed in spicy sauce." },
+    { name: "Fish Tikka", price: 300, img:  "../static/images/fishtikka.jpeg", desc: "Fish cubes grilled in tandoor." },
+    { name: "Chicken Popcorn", price: 220, img:  "../static/images/chickenpopcorn.jpeg", desc: "Crispy bite-sized chicken chunks." },
+    
+    { name: "Chicken Pakora", price: 230, img:  "../static/images/chickenpakora.jpeg", desc: "Crispy deep-fried chicken fritters." },
+    { name: "Egg Pakora", price: 150, img:  "../static/images/eggpakora.jpeg", desc: "Boiled eggs fried in chickpea batter." },
+    
   ],
+
   "Main Course": [
-    { name: "Butter Chicken", price: 320, img: "https://i.imgur.com/JbFZc4y.jpg" },
-    { name: "Veg Biryani", price: 280, img: "https://i.imgur.com/7Y5mZtG.jpg" },
-    { name: "Paneer Butter Masala", price: 300, img: "https://i.imgur.com/Q1iD5xZ.jpg" }
+    // -------------------- VEG (15) --------------------
+    { name: "Paneer Butter Masala", price: 300, img: "../static/images/paneerbuttermasala.jpeg", desc: "Creamy rich paneer curry." },
+    { name: "Veg Biryani", price: 280, img: "../static/images/vegbiryani.jpeg", desc: "Fragrant rice slow cooked with veggies." },
+    { name: "Dal Tadka", price: 200, img: "../static/images/daltadka.jpeg", desc: "Yellow dal tempered with garlic." },
+    { name: "Palak Paneer", price: 280, img: "../static/images/palakpaneer.jpeg", desc: "Spinach gravy with paneer cubes." },
+    { name: "Veg Fried Rice", price: 230, img: "../static/images/vegfriedrice.jpeg", desc: "Chinese style rice loaded with veggies." },
+    { name: "Veg Pulao", price: 240, img: "../static/images/vegpulao.jpeg", desc: "Light, fragrant rice with veggies." },
+    { name: "Mix Veg Curry", price: 260, img: "../static/images/mixvegcurry.jpeg", desc: "Mixed seasonal vegetables cooked in gravy." },
+    { name: "Kaju Curry", price: 340, img: "../static/images/kajucurry.jpeg", desc: "Rich curry made with cashews." },
+    { name: "Matar Paneer", price: 280, img: "../static/images/matarpaneer.jpeg", desc: "Peas and paneer cooked in tomato gravy." },
+    { name: "Aloo Gobi", price: 220, img: "../static/images/aloogobi.jpeg", desc: "Cauliflower and potato curry." },
+    
+    { name: "Mushroom Masala", price: 270, img: "../static/images/mushroommasala.jpeg", desc: "Rich curry with mushrooms." },
+    
+    // -------------------- NON-VEG (15) --------------------
+    { name: "Butter Chicken", price: 320, img: "../static/images/butterchicken.jpeg", desc: "Creamy tomato gravy with tender chicken." },
+    { name: "Chicken Fried Rice", price: 270, img: "../static/images/chickenfriedrice.jpeg", desc: "Chinese style chicken rice." },
+    { name: "Mutton Rogan Josh", price: 400, img: "../static/images/muttonroaganjosh.jpeg", desc: "Authentic Kashmiri lamb curry." },
+    { name: "Egg Curry", price: 220, img:"../static/images/eggcurry.jpeg", desc: "Boiled eggs simmered in onion-tomato gravy." },
+    { name: "Chicken Biryani", price: 320, img:"../static/images/chickenbiryani.jpeg", desc: "Slow cooked layered biryani." },
+    { name: "Fish Curry", price: 350, img: "../static/images/fishcurry.jpeg", desc: "Traditional fish curry with spices." },
+    { name: "Chicken Curry", price: 300, img: "../static/images/chickencurry.jpeg", desc: "Classic Indian style chicken gravy." },
+    { name: "Mutton Biryani", price: 420, img:"../static/images/muttonbiryani.jpeg", desc: "Rich aromatic biryani with mutton." },
+    { name: "Egg Biryani", price: 120, img: "../static/images/eggbiryani.jpeg", desc: "Slow cooked layered egg biryani." },
+    { name: "Butter naan", price: 25, img: "../static/images/butternaan.jpeg", desc: "A soft Indian flatbread that is generously brushed with melted butter or ghee after cooking" },
+    { name: "Aloo Paratha", price: 30, img: "../static/images/alooparatha.jpeg", desc: "A popular Indian flatbread stuffed with a spiced mashed potato filling." },
+
+    { name: "Prawn Curry", price: 360, img:"../static/images/prawncurry.jpeg", desc: "Prawns cooked in coastal masala." },
+    { name: "Chicken Keema Fry", price: 350, img: "../static/images/chickenkeemafry.jpeg", desc: "Minced chicken cooked with spices." },
+    { name: "Mutton Keema Fry", price: 360, img: "../static/images/muttonkeemacurry.jpeg", desc: "Dry minced mutton fry." },
   ],
+
   "Desserts": [
-    { name: "Gulab Jamun", price: 120, img: "https://i.imgur.com/w7Cbb5A.jpg" },
-    { name: "Ice Cream Sundae", price: 150, img: "https://i.imgur.com/Ss0DkVq.jpg" },
-    { name: "Chocolate Lava Cake", price: 170, img: "https://i.imgur.com/D7Zt6pX.jpg" }
+    { name: "Gulab Jamun", price: 120, img: "../static/images/gulabjamun.jpeg", desc: "Soft dumplings soaked in sugar syrup." },
+    { name: "Rasmalai", price: 160, img: "../static/images/rasmalai.jpeg", desc: "Chenna patties in sweetened milk." },
+    { name: "Fruit Salad", price: 130, img: "../static/images/fruitsalad.jpeg", desc: "Fresh mixed fruits." },
+    { name: "Falooda", price: 160, img: "../static/images/falooda.jpeg", desc: "Layered dessert with ice cream." },
+    { name: "Mango Pudding", price: 130, img: "../static/images/mangopudding.jpeg", desc: "Soft pudding made with mango." },
+    { name: "Kaju Katli", price: 180, img: "../static/images/kajukatli.jpeg", desc: "Cashew based sweet." },
+    { name: "Jalebi", price: 120, img: "../static/images/jalebi.jpeg", desc: "Crispy syrup coated jalebi." },
+    { name: "Basundi", price: 150, img: "../static/images/basundi.jpeg", desc: "Sweet thickened milk." },
+    { name: "Shrikhand", price: 140, img: "../static/images/shrikhand.jpeg", desc: "Sweet hung curd dessert." },
+    { name: "Custard", price: 110, img: "../static/images/custard.jpeg", desc: "Classic vanilla custard with fruits." }
   ],
+
   "Beverages": [
-    { name: "Lassi", price: 90, img: "https://i.imgur.com/I6zJgQW.jpg" },
-    { name: "Cold Coffee", price: 130, img: "https://i.imgur.com/W5xTg2P.jpg" },
-    { name: "Lemon Iced Tea", price: 110, img: "https://i.imgur.com/5Y7Y4BA.jpg" }
+    { name: "Lassi", price: 90, img: "../static/images/lassi.jpeg", desc: "Refreshing yogurt drink." },
+    { name: "Cold Coffee", price: 130, img: "../static/images/coldcoffee.jpeg", desc: "Chilled coffee blended with milk." },
+    { name: "Mango Shake", price: 140, img: "../static/images/mangoshake.jpeg", desc: "Fresh mango milkshake." },
+    { name: "Hot Chocolate", price: 150, img:"../static/images/hotchocolate.jpeg", desc: "Creamy hot chocolate." },
+    { name: "Masala Chai", price: 60, img:"../static/images/masalachai.jpeg", desc: "Spiced Indian tea." },
+    { name: "Fresh Lime Soda", price: 100, img:"../static/images/freshlimesoda.jpeg", desc: "Sweet & salty lime soda." },
+    { name: "Badam Milk", price: 130, img: "../static/images/badammilk.jpeg", desc: "Almond flavoured milk." },
+    { name: "Strawberry Shake", price: 140, img: "../static/images/strawberryshake.jpeg", desc: "Creamy strawberry shake." },
+    { name: "Orange Juice", price: 110, img: "../static/images/orangejuice.jpeg", desc: "Fresh orange juice." },
+    { name: "Watermelon Juice", price: 100, img:"../static/images/watermelonjuice.jpeg", desc: "Freshly crushed watermelon." },
+    { name: "Cappuccino", price: 150, img: "../static/images/cappuccino.jpeg", desc: "Frothy Italian coffee." },
   ]
 };
 
+// Load menu from localStorage (synced from manager) or use default data
+const menuData = JSON.parse(localStorage.getItem("customerMenuData")) || defaultMenuData;
+
 const menuContainer = document.getElementById("menu");
-const cartBtn = document.getElementById("cartBtn");
 const cartModal = document.getElementById("cartModal");
 const cartItemsDiv = document.getElementById("cartItems");
 const cartCountEl = document.getElementById("cartCount");
 const cartTotal = document.getElementById("cartTotal");
-const profileBtn = document.getElementById("profileBtn");
-const profileModal = document.getElementById("profileModal");
-
 let cart = [];
 
-// Render menu
-for(const [section, items] of Object.entries(menuData)){
+// Render Menu
+for (const [section, items] of Object.entries(menuData)) {
   const sectionDiv = document.createElement("div");
   sectionDiv.innerHTML = `<h2>${section}</h2><div class='menu-grid'></div>`;
   const grid = sectionDiv.querySelector(".menu-grid");
-  items.forEach(item=>{
+
+  items.forEach(item => {
     const card = document.createElement("div");
     card.classList.add("menu-card");
-    card.innerHTML = `<img src="${item.img}" alt="${item.name}">
-                      <h3>${item.name}</h3>
-                      <p>Delicious and freshly prepared!</p>
-                      <span class="price">₹${item.price}</span><br>
-                      <button class="add-btn">Add to Cart</button>`;
-    card.querySelector(".add-btn").addEventListener("click",()=>addToCart(item));
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front">
+          <img src="${item.img}" alt="${item.name}">
+          <h3>${item.name}</h3>
+          <p class="price">₹${item.price}</p>
+          <button class="add-btn">Add to Cart</button>
+        </div>
+        <div class="card-back">
+          <p>${item.desc}</p>
+          <button class="back-btn">Back</button>
+        </div>
+      </div>`;
+
+    const backBtn = card.querySelector(".back-btn");
+    card.querySelector(".card-front img").addEventListener("click", () => card.classList.add("flipped"));
+    backBtn.addEventListener("click", e => {
+      e.stopPropagation();
+      card.classList.remove("flipped");
+    });
+
+    card.querySelector(".add-btn").addEventListener("click", () => addToCart(item));
     grid.appendChild(card);
   });
   menuContainer.appendChild(sectionDiv);
 }
 
-// Cart functions
-function addToCart(item){const existing=cart.find(i=>i.name===item.name); if(existing) existing.qty++; else cart.push({...item, qty:1}); updateCart();}
-function increaseQty(name){const item=cart.find(i=>i.name===name); if(item) item.qty++; updateCart();}
-function decreaseQty(name){const item=cart.find(i=>i.name===name); if(item){if(item.qty>1) item.qty--; else cart=cart.filter(i=>i.name!==name);} updateCart();}
-function updateCart(){
-  cartItemsDiv.innerHTML="";
-  let total=0,count=0;
-  cart.forEach(item=>{
-    total+=item.price*item.qty; count+=item.qty;
-    const div=document.createElement("div");
-    div.classList.add("cart-item");
-    div.innerHTML=`<span>${item.name}</span>
-                   <div class="qty-controls">
-                     <button class="decrease">−</button>
-                     <span>${item.qty}</span>
-                     <button class="increase">+</button>
-                   </div>`;
-    div.querySelector(".increase").addEventListener("click",()=>increaseQty(item.name));
-    div.querySelector(".decrease").addEventListener("click",()=>decreaseQty(item.name));
-    cartItemsDiv.appendChild(div);
-  });
-  cartCountEl.textContent=count;
-  cartCountEl.style.display=count>0?"inline-block":"none";
-  cartTotal.textContent=total;
+// Cart Functions
+function addToCart(item) {
+  const existing = cart.find(i => i.name === item.name);
+  if (existing) existing.qty++;
+  else cart.push({ ...item, qty: 1 });
+  updateCart();
 }
 
-// Toggle modals
-cartBtn.addEventListener("click",()=>cartModal.classList.toggle("active"));
-profileBtn.addEventListener("click",()=>profileModal.classList.toggle("active"));
+function increaseQty(name) {
+  const item = cart.find(i => i.name === name);
+  if (item) item.qty++;
+  updateCart();
+}
+function decreaseQty(name) {
+  const item = cart.find(i => i.name === name);
+  if (item) {
+    if (item.qty > 1) item.qty--;
+    else cart = cart.filter(i => i.name !== name);
+  }
+  updateCart();
+}
+
+function updateCart() {
+  cartItemsDiv.innerHTML = "";
+  let total = 0, count = 0;
+  cart.forEach(item => {
+    total += item.price * item.qty;
+    count += item.qty;
+    const div = document.createElement("div");
+    div.classList.add("cart-item");
+    div.innerHTML = `
+      <span>${item.name}</span>
+      <div class="qty-controls">
+        <button onclick="decreaseQty('${item.name}')">−</button>
+        <span>${item.qty}</span>
+        <button onclick="increaseQty('${item.name}')">+</button>
+      </div>`;
+    cartItemsDiv.appendChild(div);
+  });
+  cartCountEl.textContent = count;
+  cartCountEl.style.display = count > 0 ? "inline-block" : "none";
+  cartTotal.textContent = total;
+}
+
+// Toggle Cart Modal
+document.getElementById("cartBtn").addEventListener("click", () => cartModal.classList.toggle("active"));
 
 // Theme toggle
-const themeToggle=document.getElementById("themeToggle");
-themeToggle.addEventListener("click",()=>{
-  if(document.body.getAttribute("data-theme")==="dark"){
-    document.body.removeAttribute("data-theme"); themeToggle.textContent="🌙 Dark mode";
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const themeToggle = document.getElementById("themeToggle");
+  if (document.body.getAttribute("data-theme") === "dark") {
+    document.body.removeAttribute("data-theme");
+    themeToggle.textContent = "🌙 Dark mode";
   } else {
-    document.body.setAttribute("data-theme","dark"); themeToggle.textContent="☀️ Light mode";
+    document.body.setAttribute("data-theme", "dark");
+    themeToggle.textContent = "☀️ Light mode";
   }
 });
 
-// Search
-document.getElementById("searchInput").addEventListener("input",e=>{
-  const query=e.target.value.toLowerCase();
-  document.querySelectorAll(".menu-card").forEach(card=>{
-    const name=card.querySelector("h3").textContent.toLowerCase();
-    card.style.display=name.includes(query)?"block":"none";
+// Search functionality
+document.getElementById("searchInput").addEventListener("input", e => {
+  const query = e.target.value.toLowerCase();
+  document.querySelectorAll(".menu-card").forEach(card => {
+    const name = card.querySelector("h3").textContent.toLowerCase();
+    card.style.display = name.includes(query) ? "block" : "none";
   });
 });
 
-document.querySelector(".order-btn").addEventListener("click", () => {
+// ADDED: Payment redirect functionality
+document.getElementById("placeOrderBtn").addEventListener("click", function() {
   if (cart.length === 0) {
-    alert("Your cart is empty! Please add items before placing an order.");
+    alert("Your cart is empty! Please add some items first.");
     return;
   }
-
+  
   // Store cart details locally so we can show them in payment page
   localStorage.setItem("cart", JSON.stringify(cart));
   localStorage.setItem("total", cartTotal.textContent);
 
   // Redirect to Flask payment page
-  window.location.href = "{{ url_for('payment') }}";
+  window.location.href = "/payment";
 });
 </script>
 </body>

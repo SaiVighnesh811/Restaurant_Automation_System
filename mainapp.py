@@ -1,4 +1,4 @@
-# app.py
+# mainapp.py
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
@@ -209,14 +209,18 @@ def create_default_owner():
     finally:
         cursor.close()
 
-# Initialize database on first request
-@app.before_first_request
+# Initialize database when app starts
 def initialize_app():
-    try:
-        init_database()
-        create_default_owner()
-    except Exception as e:
-        print(f"Initialization error: {e}")
+    with app.app_context():
+        try:
+            init_database()
+            create_default_owner()
+            print("Database initialization completed successfully")
+        except Exception as e:
+            print(f"Database initialization error: {e}")
+
+# Initialize the database when the app starts
+initialize_app()
 
 # ---------------------------------
 # HOME PAGE

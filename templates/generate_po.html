@@ -291,41 +291,42 @@
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href="manager_dash.html">Home</a>
-
+      <a href=" {{ url_for('owner_dashboard') }}">Home</a>
+       <a href="{{ url_for('manager_menu')}}">Menu</a>
+      <a href="{{ url_for('manager_employees')}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
-          <a href="ingredient_stock.html">Ingredient Stock</a>
-          <a href="lowstock.html">Low Stock Alerts</a>
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+              <a href="{{ url_for('low_stock') }}">Low Stock</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
         <div class="dropdown-content">
-          <a href="generate_po.html">Generate PO</a>
-          <a href="purchase_order.html">Enter PO Details</a>
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+              <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Reports</a>
         <div class="dropdown-content">
-          <a href="daily_sales.html">Daily Sales</a>
-          <a href="monthly_sales.html">Monthly Sales</a>
-          <a href="expense_report.html">Expense Report</a>
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+              <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+              <a href="{{ url_for('expense_report') }}">Expense Report</a>
         </div>
       </div>
 
-      <a href="analytics.html">Analytics</a>
+      <a href="{{ url_for('analytics') }}">Analytics</a>
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
       <div class="profile" id="profileBtn">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
+        
       </div>
     </div>
   </nav>
@@ -398,10 +399,10 @@
       const currentTheme = document.body.getAttribute("data-theme");
       if (currentTheme === "dark") {
         document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
+        themeToggle.textContent = "🌙";
       } else {
         document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+        themeToggle.textContent = "☀️";
       }
     });
 

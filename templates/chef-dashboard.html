@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chef Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -12,65 +13,401 @@
       --secondary: #d86f00;
       --bg-light: #fffaf5;
       --text-dark: #333;
-      --text-light: #fff;
       --card-bg: #ffffff;
     }
 
-    * { box-sizing: border-box; }
-    body {
-      font-family: sans-serif;
-      background-color: var(--light-bg);
+    [data-theme="dark"] {
+      --bg-light: #1e1e1e;
+      --text-dark: #ffffff;
+      --card-bg: #2a2a2a;
+    }
+
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: var(--bg-light);
       color: var(--text-dark);
-      overflow-x: hidden;
-      transition: background-color 0.3s, color 0.3s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    body.dark {
-      background-color: var(--dark-bg);
-      color: var(--dark-text);
-    }
-
-    /* NAVBAR */
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background-color: rgb(246, 221, 185);
-      padding: 15px 25px;
+    /* Navbar */
+    nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      transition: background-color 0.3s, color 0.3s;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 15px 40px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
-    body.dark .navbar { background-color: #111827; }
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
 
-    .navbar-left h1 {
-      font-size: 1.5rem;
-      color: var(--primary-dark);
-      margin: 0;
+    .logo span {
+      color: #fff2e6;
+    }
+
+    /* Nav Links */
+    .nav-links {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 30px;
+      position: relative;
     }
 
-    body.dark .navbar-left h1 { color: #FDBA74; }
+    .nav-item {
+      position: relative;
+      cursor: pointer;
+    }
 
-    .navbar-right {
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 2px;
+      background-color: white;
+      left: 0;
+      bottom: -4px;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Dropdown menu */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: var(--card-bg);
+      min-width: 180px;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .dropdown-content a {
+      color: var(--text-dark);
+      padding: 10px 15px;
+      display: block;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .dropdown-content a:hover {
+      background-color: rgba(255, 123, 0, 0.1);
+    }
+
+    .nav-item.open .dropdown-content {
+      display: block;
+    }
+
+    .nav-actions {
       display: flex;
       align-items: center;
       gap: 10px;
       position: relative;
     }
 
-    .nav-btn {
+    .icon-btn {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 6px 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+
+    .icon-btn:hover {
+      background: #fff2e6;
+    }
+
+    /* Profile Image */
+    .profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid white;
+      transition: transform 0.2s ease;
+    }
+
+    .profile img:hover {
+      transform: scale(1.05);
+    }
+
+    /* Profile Modal */
+    .profile-modal {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      padding: 20px;
+      width: 200px;
+      z-index: 2000;
+    }
+
+    .profile-modal.active {
+      display: block;
+    }
+
+    .profile-modal h3 {
+      margin-bottom: 10px;
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    .profile-modal p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+
+    .profile-modal button {
+      background: var(--primary);
+      border: none;
+      color: white;
+      padding: 8px 10px;
+      border-radius: 6px;
+      width: 100%;
+      margin-top: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .profile-modal button:hover {
+      background: var(--secondary);
+    }
+
+    main {
+      flex: 1;
+      padding: 40px 60px;
+    }
+
+    header h1 {
+      color: var(--secondary);
+      font-size: 30px;
+    }
+
+    header p {
+      color: #555;
+      margin-top: 5px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      margin-top: 40px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card h3 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .section {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    .section:hover {
+      transform: scale(1.01);
+    }
+
+    .section h2 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f1f1;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 6px;
-      background-color: var(--primary);
-      color: rgb(250, 250, 248);
+      gap: 12px;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    .order-meta {
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .order-actions button {
+      margin-left: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-prepare {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-ready {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-cancel {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* Live table styles */
+    .live-table-wrap {
+      overflow-x: auto;
+      margin-bottom: 16px;
+    }
+
+    table.live-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    table.live-table th, table.live-table td {
+      padding: 10px 12px;
+      border: 1px solid #eee;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    table.live-table thead tr {
+      background: #fff4e6;
+      color: #7a2b00;
+    }
+
+    table.live-table tbody tr:hover {
+      background: rgba(0,0,0,0.02);
+    }
+
+    /* Ingredient Usage Styles */
+    .ingredient-usage {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      margin-bottom: 20px;
+      transition: 0.3s;
+    }
+
+    .ingredient-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f1f1;
+    }
+
+    .ingredient-item:last-child {
+      border-bottom: none;
+    }
+
+    .ingredient-info {
+      flex: 1;
+    }
+
+    .ingredient-name {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .ingredient-stock {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .ingredient-actions button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .ingredient-actions button:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .filter-buttons {
+      margin-bottom: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      background: var(--primary);
+      color: white;
       border: none;
       padding: 8px 14px;
       border-radius: 8px;
@@ -79,200 +416,462 @@
       transition: all 0.3s;
     }
 
-    .nav-btn:hover {
-      background-color: var(--primary-dark);
+    .filter-btn:hover {
+      background: var(--secondary);
       transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(234,88,12,0.3);
     }
 
-    .navbar-right .profile-pic {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
-      border: 2px solid var(--primary);
-      cursor: pointer;
-      transition: 0.3s;
+    .filter-btn.active {
+      opacity: 1;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
     }
 
-    .profile-pic:hover { transform: scale(1.05); }
-
-    .dropdown {
-      position: absolute;
-      top: 60px;
-      right: 0;
-      background-color: rgb(239, 131, 8);
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: none;
-      flex-direction: column;
-      min-width: 160px;
-      overflow: hidden;
-      z-index: 200;
-      transition: background-color 0.3s, color 0.3s;
+    .filter-btn:not(.active) {
+      opacity: 0.9;
+      box-shadow: none;
+      transform: none;
     }
-
-    body.dark .dropdown { background-color: #374151; }
-
-    .dropdown.active { display: flex; animation: fadeIn 0.2s ease-in-out; }
-
-    .dropdown button {
-      background: none;
-      border: none;
-      padding: 12px 16px;
-      text-align: left;
-      width: 100%;
-      font-size: 15px;
-      color: var(--text-dark);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    body.dark .dropdown button { color: var(--dark-text); }
-
-    .dropdown button:hover { background-color: #fff1e6; color: var(--primary-dark); }
-    body.dark .dropdown button:hover { background-color: #4b5563; color: #FDBA74; }
-
-    @keyframes fadeIn { from { opacity:0; transform:translateY(-5px);} to { opacity:1; transform:translateY(0);} }
-
-    /* CONTENT */
-    .content { padding: 25px; }
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px,1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    .card {
-      background: rgb(243, 234, 220);
-      border-radius: 16px;
-      padding: 20px;
-      text-align: center;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s;
-    }
-    body.dark .card { background-color: var(--dark-card); color: var(--dark-text); }
-
-    .card:hover { transform: translateY(-5px); box-shadow:0 6px 15px rgba(0,0,0,0.15); }
-    .icon { color: var(--primary); width:40px; height:40px; animation: wiggle 2s infinite; }
-    .value { font-size:2rem; font-weight:700; color: var(--primary-dark);}
-    body.dark .value { color: #FDBA74; }
-
-    .section { background:rgb(254, 244, 218); border-radius:16px; padding:20px; box-shadow:0 3px 8px rgba(0,0,0,0.1); margin-bottom:20px; transition:0.3s; }
-    body.dark .section { background-color: #374151; color: var(--dark-text); }
-    .section:hover { transform: scale(1.01); }
-    .section h2 { color: var(--primary-dark); margin-bottom:10px; }
-    body.dark .section h2 { color: #FDBA74; }
-
-    ul { list-style:none; margin:0; padding:0; }
-    li { padding:6px 0; border-bottom:1px solid #f1f1f1; }
-    li:last-child { border-bottom:none; }
-    body.dark li { border-color: #4b5563; }
 
     @media(max-width:768px) {
-      .navbar { flex-direction: column; align-items:flex-start; gap:10px; }
-      .navbar-left, .navbar-right { width:100%; justify-content:space-between; }
+      nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .nav-links {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      
+      .ingredient-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      
+      .ingredient-actions {
+        align-self: flex-end;
+      }
+      
+      main {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
   <!-- Navbar -->
-  <nav class="navbar">
-    <div class="navbar-left">
-      <h1><i data-lucide="chef-hat"></i> Chef Dashboard</h1>
+  <nav>
+    <div class="logo">CHEF <span>DASHBOARD</span></div>
+
+    <div class="nav-links">
+      <a href="#">Home</a>
+     
+      <a href="{{ url_for('ingredient_stock') }}">Inventory</a>
     </div>
 
-    <div class="navbar-right">
-      <button class="nav-btn"><i data-lucide="book-open"></i> Log Inventory</button>
-      <button class="nav-btn" id="toggleTheme"><i data-lucide="moon"></i> Dark Mode</button>
-      <img src="https://i.pravatar.cc/100?img=12" alt="Chef Profile" class="profile-pic" id="profilePic" />
-      <div class="dropdown" id="dropdownMenu">
-        <button><i data-lucide="user"></i> View Profile</button>
-        <button><i data-lucide="log-out"></i> Logout</button>
+    <div class="nav-actions">
+      <button class="icon-btn" id="refreshBtn" title="Refresh">🔄</button>
+      <button class="icon-btn" id="themeToggle" title="Toggle Theme">🌙</button>
+      <div class="profile" id="profileBtn">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Chef Profile" />
+      </div>
+
+      <!-- Profile Modal -->
+      <div class="profile-modal" id="profileModal">
+        <h3>Profile</h3>
+        <p><strong>Name:</strong> Chef</p>
+        <p><strong>Role:</strong> Head Chef</p>
+        
+        <button id="logoutBtn">Logout</button>
       </div>
     </div>
   </nav>
 
-  <div class="content">
+  <!-- Dashboard -->
+  <main>
+    <header>
+      <h1>Welcome, Chef 👋</h1>
+      <p>Here's today's kitchen overview — updated live from database.</p>
+    </header>
+
     <!-- Dashboard Cards -->
-    <div class="dashboard-grid">
+    <section class="cards">
       <div class="card">
-        <i data-lucide="clipboard-list" class="icon"></i>
-        <p>Pending Orders</p>
-        <p class="value" id="pending">12</p>
+        <h3>Pending Orders</h3>
+        <p id="pendingCount">—</p>
       </div>
       <div class="card">
-        <i data-lucide="utensils-crossed" class="icon"></i>
-        <p>Cooking</p>
-        <p class="value" id="cooking">5</p>
+        <h3>Cooking</h3>
+        <p id="cookingCount">—</p>
       </div>
       <div class="card">
-        <i data-lucide="bell" class="icon"></i>
-        <p>Ready to Serve</p>
-        <p class="value" id="ready">7</p>
+        <h3>Ready to Serve</h3>
+        <p id="readyCount">—</p>
       </div>
-    </div>
+    </section>
 
-    <!-- Menu and Orders -->
-    <div class="section">
-      <h2>Today's Menu</h2>
-      <ul>
-        <li>🍝 Spaghetti Carbonara</li>
-        <li>🥗 Caesar Salad</li>
-        <li>🍛 Butter Chicken</li>
-        <li>🍰 Chocolate Lava Cake</li>
-      </ul>
-    </div>
+    <!-- Ingredient Usage Section -->
+    <section class="ingredient-usage">
+      <h2>Update Ingredient Usage</h2>
+      <div id="chefIngredientsList">
+        <div style="text-align: center; color: #666; padding: 20px;">
+          Loading ingredients...
+        </div>
+      </div>
+    </section>
 
-    <div class="section">
+    <!-- Orders Section -->
+    <section class="section">
       <h2>Upcoming Orders</h2>
-      <ul id="orders">
-        <li>#1021 – Pasta Primavera</li>
-        <li>#1022 – Veg Burger</li>
-        <li>#1023 – Chicken Tikka</li>
-      </ul>
-    </div>
-  </div>
+
+      <!-- Status filter buttons -->
+      <div class="filter-buttons">
+        <button class="filter-btn" id="filter-placed" onclick="loadOrders('placed')">Pending</button>
+        <button class="filter-btn" id="filter-preparing" onclick="loadOrders('preparing')">Preparing</button>
+        <button class="filter-btn" id="filter-ready" onclick="loadOrders('ready')">Ready</button>
+        <button class="filter-btn" id="filter-delivered" onclick="loadOrders('delivered')">Delivered</button>
+      </div>
+
+      <!-- LIVE TABLE: will be populated from /chef/orders -->
+      <div class="live-table-wrap">
+        <table class="live-table" id="ordersTable" aria-live="polite">
+          <thead>
+            <tr>
+              <th style="width:80px">Order</th>
+              <th>Customer</th>
+              <th style="width:170px">Time</th>
+              <th>Items (name × qty)</th>
+              <th style="width:80px">Table</th>
+              <th style="width:120px">Status</th>
+              <th style="width:180px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <tr><td colspan="7" style="text-align:center;color:#666">Loading orders…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Also keep the dynamic list for alternative view (hidden by default) -->
+      <ul id="ordersList" style="display:none"></ul>
+    </section>
+  </main>
 
   <script>
     lucide.createIcons();
 
-    const pending = document.getElementById("pending");
-    const cooking = document.getElementById("cooking");
-    const ready = document.getElementById("ready");
+    // DOM refs
+    const pendingCountEl = document.getElementById('pendingCount');
+    const cookingCountEl = document.getElementById('cookingCount');
+    const readyCountEl = document.getElementById('readyCount');
+    const ordersTableBody = document.getElementById('ordersTableBody');
+    const ordersList = document.getElementById('ordersList');
 
-    setInterval(()=>{
-      pending.textContent = 10 + Math.floor(Math.random()*6);
-      cooking.textContent = 3 + Math.floor(Math.random()*5);
-      ready.textContent = 5 + Math.floor(Math.random()*5);
-    },4000);
+    // filter buttons (to show active state and remember current filter)
+    const filterButtons = {
+      placed: document.getElementById('filter-placed'),
+      preparing: document.getElementById('filter-preparing'),
+      ready: document.getElementById('filter-ready'),
+      delivered: document.getElementById('filter-delivered')
+    };
 
-    const profilePic = document.getElementById("profilePic");
-    const dropdownMenu = document.getElementById("dropdownMenu");
+    let currentFilter = 'placed'; // default
 
-    profilePic.addEventListener("click", ()=>{
-      dropdownMenu.classList.toggle("active");
-    });
-
-    document.addEventListener("click", (e)=>{
-      if(!profilePic.contains(e.target) && !dropdownMenu.contains(e.target)){
-        dropdownMenu.classList.remove("active");
+    // helper: mark active filter button
+    function setActiveFilter(name) {
+      currentFilter = name || 'placed';
+      for (const k in filterButtons) {
+        const btn = filterButtons[k];
+        if (!btn) continue;
+        if (k === currentFilter) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
       }
-    });
+    }
 
-    // Dark/Light mode toggle
-    const toggleTheme = document.getElementById("toggleTheme");
-    toggleTheme.addEventListener("click", ()=>{
-      document.body.classList.toggle("dark");
-      if(document.body.classList.contains("dark")){
-        toggleTheme.innerHTML = '<i data-lucide="sun"></i> Light Mode';
+    // Render one order row (chef-focused: items + qty, no prices)
+    function renderOrderRow(order) {
+      const tr = document.createElement('tr');
+
+      // order id
+      const tdOrder = document.createElement('td');
+      tdOrder.textContent = `#${order.id}`;
+      tr.appendChild(tdOrder);
+
+      // customer
+      const tdCustomer = document.createElement('td');
+      tdCustomer.innerHTML = `<strong>${order.customer_name || 'Guest'}</strong><div style="font-size:0.85rem;color:#666">${order.customer_email || ''}</div>`;
+      tr.appendChild(tdCustomer);
+
+      // time
+      const tdTime = document.createElement('td');
+      tdTime.style.fontSize = '0.9rem';
+      tdTime.style.color = '#444';
+      tdTime.textContent = order.created_at ? new Date(order.created_at).toLocaleString() : '';
+      tr.appendChild(tdTime);
+
+      // items (name × qty) - chef wants this only
+      const tdItems = document.createElement('td');
+      const items = (order.items || []).map(it => {
+        const name = it.item_name || it.name || 'Item';
+        const qty = (it.qty !== undefined) ? it.qty : (it.quantity || 1);
+        return `${name} ×${qty}`;
+      });
+      tdItems.innerHTML = items.length ? items.join('<br>') : '<span style="color:#666">No items</span>';
+      tr.appendChild(tdItems);
+
+      // table no
+      const tdTable = document.createElement('td');
+      tdTable.textContent = order.table_no || '—';
+      tr.appendChild(tdTable);
+
+      // status
+      const tdStatus = document.createElement('td');
+      tdStatus.textContent = order.current_status || order.order_status || 'placed';
+      tr.appendChild(tdStatus);
+
+      // actions: start / ready / cancel
+      const tdActions = document.createElement('td');
+      tdActions.style.display = 'flex';
+      tdActions.style.gap = '8px';
+
+      const btnStart = document.createElement('button');
+      btnStart.className = 'btn-prepare';
+      btnStart.textContent = 'Start';
+      btnStart.onclick = () => updateStatus(order.id, 'preparing');
+
+      const btnReady = document.createElement('button');
+      btnReady.className = 'btn-ready';
+      btnReady.textContent = 'Ready';
+      btnReady.onclick = () => updateStatus(order.id, 'ready');
+
+      const btnCancel = document.createElement('button');
+      btnCancel.className = 'btn-cancel';
+      btnCancel.textContent = 'Cancel';
+      btnCancel.onclick = () => {
+        if (confirm('Cancel this order?')) updateStatus(order.id, 'cancelled');
+      };
+
+      tdActions.appendChild(btnStart);
+      tdActions.appendChild(btnReady);
+      tdActions.appendChild(btnCancel);
+
+      tr.appendChild(tdActions);
+
+      return tr;
+    }
+
+    // Fetch orders from backend and populate the table
+    async function loadOrders(status = 'placed') {
+      setActiveFilter(status);
+      // show a loading row
+      ordersTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#666">Loading orders…</td></tr>`;
+      try {
+        const res = await fetch(`/chef/orders?status=${encodeURIComponent(status)}`, { cache: 'no-store' });
+
+        if (!res.ok) {
+          const text = await res.text().catch(()=>null);
+          console.error('chef/orders failed', res.status, text);
+          ordersTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#b91c1c">Error: server returned ${res.status}</td></tr>`;
+          pendingCountEl.textContent = '—';
+          cookingCountEl.textContent = '—';
+          readyCountEl.textContent = '—';
+          return;
+        }
+
+        const data = await res.json().catch(()=>null);
+        if (!data || !data.success) {
+          const msg = data && data.message ? data.message : 'Invalid response';
+          ordersTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#b91c1c">Error: ${msg}</td></tr>`;
+          pendingCountEl.textContent = '—';
+          cookingCountEl.textContent = '—';
+          readyCountEl.textContent = '—';
+          return;
+        }
+
+        const orders = data.orders || [];
+
+        // update counts from returned dataset
+        let pending = 0, cooking = 0, ready = 0;
+        orders.forEach(o=>{
+          const s = (o.current_status || o.order_status || '').toLowerCase();
+          if (s === 'placed' || s === 'pending') pending++;
+          else if (s === 'preparing' || s === 'cooking') cooking++;
+          else if (s === 'ready') ready++;
+        });
+        pendingCountEl.textContent = pending;
+        cookingCountEl.textContent = cooking;
+        readyCountEl.textContent = ready;
+
+        // populate table
+        if (!orders.length) {
+          ordersTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#666">No orders found.</td></tr>`;
+          return;
+        }
+
+        ordersTableBody.innerHTML = '';
+        orders.forEach(order => {
+          const row = renderOrderRow(order);
+          ordersTableBody.appendChild(row);
+        });
+
+      } catch (err) {
+        console.error('Error loading orders', err);
+        ordersTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#b91c1c">Error loading orders (see console)</td></tr>`;
+        pendingCountEl.textContent = '—';
+        cookingCountEl.textContent = '—';
+        readyCountEl.textContent = '—';
+      } finally {
+        lucide.createIcons();
+      }
+    }
+
+    // update order status via backend
+    async function updateStatus(orderId, newStatus) {
+      try {
+        const resp = await fetch('/chef/update_order_status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: orderId, new_status: newStatus })
+        });
+        const data = await resp.json().catch(()=>null);
+        if (!resp.ok) {
+          alert('Failed to update: ' + (data && data.message ? data.message : resp.statusText));
+          return;
+        }
+        // reload the currently active filter
+        await loadOrders(currentFilter);
+      } catch (err) {
+        console.error('Status update error', err);
+        alert('Error updating status');
+      }
+    }
+
+    // Load ingredients for chef
+    async function loadChefIngredients() {
+      try {
+        const response = await fetch('/api/ingredients');
+        const data = await response.json();
+        
+        if (data.success) {
+          const container = document.getElementById('chefIngredientsList');
+          container.innerHTML = '';
+          
+          if (data.ingredients.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No ingredients found.</div>';
+            return;
+          }
+          
+          data.ingredients.forEach(ingredient => {
+            const div = document.createElement('div');
+            div.className = 'ingredient-item';
+            div.innerHTML = `
+              <div class="ingredient-info">
+                <div class="ingredient-name">${ingredient.name}</div>
+                <div class="ingredient-stock">Current: ${ingredient.current_stock} ${ingredient.unit} | Reorder at: ${ingredient.reorder_level} ${ingredient.unit}</div>
+              </div>
+              <div class="ingredient-actions">
+                <button onclick="chefUseIngredient(${ingredient.id}, '${ingredient.name}')">Use</button>
+              </div>
+            `;
+            container.appendChild(div);
+          });
+        } else {
+          document.getElementById('chefIngredientsList').innerHTML = '<div style="text-align: center; color: #dc2626; padding: 20px;">Error loading ingredients</div>';
+        }
+      } catch (error) {
+        console.error('Error loading ingredients:', error);
+        document.getElementById('chefIngredientsList').innerHTML = '<div style="text-align: center; color: #dc2626; padding: 20px;">Error loading ingredients</div>';
+      }
+    }
+
+    // Chef use ingredient
+    async function chefUseIngredient(ingredientId, ingredientName) {
+      const quantity = prompt(`How much ${ingredientName} did you use?`);
+      
+      if (quantity && !isNaN(quantity) && parseFloat(quantity) > 0) {
+        const note = prompt('Note (optional):');
+        
+        try {
+          const response = await fetch(`/api/ingredients/${ingredientId}/use`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              quantity: parseFloat(quantity), 
+              note: note || `Used by chef` 
+            })
+          });
+          
+          const data = await response.json();
+          
+          if (data.success) {
+            alert('Usage recorded successfully!');
+            loadChefIngredients(); // Refresh the ingredient list
+          } else {
+            alert('Error: ' + data.message);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error recording usage');
+        }
+      } else if (quantity !== null) {
+        alert('Please enter a valid quantity');
+      }
+    }
+
+    // Theme toggle
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      const currentTheme = document.body.getAttribute("data-theme");
+      if (currentTheme === "dark") {
+        document.body.removeAttribute("data-theme");
+        themeToggle.textContent = "🌙";
       } else {
-        toggleTheme.innerHTML = '<i data-lucide="moon"></i> Dark Mode';
+        document.body.setAttribute("data-theme", "dark");
+        themeToggle.textContent = "☀️";
       }
-      lucide.createIcons();
     });
+
+    // Profile modal toggle
+    const profileBtn = document.getElementById("profileBtn");
+    const profileModal = document.getElementById("profileModal");
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      profileModal.classList.toggle("active");
+    });
+    document.addEventListener("click", (e) => {
+      if (!profileModal.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileModal.classList.remove("active");
+      }
+    });
+
+    // Refresh button
+    document.getElementById("refreshBtn").addEventListener("click", () => {
+      loadOrders(currentFilter);
+      loadChefIngredients();
+    });
+
+    // Logout & inventory navigation
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) logoutBtn.addEventListener("click", () => { window.location.href = "{{ url_for('home') }}"; });
+
+    const viewProfileBtn = document.getElementById("viewProfileBtn");
+    if (viewProfileBtn) viewProfileBtn.addEventListener("click", () => { 
+      // Add view profile functionality here
+      alert("View Profile functionality would go here");
+    });
+
+    // initial load + poll
+    setActiveFilter(currentFilter);
+    loadOrders(currentFilter);
+    loadChefIngredients(); // Load ingredients when page loads
+    setInterval(()=> loadOrders(currentFilter), 6000);
   </script>
 </body>
 </html>

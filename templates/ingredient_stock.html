@@ -255,6 +255,180 @@
       margin-top: auto;
     }
 
+    /* New styles for dynamic functionality */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      transition: 0.3s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+      transform: translateY(-2px);
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 3000;
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .modal h3 {
+      margin-bottom: 20px;
+      color: var(--secondary);
+      font-size: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .stock-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-sufficient { background: #d4edda; color: #155724; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-low { background: #f8d7da; color: #721c24; }
+
+    /* PO Items List */
+    .po-item {
+      background: var(--bg-light);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #eee;
+    }
+
+    .po-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .po-item-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .po-item-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .po-item-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+
+    .low-stock-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: var(--bg-light);
+      border-radius: 8px;
+    }
+
+    .supplier-info {
+      background: var(--bg-light);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .action-buttons-cell {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 900px) {
       nav {
         flex-direction: column;
@@ -267,6 +441,15 @@
       table th, table td {
         padding: 10px;
       }
+      .action-buttons {
+        flex-direction: column;
+      }
+      .po-item-details {
+        grid-template-columns: 1fr;
+      }
+      .action-buttons-cell {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -278,41 +461,42 @@
 
     <!-- Nav Links with Dropdown -->
     <div class="nav-links">
-      <a href="manager_dash.html">Home</a>
-
+      <a href="{{ url_for('owner_dashboard') }}">Home</a>
+       <a href="{{ url_for('manager_menu')}}">Menu</a>
+      <a href="{{ url_for('manager_employees')}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
           <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
-          <a href="lowstock.html">Low Stock Alerts</a>
+          <a href="{{ url_for('low_stock') }}">Low Stock</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
         <div class="dropdown-content">
-          <a href="generate_po.html">Generate PO</a>
-          <a href="purchase_order.html">Enter PO Details</a>
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+          <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Reports</a>
         <div class="dropdown-content">
-          <a href="daily_sales.html">Daily Sales</a>
-          <a href="monthly_sales.html">Monthly Sales</a>
-          <a href="expense_report.html">Expense Report</a>
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+          <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+          <a href="{{ url_for('expense_report') }}">Expense Report</a>
         </div>
       </div>
 
-      <a href="analytics.html">Analytics</a>
+      <a href="{{ url_for('analytics') }}">Analytics</a>
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
       <div class="profile" id="profileBtn">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
+       
       </div>
     </div>
   </nav>
@@ -330,10 +514,18 @@
   <main class="main-content">
     <header>
       <h1>Ingredient Stock</h1>
-      <p>Overview of all ingredients in the inventory.</p>
+      <p>Overview of all ingredients in the inventory. Real-time updates from chef usage.</p>
     </header>
 
-    <table>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="loadIngredients()">🔄 Refresh Stock</button>
+      <button class="btn btn-success" onclick="showAddIngredientModal()">➕ Add New Ingredient</button>
+      <button class="btn btn-success" onclick="showGeneratePOModal()">📋 Generate Purchase Order</button>
+    </div>
+
+    <!-- Ingredients Table -->
+    <table id="ingredientsTable">
       <thead>
         <tr>
           <th>Ingredient</th>
@@ -341,58 +533,520 @@
           <th>Unit</th>
           <th>Reorder Level</th>
           <th>Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
-        <tr><td>Cheese</td><td>120</td><td>kg</td><td>50</td><td>✅ Sufficient</td></tr>
-        <tr><td>Buns</td><td>40</td><td>pieces</td><td>50</td><td>⚠️ Low</td></tr>
-        <tr><td>Pasta</td><td>80</td><td>kg</td><td>30</td><td>✅ Sufficient</td></tr>
-        <tr><td>Tomato Sauce</td><td>25</td><td>liters</td><td>20</td><td>✅ Sufficient</td></tr>
-        <tr><td>Chicken</td><td>15</td><td>kg</td><td>20</td><td>⚠️ Low</td></tr>
+      <tbody id="ingredientsBody">
+        <!-- Dynamic content will be loaded here -->
+        <tr><td colspan="6" style="text-align: center;">Loading ingredients...</td></tr>
       </tbody>
     </table>
   </main>
+
+  <!-- Use Ingredient Modal -->
+  <div class="modal" id="useIngredientModal">
+    <div class="modal-content">
+      <h3>Use Ingredient</h3>
+      <form id="useIngredientForm">
+        <input type="hidden" id="useIngredientId">
+        <div class="form-group">
+          <label for="useQuantity">Quantity to Use:</label>
+          <input type="number" id="useQuantity" step="0.01" min="0.01" required>
+        </div>
+        <div class="form-group">
+          <label for="useNote">Note (optional):</label>
+          <textarea id="useNote" rows="3" placeholder="Reason for usage..."></textarea>
+        </div>
+        <div class="modal-buttons">
+          <button type="button" class="btn" onclick="closeUseModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Use Ingredient</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Ingredient Modal -->
+  <div class="modal" id="addIngredientModal">
+    <div class="modal-content">
+        <h3>Add New Ingredient</h3>
+        <form id="addIngredientForm">
+            <div class="form-group">
+                <label for="ingredientName">Ingredient Name:</label>
+                <input type="text" id="ingredientName" placeholder="Enter ingredient name" required>
+            </div>
+            <div class="form-group">
+                <label for="ingredientUnit">Unit:</label>
+                <input type="text" id="ingredientUnit" placeholder="e.g., kg, pieces, liters" required>
+            </div>
+            <div class="form-group">
+                <label for="initialStock">Initial Stock Quantity:</label>
+                <input type="number" id="initialStock" step="0.01" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label for="reorderLevel">Reorder Level:</label>
+                <input type="number" id="reorderLevel" step="0.01" min="0" value="10" required>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn" onclick="closeAddModal()">Cancel</button>
+                <button type="submit" class="btn btn-success">Add Ingredient</button>
+            </div>
+        </form>
+    </div>
+  </div>
+
+  <!-- Delete Ingredient Modal -->
+  <div class="modal" id="deleteIngredientModal">
+    <div class="modal-content">
+        <h3>Delete Ingredient</h3>
+        <div class="form-group">
+            <p>Are you sure you want to delete <strong id="deleteIngredientName"></strong>?</p>
+            <p style="color: #dc3545; font-weight: 600;">⚠️ This action cannot be undone. This will remove the ingredient from:</p>
+            <ul style="color: #dc3545; margin-left: 20px; margin-top: 10px;">
+                <li>Ingredient stock database</li>
+                <li>All purchase orders</li>
+                <li>Inventory transactions</li>
+                <li>Low stock alerts</li>
+            </ul>
+        </div>
+        <div class="modal-buttons">
+            <button type="button" class="btn" onclick="closeDeleteModal()">Cancel</button>
+            <button type="button" class="btn btn-danger" onclick="confirmDeleteIngredient()">Delete Permanently</button>
+        </div>
+    </div>
+  </div>
+
+  <!-- Generate PO Modal -->
+  <div class="modal" id="generatePOModal">
+    <div class="modal-content">
+      <h3>Generate Purchase Order</h3>
+      
+      <div class="low-stock-list" id="lowStockItems">
+        <!-- Low stock items will be loaded here -->
+      </div>
+
+      <div class="supplier-info">
+        <h4 style="margin-bottom: 15px; color: var(--secondary);">Supplier Information</h4>
+        <div class="form-group">
+          <label for="supplierName">Supplier Name:</label>
+          <input type="text" id="supplierName" placeholder="Enter supplier name" required>
+        </div>
+        <div class="form-group">
+          <label for="supplierContact">Contact Information:</label>
+          <input type="text" id="supplierContact" placeholder="Phone or email">
+        </div>
+        <div class="form-group">
+          <label for="deliveryDate">Expected Delivery Date:</label>
+          <input type="date" id="deliveryDate">
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button type="button" class="btn" onclick="closePOModal()">Cancel</button>
+        <button type="button" class="btn btn-success" onclick="generatePO()">Generate Purchase Order</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <p>© 2025 Manager Dashboard | Restaurant Automation System</p>
   </footer>
 
   <script>
-    // Profile modal toggle
-    const profileBtn = document.getElementById("profileBtn");
-    const profileModal = document.getElementById("profileModal");
-    profileBtn.addEventListener("click", () => {
-      profileModal.classList.toggle("active");
-    });
+    // Load ingredients from API
+    async function loadIngredients() {
+      try {
+        const response = await fetch('/api/ingredients');
+        const data = await response.json();
+        
+        if (data.success) {
+          const tbody = document.getElementById('ingredientsBody');
+          tbody.innerHTML = '';
+          
+          data.ingredients.forEach(ingredient => {
+            const badgeClass = `badge-${ingredient.status}`;
+            const statusText = ingredient.status === 'sufficient' ? '✅ Sufficient' : 
+                             ingredient.status === 'warning' ? '⚠️ Warning' : '❌ Low';
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${ingredient.name}</td>
+              <td>${ingredient.current_stock}</td>
+              <td>${ingredient.unit}</td>
+              <td>${ingredient.reorder_level}</td>
+              <td><span class="stock-badge ${badgeClass}">${statusText}</span></td>
+              <td>
+                <div class="action-buttons-cell">
+                  <button class="btn btn-primary" onclick="showUseModal(${ingredient.id}, '${ingredient.name}')">
+                    Use
+                  </button>
+                  <button class="btn btn-danger" 
+                          onclick="showDeleteModal(${ingredient.id}, '${ingredient.name}')">
+                    Delete
+                  </button>
+                </div>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          alert('Error loading ingredients: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading ingredients');
+      }
+    }
 
-    // Dark Mode Toggle
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.body.getAttribute("data-theme");
-      if (currentTheme === "dark") {
-        document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
-      } else {
-        document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+    // Show use ingredient modal
+    function showUseModal(ingredientId, ingredientName) {
+      document.getElementById('useIngredientId').value = ingredientId;
+      document.getElementById('useIngredientModal').style.display = 'block';
+    }
+
+    // Close use modal
+    function closeUseModal() {
+      document.getElementById('useIngredientModal').style.display = 'none';
+      document.getElementById('useIngredientForm').reset();
+    }
+
+    // Use ingredient form submission
+    document.getElementById('useIngredientForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const ingredientId = document.getElementById('useIngredientId').value;
+      const quantity = document.getElementById('useQuantity').value;
+      const note = document.getElementById('useNote').value;
+      
+      try {
+        const response = await fetch(`/api/ingredients/${ingredientId}/use`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity, note })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Ingredient used successfully!');
+          closeUseModal();
+          loadIngredients(); // Refresh the table
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error using ingredient');
       }
     });
 
-    // Dropdown toggle
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach(item => {
-      item.addEventListener("click", (e) => {
-        e.stopPropagation();
-        item.classList.toggle("open");
-        navItems.forEach(other => {
-          if (other !== item) other.classList.remove("open");
-        });
-      });
+    // Show add ingredient modal
+    function showAddIngredientModal() {
+        document.getElementById('addIngredientModal').style.display = 'block';
+    }
+
+    // Close add modal
+    function closeAddModal() {
+        document.getElementById('addIngredientModal').style.display = 'none';
+        document.getElementById('addIngredientForm').reset();
+    }
+
+    // Show delete modal
+    function showDeleteModal(ingredientId, ingredientName) {
+        document.getElementById('deleteIngredientName').textContent = ingredientName;
+        document.getElementById('deleteIngredientModal').setAttribute('data-ingredient-id', ingredientId);
+        document.getElementById('deleteIngredientModal').setAttribute('data-ingredient-name', ingredientName);
+        document.getElementById('deleteIngredientModal').style.display = 'block';
+    }
+
+    // Close delete modal
+    function closeDeleteModal() {
+        document.getElementById('deleteIngredientModal').style.display = 'none';
+    }
+
+    // Confirm and delete ingredient
+    async function confirmDeleteIngredient() {
+        const ingredientId = document.getElementById('deleteIngredientModal').getAttribute('data-ingredient-id');
+        const ingredientName = document.getElementById('deleteIngredientModal').getAttribute('data-ingredient-name');
+        
+        try {
+            const response = await fetch(`/api/ingredients/${ingredientId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert(`✅ ${data.message}`);
+                closeDeleteModal();
+                loadIngredients(); // Refresh the table
+            } else {
+                alert(`❌ Error: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Network error while deleting ingredient. Please try again.');
+        }
+    }
+
+    // Add ingredient form submission
+    document.getElementById('addIngredientForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('ingredientName').value.trim();
+        const unit = document.getElementById('ingredientUnit').value.trim();
+        const current_stock = parseFloat(document.getElementById('initialStock').value) || 0;
+        const reorder_level = parseFloat(document.getElementById('reorderLevel').value);
+        
+        if (!name || !unit) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/ingredients/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    unit: unit,
+                    current_stock: current_stock,
+                    reorder_level: reorder_level
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('✅ Ingredient added successfully!');
+                closeAddModal();
+                loadIngredients(); // Refresh the table
+            } else {
+                alert('❌ Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Network error while adding ingredient. Please try again.');
+        }
     });
 
-    // Close dropdown if click outside
-    document.addEventListener("click", () => {
-      navItems.forEach(item => item.classList.remove("open"));
+    // Show generate PO modal
+    async function showGeneratePOModal() {
+      try {
+        const response = await fetch('/api/ingredients/low-stock');
+        const data = await response.json();
+        
+        if (data.success) {
+          const container = document.getElementById('lowStockItems');
+          
+          if (data.low_stock.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No low stock items found. All ingredients are sufficiently stocked.</p>';
+          } else {
+            container.innerHTML = '<h4 style="margin-bottom: 15px; color: var(--secondary);">Low Stock Items</h4>';
+            
+            data.low_stock.forEach(item => {
+              const neededQty = Math.max(1, Math.ceil(item.needed_quantity));
+              
+              const poItem = document.createElement('div');
+              poItem.className = 'po-item';
+              poItem.innerHTML = `
+                <div class="po-item-header">
+                  <div class="po-item-checkbox">
+                    <input type="checkbox" name="poItem" value="${item.id}" 
+                           data-name="${item.name}" data-unit="${item.unit}" checked 
+                           onchange="togglePOItem(this)">
+                    <strong>${item.name}</strong>
+                  </div>
+                  <div style="color: #dc3545; font-weight: 600;">
+                    Current: ${item.current_stock} ${item.unit} | Need: ${neededQty} ${item.unit}
+                  </div>
+                </div>
+                <div class="po-item-details">
+                  <div class="form-group">
+                    <label>Quantity to Order:</label>
+                    <input type="number" name="poQuantity" value="${neededQty}" min="1" 
+                           class="po-quantity" data-ingredient-id="${item.id}">
+                  </div>
+                  <div class="form-group">
+                    <label>Unit Price (₹):</label>
+                    <input type="number" name="poPrice" placeholder="0.00" step="0.01" min="0" 
+                           class="po-price" data-ingredient-id="${item.id}">
+                  </div>
+                  <div class="form-group">
+                    <label>Total: ₹</label>
+                    <input type="text" class="po-total" data-ingredient-id="${item.id}" 
+                           value="0.00" readonly style="background: #f8f9fa;">
+                  </div>
+                </div>
+              `;
+              container.appendChild(poItem);
+            });
+
+            // Add event listeners for price calculations
+            document.querySelectorAll('.po-price').forEach(input => {
+              input.addEventListener('input', calculatePOTotals);
+            });
+            document.querySelectorAll('.po-quantity').forEach(input => {
+              input.addEventListener('input', calculatePOTotals);
+            });
+
+            // Initial calculation
+            calculatePOTotals();
+          }
+          
+          document.getElementById('generatePOModal').style.display = 'block';
+        } else {
+          alert('Error loading low stock items: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading low stock items');
+      }
+    }
+
+    // Calculate PO totals
+    function calculatePOTotals() {
+      document.querySelectorAll('.po-item').forEach(item => {
+        const ingredientId = item.querySelector('.po-quantity').getAttribute('data-ingredient-id');
+        const quantity = parseFloat(item.querySelector('.po-quantity').value) || 0;
+        const price = parseFloat(item.querySelector('.po-price').value) || 0;
+        const total = quantity * price;
+        
+        item.querySelector('.po-total').value = total.toFixed(2);
+      });
+    }
+
+    // Toggle PO item
+    function togglePOItem(checkbox) {
+      const itemDiv = checkbox.closest('.po-item');
+      const inputs = itemDiv.querySelectorAll('input[type="number"]');
+      inputs.forEach(input => {
+        input.disabled = !checkbox.checked;
+      });
+    }
+
+    // Close PO modal
+    function closePOModal() {
+      document.getElementById('generatePOModal').style.display = 'none';
+      // Reset form
+      document.getElementById('supplierName').value = '';
+      document.getElementById('supplierContact').value = '';
+      document.getElementById('deliveryDate').value = '';
+    }
+
+    // Generate Purchase Order
+    async function generatePO() {
+      const supplierName = document.getElementById('supplierName').value.trim();
+      if (!supplierName) {
+        alert('Please enter supplier name');
+        return;
+      }
+
+      const items = [];
+      let hasErrors = false;
+      
+      document.querySelectorAll('.po-item').forEach(item => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        if (checkbox.checked) {
+          const ingredientId = checkbox.value;
+          const quantity = parseFloat(item.querySelector('.po-quantity').value);
+          const price = parseFloat(item.querySelector('.po-price').value);
+          
+          if (!quantity || quantity <= 0) {
+            alert(`Please enter a valid quantity for ${checkbox.getAttribute('data-name')}`);
+            hasErrors = true;
+            return;
+          }
+          
+          if (!price || price <= 0) {
+            alert(`Please enter a valid price for ${checkbox.getAttribute('data-name')}`);
+            hasErrors = true;
+            return;
+          }
+          
+          items.push({
+            ingredient_id: parseInt(ingredientId),
+            quantity: quantity,
+            unit_price: price
+          });
+        }
+      });
+      
+      if (hasErrors) return;
+      
+      if (items.length === 0) {
+        alert('Please select at least one item to order');
+        return;
+      }
+      
+      const supplierInfo = {
+        name: supplierName,
+        contact: document.getElementById('supplierContact').value.trim(),
+        delivery_date: document.getElementById('deliveryDate').value
+      };
+      
+      try {
+        const response = await fetch('/api/generate-po', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: items,
+            supplier_info: supplierInfo
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert(`✅ Purchase Order ${data.po_number} generated successfully!\n\nYou can now view it in the Purchase Orders section.`);
+          closePOModal();
+          loadIngredients(); // Refresh stock data
+        } else {
+          alert('❌ Error generating PO: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Network error while generating PO. Please try again.');
+      }
+    }
+
+    // Load ingredients when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadIngredients();
+      
+      // Your existing JavaScript for navbar, theme, etc.
+      const profileBtn = document.getElementById("profileBtn");
+      const profileModal = document.getElementById("profileModal");
+      profileBtn.addEventListener("click", () => {
+        profileModal.classList.toggle("active");
+      });
+
+      const themeToggle = document.getElementById("themeToggle");
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme");
+        if (currentTheme === "dark") {
+          document.body.removeAttribute("data-theme");
+          themeToggle.textContent = "🌙";
+        } else {
+          document.body.setAttribute("data-theme", "dark");
+          themeToggle.textContent = "☀️";
+        }
+      });
+
+      const navItems = document.querySelectorAll(".nav-item");
+      navItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("open");
+          navItems.forEach(other => {
+            if (other !== item) other.classList.remove("open");
+          });
+        });
+      });
+
+      document.addEventListener("click", () => {
+        navItems.forEach(item => item.classList.remove("open"));
+      });
     });
   </script>
 </body>

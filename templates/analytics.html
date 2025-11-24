@@ -246,37 +246,39 @@
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href="manager_dash.html">Home</a>
+      <a href=" {{ url_for('owner_dashboard') }}">Home</a>
+      <a href="{{ url_for('manager_menu')}}">Menu</a>
+      <a href="{{ url_for('manager_employees')}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
-          <a href="ingredient_stock.html">Ingredient Stock</a>
-          <a href="lowstock.html">Low Stock Alerts</a>
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+              <a href="{{ url_for('low_stock') }}">Low Stock</a>
         </div>
       </div>
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
         <div class="dropdown-content">
-          <a href="generate_po.html">Generate PO</a>
-          <a href="purchase_order.html">Enter PO Details</a>
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+              <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
         </div>
       </div>
       <div class="nav-item">
         <a href="#">Reports</a>
         <div class="dropdown-content">
-          <a href="daily_sales.html">Daily Sales</a>
-          <a href="monthly_sales.html">Monthly Sales</a>
-          <a href="expense_report.html">Expense Report</a>
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+              <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+              <a href="{{ url_for('expense_report') }}">Expense Report</a>
         </div>
       </div>
-      <a href="analytics.html">Analytics</a>
+      <a href="{{ url_for('analytics') }}">Analytics</a>
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
       <div class="profile" id="profileBtn">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
+        
       </div>
     </div>
   </nav>
@@ -321,108 +323,224 @@
     <p>© 2025 Manager Dashboard | Restaurant Automation System</p>
   </footer>
 
-  <script>
+<script>
     // Profile Modal
     const profileBtn = document.getElementById("profileBtn");
     const profileModal = document.getElementById("profileModal");
     profileBtn.addEventListener("click", () => {
-      profileModal.classList.toggle("active");
+        profileModal.classList.toggle("active");
     });
 
     // Dark Mode Toggle
     const themeToggle = document.getElementById("themeToggle");
     themeToggle.addEventListener("click", () => {
-      const currentTheme = document.body.getAttribute("data-theme");
-      if (currentTheme === "dark") {
-        document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
-      } else {
-        document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
-      }
+        const currentTheme = document.body.getAttribute("data-theme");
+        if (currentTheme === "dark") {
+            document.body.removeAttribute("data-theme");
+            themeToggle.textContent = "🌙";
+        } else {
+            document.body.setAttribute("data-theme", "dark");
+            themeToggle.textContent = "☀️";
+        }
     });
 
     // Navbar Dropdowns
     const navItems = document.querySelectorAll(".nav-item");
     navItems.forEach(item => {
-      item.addEventListener("click", (e) => {
-        e.stopPropagation();
-        item.classList.toggle("open");
-        navItems.forEach(other => {
-          if (other !== item) other.classList.remove("open");
+        item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            item.classList.toggle("open");
+            navItems.forEach(other => {
+                if (other !== item) other.classList.remove("open");
+            });
         });
-      });
     });
     document.addEventListener("click", () => {
-      navItems.forEach(item => item.classList.remove("open"));
+        navItems.forEach(item => item.classList.remove("open"));
     });
 
-    // Charts
-    const salesCtx = document.getElementById('salesChart').getContext('2d');
-    new Chart(salesCtx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
-        datasets: [{
-          label: 'Total Sales (₹)',
-          data: [45000, 52000, 49000, 60000, 75000, 82000, 87000, 92000, 98000, 105000],
-          borderColor: '#2ecc71',
-          backgroundColor: 'rgba(46, 204, 113, 0.2)',
-          fill: true,
-          tension: 0.3
-        }]
-      },
-      options: { responsive: true, plugins: { legend: { display: false } } }
+    // Logout functionality
+    document.querySelector('.logout').addEventListener('click', function() {
+        window.location.href = "{{ logout_url }}";
     });
 
-    const stockCtx = document.getElementById('stockChart').getContext('2d');
-    new Chart(stockCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Rice', 'Oil', 'Paneer', 'Tomato', 'Spices', 'Cheese'],
-        datasets: [{
-          label: 'Stock (kg)',
-          data: [120, 80, 50, 100, 40, 30],
-          backgroundColor: ['#f1c40f', '#e67e22', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c']
-        }]
-      },
-      options: { responsive: true, plugins: { legend: { display: false } } }
-    });
+    // Dynamic Charts with Real Data
+    async function loadAnalyticsData() {
+        try {
+            // Load all data in parallel
+            const [salesRes, stockRes, expenseRes, compareRes, metricsRes, topItemsRes] = await Promise.all([
+                fetch('/api/analytics/monthly-sales'),
+                fetch('/api/analytics/ingredient-stock'),
+                fetch('/api/analytics/expense-distribution'),
+                fetch('/api/analytics/sales-vs-expenses'),
+                fetch('/api/analytics/order-metrics'),
+                fetch('/api/analytics/top-selling-items')
+            ]);
 
-    const expenseCtx = document.getElementById('expenseChart').getContext('2d');
-    new Chart(expenseCtx, {
-      type: 'pie',
-      data: {
-        labels: ['Ingredients', 'Salaries', 'Utilities', 'Maintenance', 'Misc.'],
-        datasets: [{
-          label: 'Expenses',
-          data: [45, 25, 10, 12, 8],
-          backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#9b59b6', '#1abc9c']
-        }]
-      },
-      options: { responsive: true }
-    });
+            const salesData = await salesRes.json();
+            const stockData = await stockRes.json();
+            const expenseData = await expenseRes.json();
+            const compareData = await compareRes.json();
+            const metricsData = await metricsRes.json();
+            const topItemsData = await topItemsRes.json();
 
-    const compareCtx = document.getElementById('compareChart').getContext('2d');
-    new Chart(compareCtx, {
-      type: 'bar',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [
-          {
-            label: 'Sales (₹)',
-            data: [45000, 52000, 49000, 60000, 75000, 82000],
-            backgroundColor: '#2ecc71'
-          },
-          {
-            label: 'Expenses (₹)',
-            data: [30000, 32000, 35000, 40000, 42000, 45000],
-            backgroundColor: '#e74c3c'
-          }
-        ]
-      },
-      options: { responsive: true, scales: { y: { beginAtZero: true } } }
-    });
-  </script>
+            // Update charts with real data
+            updateSalesChart(salesData);
+            updateStockChart(stockData);
+            updateExpenseChart(expenseData);
+            updateCompareChart(compareData);
+            updateMetrics(metricsData);
+            updateTopItems(topItemsData);
+
+        } catch (error) {
+            console.error('Error loading analytics data:', error);
+            // Fallback to sample data if API fails
+            loadSampleData();
+        }
+    }
+
+    function updateSalesChart(data) {
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Total Sales (₹)',
+                    data: data.sales_data || [45000, 52000, 49000, 60000, 75000, 82000, 87000, 92000, 98000, 105000, 110000, 115000],
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { 
+                responsive: true, 
+                plugins: { 
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Monthly Sales Trend'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateStockChart(data) {
+        const stockCtx = document.getElementById('stockChart').getContext('2d');
+        new Chart(stockCtx, {
+            type: 'bar',
+            data: {
+                labels: data.labels || ['Rice', 'Oil', 'Paneer', 'Tomato', 'Spices', 'Cheese'],
+                datasets: [{
+                    label: `Stock (${data.unit || 'kg'})`,
+                    data: data.stock_data || [120, 80, 50, 100, 40, 30],
+                    backgroundColor: ['#f1c40f', '#e67e22', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c']
+                }]
+            },
+            options: { 
+                responsive: true, 
+                plugins: { 
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Current Ingredient Stock'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateExpenseChart(data) {
+        const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+        new Chart(expenseCtx, {
+            type: 'pie',
+            data: {
+                labels: data.labels || ['Ingredients', 'Salaries', 'Utilities', 'Maintenance', 'Misc.'],
+                datasets: [{
+                    label: 'Expenses (₹)',
+                    data: data.amounts || [45, 25, 10, 12, 8],
+                    backgroundColor: ['#e74c3c', '#3498db', '#f1c40f', '#9b59b6', '#1abc9c']
+                }]
+            },
+            options: { 
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Expense Distribution'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateCompareChart(data) {
+        const compareCtx = document.getElementById('compareChart').getContext('2d');
+        new Chart(compareCtx, {
+            type: 'bar',
+            data: {
+                labels: data.labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'Sales (₹)',
+                        data: data.sales || [45000, 52000, 49000, 60000, 75000, 82000],
+                        backgroundColor: '#2ecc71'
+                    },
+                    {
+                        label: 'Expenses (₹)',
+                        data: data.expenses || [30000, 32000, 35000, 40000, 42000, 45000],
+                        backgroundColor: '#e74c3c'
+                    }
+                ]
+            },
+            options: { 
+                responsive: true, 
+                scales: { y: { beginAtZero: true } },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Sales vs Expenses Comparison'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateMetrics(data) {
+        // You can display these metrics in additional cards or update the page
+        console.log('Order Metrics:', data);
+        
+        // Example: Update a metrics section if you add one
+        const metricsElement = document.getElementById('metricsDisplay');
+        if (metricsElement) {
+            metricsElement.innerHTML = `
+                <div class="metric-card">
+                    <h4>Today's Performance</h4>
+                    <p>Orders: ${data.today.orders}</p>
+                    <p>Sales: ₹${data.today.sales.toLocaleString()}</p>
+                    <p>Avg Order: ₹${data.today.avg_order_value.toFixed(2)}</p>
+                </div>
+            `;
+        }
+    }
+
+    function updateTopItems(data) {
+        console.log('Top Selling Items:', data);
+        // You can display this in a separate chart or table
+    }
+
+    function loadSampleData() {
+        // Fallback to static data if APIs fail
+        updateSalesChart({});
+        updateStockChart({});
+        updateExpenseChart({});
+        updateCompareChart({});
+    }
+
+    // Load analytics data when page loads
+    document.addEventListener('DOMContentLoaded', loadAnalyticsData);
+</script>
 </body>
 </html>

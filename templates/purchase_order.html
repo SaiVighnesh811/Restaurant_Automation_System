@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generate Purchase Order</title>
+  <title>Purchase Orders</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
 
   <style>
@@ -160,82 +160,161 @@
       border: 2px solid white;
     }
 
-    main {
+    /* Main content */
+    .main-content {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 20px;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 20px;
+      padding: 40px 60px;
     }
 
     header h1 {
       color: var(--secondary);
       font-size: 30px;
-      margin-bottom: 10px;
+      margin-bottom: 15px;
     }
 
-    header p {
-      color: var(--text-dark);
-      font-size: 16px;
-    }
-
-    form {
-      background: var(--card-bg);
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    /* Table */
+    table {
       width: 100%;
-      max-width: 600px;
-    }
-
-    form label {
-      display: block;
-      font-weight: 600;
-      margin-top: 15px;
-    }
-
-    form input, form select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-      background: var(--bg-light);
-      color: var(--text-dark);
-    }
-
-    form button {
+      border-collapse: collapse;
       margin-top: 20px;
-      background: var(--primary);
+      background: var(--card-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    th {
+      background-color: var(--primary);
       color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 16px;
       font-weight: 600;
+    }
+
+    tr:hover {
+      background-color: rgba(255,123,0,0.1);
+    }
+
+    /* Status badges */
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-ordered { background: #cce7ff; color: #004085; }
+    .status-received { background: #d4edda; color: #155724; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+
+    /* Action buttons */
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
       transition: 0.3s;
     }
 
-    form button:hover {
-      background: var(--secondary);
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      background: var(--secondary);
+    .btn-primary {
+      background: var(--primary);
       color: white;
-      margin-top: auto;
     }
 
+    .btn-primary:hover {
+      background: var(--secondary);
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    /* PO Details Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 3000;
+    }
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 700px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .modal h3 {
+      margin-bottom: 20px;
+      color: var(--secondary);
+      font-size: 24px;
+    }
+
+    .po-details {
+      background: var(--bg-light);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .po-items {
+      margin-top: 20px;
+    }
+
+    .po-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    /* Profile Modal */
     .profile-modal {
       display: none;
       position: fixed;
@@ -254,6 +333,17 @@
       display: block;
     }
 
+    .profile-modal h3 {
+      color: var(--secondary);
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .profile-modal p {
+      font-size: 14px;
+      margin: 5px 0;
+    }
+
     .logout {
       background: var(--primary);
       color: white;
@@ -270,6 +360,31 @@
     .logout:hover {
       background: var(--secondary);
     }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto;
+    }
+
+    @media (max-width: 900px) {
+      nav {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      table th, table td {
+        padding: 10px;
+      }
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 
@@ -279,41 +394,41 @@
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href="manager_dash.html">Home</a>
-
+      <a href="{{ url_for('owner_dashboard') }}">Home</a>
+      <a href="{{ url_for('manager_menu')}}">Menu</a>
+      <a href="{{ url_for('manager_employees')}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
-          <a href="ingredient_stock.html">Ingredient Stock</a>
-          <a href="lowstock.html">Low Stock Alerts</a>
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+          <a href="{{ url_for('low_stock') }}">Low Stock</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
         <div class="dropdown-content">
-          <a href="generate_po.html">Generate PO</a>
-          <a href="purchase_order.html">Enter PO Details</a>
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+          <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Reports</a>
         <div class="dropdown-content">
-          <a href="daily_sales.html">Daily Sales</a>
-          <a href="monthly_sales.html">Monthly Sales</a>
-          <a href="expense_report.html">Expense Report</a>
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+          <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+          <a href="{{ url_for('expense_report') }}">Expense Report</a>
         </div>
       </div>
 
-      <a href="analytics.html">Analytics</a>
+      <a href="{{ url_for('analytics') }}">Analytics</a>
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
       <div class="profile" id="profileBtn">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
       </div>
     </div>
   </nav>
@@ -328,81 +443,281 @@
   </div>
 
   <!-- Main Content -->
-  <main>
+  <main class="main-content">
     <header>
-      <h1>Generate Purchase Order</h1>
-      <p>Create and issue a new purchase order for suppliers.</p>
+      <h1>Purchase Orders</h1>
+      <p>View and manage all purchase orders. Track status and update as needed.</p>
     </header>
 
-    <form id="poForm">
-      <label for="supplier">Supplier Name:</label>
-      <select id="supplier" required>
-        <option value="">-- Select Supplier --</option>
-        <option value="BreadCo Ltd">BreadCo Ltd</option>
-        <option value="FreshMeat Supplies">FreshMeat Supplies</option>
-        <option value="Dairy Delights">Dairy Delights</option>
-      </select>
+    <!-- Action Buttons -->
+    <div style="margin: 20px 0;">
+      <button class="btn btn-primary" onclick="loadPurchaseOrders()">🔄 Refresh</button>
+      <button class="btn btn-success" onclick="window.location.href='{{ url_for('generate_po') }}'">
+        ➕ Generate New PO
+      </button>
+    </div>
 
-      <label for="ingredient">Ingredient:</label>
-      <input type="text" id="ingredient" placeholder="Enter ingredient name" required />
-
-      <label for="quantity">Quantity (kg/units):</label>
-      <input type="number" id="quantity" placeholder="Enter quantity" required />
-
-      <label for="date">Order Date:</label>
-      <input type="date" id="date" required />
-
-      <button type="submit">Generate PO</button>
-    </form>
+    <!-- Purchase Orders Table -->
+    <table id="poTable">
+      <thead>
+        <tr>
+          <th>PO Number</th>
+          <th>Supplier</th>
+          <th>Total Amount</th>
+          <th>Status</th>
+          <th>Created Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="poTableBody">
+        <!-- Dynamic content will be loaded here -->
+        <tr><td colspan="6" style="text-align: center;">Loading purchase orders...</td></tr>
+      </tbody>
+    </table>
   </main>
+
+  <!-- PO Details Modal -->
+  <div class="modal" id="poDetailsModal">
+    <div class="modal-content">
+      <h3>Purchase Order Details</h3>
+      <div class="po-details" id="poDetailsContent">
+        <!-- PO details will be loaded here -->
+      </div>
+      <div class="modal-buttons">
+        <button class="btn" onclick="closePODetailsModal()">Close</button>
+        <button class="btn btn-primary" onclick="updatePOStatus('ordered')" id="markOrderedBtn">Mark as Ordered</button>
+        <button class="btn btn-success" onclick="updatePOStatus('received')" id="markReceivedBtn">Mark as Received</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <p>© 2025 Manager Dashboard | Restaurant Automation System</p>
   </footer>
 
   <script>
-    // Profile Modal Toggle
-    const profileBtn = document.getElementById("profileBtn");
-    const profileModal = document.getElementById("profileModal");
-    profileBtn.addEventListener("click", () => {
-      profileModal.classList.toggle("active");
-    });
+    let currentPOId = null;
 
-    // Dark Mode Toggle
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.body.getAttribute("data-theme");
-      if (currentTheme === "dark") {
-        document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
-      } else {
-        document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+    // Load purchase orders from API
+    async function loadPurchaseOrders() {
+      try {
+        const response = await fetch('/api/purchase-orders');
+        const data = await response.json();
+        
+        if (data.success) {
+          const tbody = document.getElementById('poTableBody');
+          tbody.innerHTML = '';
+          
+          if (data.purchase_orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No purchase orders found.</td></tr>';
+            return;
+          }
+          
+          data.purchase_orders.forEach(po => {
+            const statusClass = `status-${po.status}`;
+            const statusText = po.status.charAt(0).toUpperCase() + po.status.slice(1);
+            const createdDate = new Date(po.created_at).toLocaleDateString();
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td><strong>${po.po_number}</strong></td>
+              <td>${po.supplier_info?.name || 'N/A'}</td>
+              <td>₹${parseFloat(po.total_amount || 0).toFixed(2)}</td>
+              <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+              <td>${createdDate}</td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn btn-primary" onclick="showPODetails(${po.id})">View</button>
+                  ${po.status === 'pending' ? `<button class="btn btn-danger" onclick="cancelPO(${po.id})">Cancel</button>` : ''}
+                </div>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          alert('Error loading purchase orders: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading purchase orders');
       }
-    });
+    }
 
-    // Dropdown Toggle
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach(item => {
-      item.addEventListener("click", (e) => {
-        e.stopPropagation();
-        item.classList.toggle("open");
-        navItems.forEach(other => {
-          if (other !== item) other.classList.remove("open");
+    // Show PO details
+    async function showPODetails(poId) {
+      try {
+        const response = await fetch(`/api/purchase-orders/${poId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          currentPOId = poId;
+          const po = data.purchase_order;
+          const modal = document.getElementById('poDetailsModal');
+          const content = document.getElementById('poDetailsContent');
+          
+          const supplierInfo = po.supplier_info || {};
+          const createdDate = new Date(po.created_at).toLocaleString();
+          const updatedDate = new Date(po.updated_at).toLocaleString();
+          
+          content.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+              <div>
+                <strong>PO Number:</strong> ${po.po_number}
+              </div>
+              <div>
+                <strong>Status:</strong> <span class="status-badge status-${po.status}">${po.status.toUpperCase()}</span>
+              </div>
+              <div>
+                <strong>Supplier:</strong> ${supplierInfo.name || 'N/A'}
+              </div>
+              <div>
+                <strong>Contact:</strong> ${supplierInfo.contact || 'N/A'}
+              </div>
+              <div>
+                <strong>Total Amount:</strong> ₹${parseFloat(po.total_amount || 0).toFixed(2)}
+              </div>
+              <div>
+                <strong>Delivery Date:</strong> ${supplierInfo.delivery_date || 'Not specified'}
+              </div>
+              <div>
+                <strong>Created:</strong> ${createdDate}
+              </div>
+              <div>
+                <strong>Last Updated:</strong> ${updatedDate}
+              </div>
+            </div>
+            
+            <div class="po-items">
+              <h4 style="margin-bottom: 15px; color: var(--secondary);">Items</h4>
+              ${po.items && po.items.length > 0 ? 
+                po.items.map(item => `
+                  <div class="po-item">
+                    <div>
+                      <strong>${item.ingredient_name || 'Unknown Item'}</strong><br>
+                      <small>Quantity: ${item.quantity} ${item.unit || ''}</small>
+                    </div>
+                    <div style="text-align: right;">
+                      ₹${parseFloat(item.unit_price || 0).toFixed(2)} × ${item.quantity}<br>
+                      <strong>₹${parseFloat(item.total_price || 0).toFixed(2)}</strong>
+                    </div>
+                  </div>
+                `).join('') : 
+                '<p>No items found</p>'
+              }
+            </div>
+          `;
+          
+          // Show/hide action buttons based on status
+          const markOrderedBtn = document.getElementById('markOrderedBtn');
+          const markReceivedBtn = document.getElementById('markReceivedBtn');
+          
+          markOrderedBtn.style.display = po.status === 'pending' ? 'inline-block' : 'none';
+          markReceivedBtn.style.display = po.status === 'ordered' ? 'inline-block' : 'none';
+          
+          modal.style.display = 'block';
+        } else {
+          alert('Error loading PO details: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading PO details');
+      }
+    }
+
+    // Close PO details modal
+    function closePODetailsModal() {
+      document.getElementById('poDetailsModal').style.display = 'none';
+      currentPOId = null;
+    }
+
+    // Update PO status
+    async function updatePOStatus(newStatus) {
+      if (!currentPOId) return;
+      
+      try {
+        const response = await fetch(`/api/purchase-orders/${currentPOId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert(`PO status updated to ${newStatus} successfully!`);
+          closePODetailsModal();
+          loadPurchaseOrders(); // Refresh the table
+        } else {
+          alert('Error updating PO status: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error updating PO status');
+      }
+    }
+
+    // Cancel PO
+    async function cancelPO(poId) {
+      if (!confirm('Are you sure you want to cancel this purchase order?')) return;
+      
+      try {
+        const response = await fetch(`/api/purchase-orders/${poId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'cancelled' })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Purchase order cancelled successfully!');
+          loadPurchaseOrders(); // Refresh the table
+        } else {
+          alert('Error cancelling PO: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error cancelling PO');
+      }
+    }
+
+    // Load POs when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadPurchaseOrders();
+      
+      // Your existing JavaScript for navbar, theme, etc.
+      const profileBtn = document.getElementById("profileBtn");
+      const profileModal = document.getElementById("profileModal");
+      profileBtn.addEventListener("click", () => {
+        profileModal.classList.toggle("active");
+      });
+
+      const themeToggle = document.getElementById("themeToggle");
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme");
+        if (currentTheme === "dark") {
+          document.body.removeAttribute("data-theme");
+          themeToggle.textContent = "🌙";
+        } else {
+          document.body.setAttribute("data-theme", "dark");
+          themeToggle.textContent = "☀️";
+        }
+      });
+
+      const navItems = document.querySelectorAll(".nav-item");
+      navItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("open");
+          navItems.forEach(other => {
+            if (other !== item) other.classList.remove("open");
+          });
         });
       });
-    });
 
-    // Close dropdown when clicking outside
-    document.addEventListener("click", () => {
-      navItems.forEach(item => item.classList.remove("open"));
-    });
-
-    // Handle PO Form Submission
-    document.getElementById("poForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      alert("✅ Purchase Order Generated Successfully!");
-      this.reset();
+      document.addEventListener("click", () => {
+        navItems.forEach(item => item.classList.remove("open"));
+      });
     });
   </script>
 </body>

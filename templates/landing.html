@@ -1,142 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TASTE BUDS | Welcome</title>
-  <style>
-    /* General reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taste Buds - Landing Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    /* Background setup */
-    body {
-      background: url('https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1950&q=80') no-repeat center center/cover;
-      height: 100vh;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      background-attachment: fixed;
-    }
+<style>
+:root {
+  --primary: #ff7b00;
+  --secondary: #d86f00;
+  --bg-light: #fffaf5;
+  --text-dark: #333;
+  --text-light: #fff;
+  --card-bg: #ffffff;
+}
 
-    /* Navbar styling */
-    header {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 60px;
-      background: rgba(255, 165, 0, 0.7);
-      backdrop-filter: blur(6px);
-    }
+[data-theme="dark"] {
+  --bg-light: #1e1e1e;
+  --text-dark: #ffffff;
+  --card-bg: #2a2a2a;
+}
 
-    header h1 {
-      font-size: 30px;
-      letter-spacing: 2px;
-      font-weight: 700;
-    }
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  transition: background 0.3s, color 0.3s;
+}
 
-    nav a {
-      text-decoration: none;
-      color: #fff;
-      font-weight: 600;
-      margin-left: 25px;
-      padding: 8px 16px;
-      border-radius: 6px;
-      transition: 0.3s;
-    }
+body {
+  font-family: "Poppins", sans-serif;
+}
 
-    nav a:hover {
-      background: #fff;
-      color: #ff7b00;
-    }
+/* Navbar */
+nav {
+  display: flex; justify-content: space-between; align-items: center;
+  background: linear-gradient(90deg, #ff7b00, #ffae42);
+  padding: 15px 40px; color: white;
+  position: sticky; top: 0; z-index: 1000;
+}
+.logo { font-weight: 700; font-size: 24px; letter-spacing: 1px; }
 
-    /* Main content */
-    .hero {
-      text-align: center;
-      margin-top: 10%;
-    }
+.nav-actions { display: flex; align-items: center; gap: 15px; }
+.login-btn {
+  background: white; color: var(--secondary); border: none;
+  padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 800;
+}
+.login-btn:hover { background: var(--secondary); color: white; }
 
-    .hero h2 {
-      font-size: 60px;
-      text-transform: uppercase;
-      font-weight: 800;
-      color: #fff;
-      text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
-    }
+/* Hero Section */
+.hero {
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; height: 90vh; padding: 40px;
+  background: url('../static/images/landing2.jpg') center/cover no-repeat;
+  color: white; position: relative;
+  filter: brightness(0.9);
+}
+.hero::before {
+  content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.35);
+}
+.hero-content {
+  position: relative; z-index: 1; max-width: 700px;
+}
+.hero-content h1 {
+  font-size: 48px; color: var(--primary); margin-bottom: 20px;
+}
+.hero-content p {
+  font-size: 28px; color: #f9f9f9; margin-bottom: 25px;
+}
+.hero-content button {
+  background: var(--primary); color: white; border: none;
+  padding: 12px 24px; font-size: 20px; border-radius: 30px; cursor: pointer;
+}
+.hero-content button:hover { background: var(--secondary); }
 
-    .hero p {
-      font-size: 20px;
-      margin-top: 15px;
-      color: #ffe6cc;
-    }
+/* Features Section */
+.features {
+  padding: 60px 40px; text-align: center;
+}
+.features h2 {
+  color: var(--primary); font-size: 30px; margin-bottom: 40px;
+}
+.feature-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+.feature {
+  background: var(--card-bg); padding: 25px; border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.feature h3 {
+  color: var(--secondary); margin-bottom: 10px;
+}
+.feature p {
+  color: #555; font-size: 15px;
+}
 
-    .hero button {
-      margin-top: 40px;
-      background-color: #ff7b00;
-      color: #fff;
-      border: none;
-      padding: 14px 40px;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+/* ======= Footer Styles (merged from footer.css) ======= */
+.site-footer {
+  background-color:white;
+  color: #aaa;
+  padding: 40px 0;
+  position: relative;
+}
 
-    .hero button:hover {
-      background-color: #ffa533;
-      transform: scale(1.05);
-    }
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
 
-    /* Footer */
-    footer {
-      text-align: center;
-      background: rgba(0, 0, 0, 0.6);
-      color: #fff;
-      padding: 10px 0;
-      font-size: 14px;
-    }
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #444;
+}
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      header {
-        flex-direction: column;
-        gap: 10px;
-      }
-      .hero h2 {
-        font-size: 40px;
-      }
-      nav a {
-        margin-left: 10px;
-      }
-    }
-  </style>
+.footer-column {
+  flex: 1;
+  min-width: 200px;
+}
+
+.footer-column h3 {
+  font-size: 16px;
+  color:black;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-column .icon {
+  color: #e84545;
+  font-size: 20px;
+}
+
+.footer-column p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.footer-column p strong {
+  color: black;
+}
+
+.social-icons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.social-icons a {
+  color:black;
+  border: 1px solid #555;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.social-icons a:hover {
+  background-color: #e84545;
+  color: black;
+  border-color: #e84545;
+}
+
+.footer-bottom {
+  padding-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.footer-bottom a {
+  color: #e84545;
+  text-decoration: none;
+}
+
+.footer-bottom a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom .copyright strong {
+  color:black;
+}
+.footer-bottom .credits strong {
+  color:black;
+}
+
+.back-to-top {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  background-color: #e84545;
+  color:black;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  font-size: 20px;
+  transition: background-color 0.3s;
+}
+
+.back-to-top:hover {
+  background-color: #d13030;
+}
+</style>
 </head>
-
 <body>
-  <header>
-    <h1>TASTE BUDS</h1>
-    <nav>
-     <a href="{{ url_for('show_menu') }}">Menu</a>
-     <a href="{{ url_for('signup') }}">Login</a>
 
-    </nav>
-  </header>
+<!-- Navbar -->
+<nav>
+  <div class="logo">🍴 Taste Buds</div>
+  <div class="nav-actions">
+    <button class="login-btn" onclick="location.href='{{ url_for('signup') }}'">Signup</button>
 
-  <section class="hero">
-    <h2>Welcome to Taste Buds</h2>
-    <p>Experience automation that brings flavor and efficiency together 🍽️</p>
-    <button onclick="window.location.href='{{ url_for('show_menu') }}' ">Get Started</button>
-  </section>
+  </div>
+</nav>
 
-  <footer>
-    <p>© 2025 TASTE BUDS | Restaurant Automation System</p>
-  </footer>
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Welcome to Taste Buds</h1>
+    <p>Discover mouth-watering dishes and experience flavors that delight your taste buds every time.</p>
+    <button onclick="window.location.href='{{ url_for('show_menu') }}'">Explore Menu 🍽️</button>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+  <h2>Why Choose Us?</h2>
+  <div class="feature-grid">
+    <div class="feature">
+      <h3>🍕 Fresh Ingredients</h3>
+      <p>We use only high-quality ingredients sourced from trusted local farms.</p>
+    </div>
+    <div class="feature">
+      <h3>👨‍🍳 Expert Chefs</h3>
+      <p>Our chefs bring creativity and precision to every dish we serve.</p>
+    </div>
+    <div class="feature">
+      <h3>🚚 Quick Delivery</h3>
+      <p>Get your favorite dishes delivered hot and fresh at your doorstep.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-top">
+      <div class="footer-column">
+        <h3><i class="fas fa-map-marker-alt icon"></i>Address</h3>
+        <p><strong>Boys Hostel-1<br>RGUKT RKV</strong></p>
+      </div>
+
+      <div class="footer-column">
+        <h3><i class="fas fa-phone icon"></i>Contact</h3>
+        <p>
+          <strong>Phone: +91 9876543210</strong> <br>
+          <strong>Email: usman@143.gmail.com</strong> 
+        </p>
+      </div>
+
+      <div class="footer-column">
+        <h3><i class="fas fa-clock icon"></i>Opening Hours</h3>
+        <p>
+          <strong>Mon-Sat: 9AM - 23PM</strong> <br>
+          <strong>Sunday: Closed</strong> 
+        </p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Follow Us</h3>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p class="copyright">
+         <strong>© Copyright Taste Buds . All Rights Reserved</strong>
+      </p>
+      <p class="credits">
+        <strong>
+          Designed by<a href="#"> Taste Buds Team</a>
+        </strong> 
+      </p>
+    </div>
+  </div>
+
+  <a href="#top" class="back-to-top"><i class="fas fa-arrow-up"></i></a>
+</footer>
+
 </body>
 </html>

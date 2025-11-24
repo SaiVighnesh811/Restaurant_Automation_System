@@ -171,6 +171,80 @@
       margin-bottom: 15px;
     }
 
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      transition: 0.3s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+
+    /* Summary Cards */
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .summary-card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .summary-card h3 {
+      color: var(--secondary);
+      margin-bottom: 10px;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .summary-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .summary-card.critical .value {
+      color: #dc3545;
+    }
+
+    .summary-card.warning .value {
+      color: #ffc107;
+    }
+
     /* Table */
     table {
       width: 100%;
@@ -196,6 +270,52 @@
 
     tr:hover {
       background-color: rgba(255,123,0,0.1);
+    }
+
+    /* Status badges */
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-critical {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-low {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .urgent {
+      background: #fff5f5;
+    }
+
+    .urgent td:first-child {
+      border-left: 4px solid #dc3545;
+    }
+
+    /* Loading and empty states */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+      font-style: italic;
     }
 
     footer {
@@ -254,6 +374,15 @@
       table th, table td {
         padding: 10px;
       }
+      .action-buttons {
+        flex-direction: column;
+      }
+      .summary-cards {
+        grid-template-columns: 1fr;
+      }
+      main {
+        padding: 20px;
+      }
     }
   </style>
 </head>
@@ -264,41 +393,42 @@
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
     <div class="nav-links">
-      <a href="manager_dash.html">Home</a>
-
+      <a href="{{ url_for('owner_dashboard') }}">Home</a>
+      <a href="{{ url_for('manager_menu')}}">Menu</a>
+      <a href="{{ url_for('manager_employees')}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
         <div class="dropdown-content">
-          <a href="ingredient_stock.html">Ingredient Stock</a>
-          <a href="lowstock.html">Low Stock Alerts</a>
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+          <a href="{{ url_for('low_stock') }}">Low Stock</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
         <div class="dropdown-content">
-          <a href="generate_po.html">Generate PO</a>
-          <a href="purchase_order.html">Enter PO Details</a>
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+          <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Reports</a>
         <div class="dropdown-content">
-          <a href="daily_sales.html">Daily Sales</a>
-          <a href="monthly_sales.html">Monthly Sales</a>
-          <a href="expense_report.html">Expense Report</a>
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+          <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+          <a href="{{ url_for('expense_report') }}">Expense Report</a>
         </div>
       </div>
 
-      <a href="analytics.html">Analytics</a>
+      <a href="{{ url_for('analytics') }}">Analytics</a>
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+      <button class="theme-toggle" id="themeToggle">🌙</button>
       <div class="profile" id="profileBtn">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
+        
       </div>
     </div>
   </nav>
@@ -309,47 +439,57 @@
     <p><strong>Name:</strong> Manager</p>
     <p><strong>Role:</strong> Restaurant Manager</p>
     <p><strong>Email:</strong> manager@restaurant.com</p>
-    <button class="logout">Logout</button>
+    <button class="logout" onclick="window.location.href='{{ url_for('logout') }}'">Logout</button>
   </div>
 
   <!-- Main Content -->
   <main>
     <header>
       <h1>Low Stock Alerts</h1>
-      <p>Items that need immediate restocking.</p>
+      <p>Items that need immediate restocking. Real-time updates from inventory.</p>
     </header>
 
-    <table>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button class="btn btn-primary" onclick="loadLowStock()">🔄 Refresh Alerts</button>
+      <button class="btn btn-success" onclick="generatePOFromLowStock()">📋 Generate PO for All</button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card critical">
+        <h3>Critical Items</h3>
+        <div class="value" id="criticalCount">0</div>
+        <p>Out of stock or very low</p>
+      </div>
+      <div class="summary-card warning">
+        <h3>Warning Items</h3>
+        <div class="value" id="warningCount">0</div>
+        <p>Below reorder level</p>
+      </div>
+      <div class="summary-card">
+        <h3>Total Low Stock</h3>
+        <div class="value" id="totalLowStock">0</div>
+        <p>Items needing attention</p>
+      </div>
+    </div>
+
+    <!-- Low Stock Table -->
+    <table id="lowStockTable">
       <thead>
         <tr>
           <th>Ingredient</th>
           <th>Current Stock</th>
+          <th>Unit</th>
           <th>Reorder Level</th>
-          <th>Supplier</th>
+          <th>Needed Quantity</th>
           <th>Status</th>
+          <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="lowStockBody">
         <tr>
-          <td>Buns</td>
-          <td>40</td>
-          <td>50</td>
-          <td>BreadCo Ltd</td>
-          <td>⚠️ Needs Restock</td>
-        </tr>
-        <tr>
-          <td>Chicken</td>
-          <td>15</td>
-          <td>20</td>
-          <td>FreshMeat Supplies</td>
-          <td>⚠️ Needs Restock</td>
-        </tr>
-        <tr>
-          <td>Cheese</td>
-          <td>45</td>
-          <td>60</td>
-          <td>Dairy Delights</td>
-          <td>⚠️ Needs Restock</td>
+          <td colspan="7" class="loading">Loading low stock items...</td>
         </tr>
       </tbody>
     </table>
@@ -360,41 +500,170 @@
   </footer>
 
   <script>
-    // Profile Modal Toggle
-    const profileBtn = document.getElementById("profileBtn");
-    const profileModal = document.getElementById("profileModal");
-    profileBtn.addEventListener("click", () => {
-      profileModal.classList.toggle("active");
-    });
+    // Load low stock items from API
+    async function loadLowStock() {
+      const tbody = document.getElementById('lowStockBody');
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading low stock items...</td></tr>';
 
-    // Dark Mode Toggle
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.body.getAttribute("data-theme");
-      if (currentTheme === "dark") {
-        document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
-      } else {
-        document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+      try {
+        const response = await fetch('/api/ingredients/low-stock');
+        const data = await response.json();
+        
+        if (data.success) {
+          displayLowStock(data.low_stock);
+          updateSummary(data.low_stock);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="7" class="no-data">Error: ${data.message}</td></tr>`;
+        }
+      } catch (error) {
+        console.error('Error loading low stock:', error);
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">Error loading low stock data</td></tr>';
       }
-    });
+    }
 
-    // Dropdown Toggle
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach(item => {
-      item.addEventListener("click", (e) => {
-        e.stopPropagation();
-        item.classList.toggle("open");
-        navItems.forEach(other => {
-          if (other !== item) other.classList.remove("open");
+    // Display low stock items in table
+    function displayLowStock(lowStockItems) {
+      const tbody = document.getElementById('lowStockBody');
+      
+      if (!lowStockItems || lowStockItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="no-data">🎉 All ingredients are sufficiently stocked!</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      
+      lowStockItems.forEach(item => {
+        const neededQty = Math.max(0, Math.ceil(item.needed_quantity));
+        const currentStock = parseFloat(item.current_stock);
+        const reorderLevel = parseFloat(item.reorder_level);
+        
+        // Determine status
+        let status, statusClass, isUrgent = false;
+        if (currentStock === 0) {
+          status = 'OUT OF STOCK';
+          statusClass = 'status-critical';
+          isUrgent = true;
+        } else if (currentStock <= reorderLevel * 0.5) {
+          status = 'CRITICAL';
+          statusClass = 'status-critical';
+          isUrgent = true;
+        } else if (currentStock <= reorderLevel) {
+          status = 'LOW';
+          statusClass = 'status-warning';
+        } else {
+          status = 'BELOW SAFETY';
+          statusClass = 'status-low';
+        }
+
+        const row = document.createElement('tr');
+        if (isUrgent) row.className = 'urgent';
+        
+        row.innerHTML = `
+          <td><strong>${item.name}</strong></td>
+          <td>${currentStock}</td>
+          <td>${item.unit}</td>
+          <td>${reorderLevel}</td>
+          <td><strong>${neededQty} ${item.unit}</strong></td>
+          <td><span class="status-badge ${statusClass}">${status}</span></td>
+          <td>
+            <button class="btn btn-primary" onclick="generatePOForItem(${item.id}, '${item.name}', ${neededQty}, '${item.unit}')">
+              Generate PO
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Update summary cards
+    function updateSummary(lowStockItems) {
+      if (!lowStockItems || lowStockItems.length === 0) {
+        document.getElementById('criticalCount').textContent = '0';
+        document.getElementById('warningCount').textContent = '0';
+        document.getElementById('totalLowStock').textContent = '0';
+        return;
+      }
+
+      let criticalCount = 0;
+      let warningCount = 0;
+
+      lowStockItems.forEach(item => {
+        const currentStock = parseFloat(item.current_stock);
+        const reorderLevel = parseFloat(item.reorder_level);
+        
+        if (currentStock === 0 || currentStock <= reorderLevel * 0.5) {
+          criticalCount++;
+        } else if (currentStock <= reorderLevel) {
+          warningCount++;
+        }
+      });
+
+      document.getElementById('criticalCount').textContent = criticalCount;
+      document.getElementById('warningCount').textContent = warningCount;
+      document.getElementById('totalLowStock').textContent = lowStockItems.length;
+    }
+
+    // Generate PO for a single item
+    function generatePOForItem(ingredientId, ingredientName, quantity, unit) {
+      if (confirm(`Generate purchase order for ${quantity} ${unit} of ${ingredientName}?`)) {
+        // Redirect to generate PO page with pre-filled data
+        window.location.href = `{{ url_for('generate_po') }}?ingredient=${ingredientId}&quantity=${quantity}`;
+      }
+    }
+
+    // Generate PO for all low stock items
+    function generatePOFromLowStock() {
+      if (confirm('Generate purchase order for all low stock items?')) {
+        window.location.href = "{{ url_for('generate_po') }}";
+      }
+    }
+
+    // Auto-refresh every 2 minutes
+    function startAutoRefresh() {
+      setInterval(loadLowStock, 120000); // 2 minutes
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      loadLowStock();
+      startAutoRefresh();
+      
+      // Profile Modal
+      const profileBtn = document.getElementById("profileBtn");
+      const profileModal = document.getElementById("profileModal");
+      profileBtn.addEventListener("click", () => {
+        profileModal.classList.toggle("active");
+      });
+
+      // Dark Mode Toggle
+      const themeToggle = document.getElementById("themeToggle");
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme");
+        if (currentTheme === "dark") {
+          document.body.removeAttribute("data-theme");
+          themeToggle.textContent = "🌙";
+        } else {
+          document.body.setAttribute("data-theme", "dark");
+          themeToggle.textContent = "☀️";
+        }
+      });
+
+      // Dropdown Toggle
+      const navItems = document.querySelectorAll(".nav-item");
+      navItems.forEach(item => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          item.classList.toggle("open");
+          navItems.forEach(other => {
+            if (other !== item) other.classList.remove("open");
+          });
         });
       });
-    });
 
-    // Close dropdown when clicking outside
-    document.addEventListener("click", () => {
-      navItems.forEach(item => item.classList.remove("open"));
+      // Close dropdown when clicking outside
+      document.addEventListener("click", () => {
+        navItems.forEach(item => item.classList.remove("open"));
+      });
     });
   </script>
 </body>

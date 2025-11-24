@@ -1,40 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Payment</title>
-<style>
-  body { font-family: Poppins, sans-serif; background: #fffaf5; padding: 40px; }
-  h1 { color: #ff7b00; }
-  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-  th, td { border: 1px solid #ddd; padding: 10px; }
-  th { background: #ff7b00; color: white; }
-  .total { font-weight: bold; margin-top: 20px; text-align: right; }
-  button { background: #ff7b00; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+    </style>
 </head>
-<body>
-  <h1>💳 Payment Page</h1>
-  <table id="orderTable">
-    <tr><th>Item</th><th>Qty</th><th>Price</th></tr>
-  </table>
-  <p class="total">Total: ₹<span id="totalAmount"></span></p>
-  <button>Proceed to Pay</button>
+<body class="bg-orange-50 min-h-screen flex items-center justify-center p-4">
+
+  <!-- Main Payment Card -->
+  <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-2xl my-8">
+    <!-- User Info Section -->
+    <div id="userInfo" class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200 hidden">
+      <div class="flex justify-between items-center">
+        <div>
+          <p class="text-blue-700 font-semibold">Welcome, <span id="userName">User</span></p>
+          <p class="text-blue-600 text-sm" id="userEmail"></p>
+        </div>
+        <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600 transition-colors">
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Login Required Message -->
+    <div id="loginRequired" class="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200 text-center">
+      <p class="text-yellow-700 font-semibold">Please login to proceed with payment</p>
+      <div class="flex gap-2 justify-center mt-2">
+        <button onclick="redirectToSignup()" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors">
+          Sign Up
+        </button>
+        <button onclick="redirectToLogin()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+          Login
+        </button>
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-bold text-orange-600 mb-6 text-center">💳 Payment Summary</h1>
+    
+    <!-- Order Table -->
+    <div class="overflow-x-auto rounded-lg border border-gray-200">
+      <table class="w-full" id="orderTable">
+        <thead>
+          <tr class="bg-orange-500 text-white">
+            <th class="p-3 text-left text-sm font-semibold uppercase">Item</th>
+            <th class="p-3 text-center text-sm font-semibold uppercase">Qty</th>
+            <th class="p-3 text-right text-sm font-semibold uppercase">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Items will be injected here by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Totals Section -->
+    <div class="mt-6 space-y-3">
+      <div class="flex justify-between items-center text-gray-700">
+        <span class="font-medium">Subtotal:</span>
+        <span class="font-bold text-lg">₹<span id="totalAmount">0.00</span></span>
+      </div>
+      
+      <div class="flex justify-between items-center text-blue-600" id="discountRow" style="display: none;">
+        <span class="font-medium">Discount Applied:</span>
+        <span class="font-bold text-lg" id="discountText"></span>
+      </div>
+
+      <div class="flex justify-between items-center text-gray-900 border-t pt-3 mt-3">
+        <span class="font-bold text-xl">Final Total:</span>
+        <span class="font-bold text-2xl text-green-700">₹<span id="finalTotal">0.00</span></span>
+      </div>
+    </div>
+
+    <!-- Discount Input Section -->
+    <div class="mt-8 pt-6 border-t">
+      <label for="couponInput" class="block text-sm font-medium text-gray-600 mb-2">🏷️ Have a coupon code?</label>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input type="text" id="couponInput" placeholder="Enter coupon code" class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:outline-none w-full sm:w-auto uppercase">
+        <button onclick="applyCoupon()" class="bg-orange-500 text-white p-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors shadow-sm w-full sm:w-auto">
+          Apply Coupon
+        </button>
+      </div>
+    </div>
+
+    <!-- Proceed to Pay Button -->
+    <button id="payButton" onclick="proceedToPay()" class="bg-green-600 text-white p-4 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-lg w-full mt-8 text-lg disabled:bg-gray-400 disabled:cursor-not-allowed">
+      Proceed to Pay
+    </button>
+
+    <!-- Continue Shopping Button (shown after successful payment) -->
+    <button id="continueShopping" onclick="redirectToMenu()" class="bg-blue-600 text-white p-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-lg w-full mt-4 text-lg hidden">
+      Continue Shopping
+    </button>
+  </div>
+
+  <!-- Custom Modal for Alerts -->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm text-center">
+      <p id="modalMessage" class="text-gray-800 text-lg mb-6"></p>
+      <button onclick="closeModal()" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+        OK
+      </button>
+    </div>
+  </div>
 
 <script>
-  // Load cart data from localStorage
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const total = localStorage.getItem("total");
-  const table = document.getElementById("orderTable");
-  const totalAmount = document.getElementById("totalAmount");
-  totalAmount.textContent = total;
+  // Cache DOM nodes
+  const tableBody = document.querySelector("#orderTable tbody");
+  const totalAmountEl = document.getElementById("totalAmount");
+  const finalTotalEl = document.getElementById("finalTotal");
+  const discountText = document.getElementById("discountText");
+  const discountRow = document.getElementById("discountRow");
+  const couponInputEl = document.getElementById("couponInput");
+  const userInfoEl = document.getElementById("userInfo");
+  const loginRequiredEl = document.getElementById("loginRequired");
+  const payButton = document.getElementById("payButton");
+  const continueShoppingBtn = document.getElementById("continueShopping");
+  const userNameEl = document.getElementById("userName");
+  const userEmailEl = document.getElementById("userEmail");
+  const modal = document.getElementById("modal");
+  const modalMessage = document.getElementById("modalMessage");
 
-  cart.forEach(item => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${item.name}</td><td>${item.qty}</td><td>₹${item.price * item.qty}</td>`;
-    table.appendChild(row);
+  // Coupon codes
+  const couponCodes = {
+    'WELCOME20': 20,
+    'SAVE30': 30,
+    'FIRST10': 10
+  };
+
+  // User session management
+  let currentUser = null;
+  let isLoggedIn = false;
+
+  // Load cart & user session
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const total = parseFloat(localStorage.getItem("total") || 0);
+
+  let discountValue = 0;
+  let discountPercent = 0;
+  let appliedCoupon = '';
+
+  // Helper functions
+  function showModal(message) {
+    modalMessage.textContent = message;
+    modal.classList.remove("hidden");
+  }
+
+  function closeModal() {
+    modal.classList.add("hidden");
+  }
+
+  function formatCurrency(n) {
+    return "₹" + Number(n).toFixed(2);
+  }
+
+  // Check user login status from server
+  async function checkUserLogin() {
+    try {
+      const response = await fetch('/api/user/session');
+      const data = await response.json();
+      
+      if (data.success && data.user) {
+        currentUser = data.user;
+        isLoggedIn = true;
+        localStorage.setItem('user_session', JSON.stringify(currentUser));
+        updateUIForLoggedInUser();
+        return true;
+      } else {
+        isLoggedIn = false;
+        updateUIForGuest();
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking user session:', error);
+      isLoggedIn = false;
+      updateUIForGuest();
+      return false;
+    }
+  }
+
+  function updateUIForLoggedInUser() {
+    userInfoEl.classList.remove('hidden');
+    userNameEl.textContent = currentUser.username || 'User';
+    userEmailEl.textContent = currentUser.email || '';
+    loginRequiredEl.classList.add('hidden');
+    payButton.disabled = false;
+  }
+
+  function updateUIForGuest() {
+    userInfoEl.classList.add('hidden');
+    loginRequiredEl.classList.remove('hidden');
+    payButton.disabled = true;
+    continueShoppingBtn.classList.add('hidden');
+  }
+
+  function redirectToSignup() {
+    localStorage.setItem('return_url', window.location.href);
+    window.location.href = '/signup?return_url=' + encodeURIComponent(window.location.href);
+  }
+
+  function redirectToLogin() {
+    localStorage.setItem('return_url', window.location.href);
+    window.location.href = '/login?return_url=' + encodeURIComponent(window.location.href);
+  }
+
+  function redirectToMenu() {
+    window.location.href = '/menupage';
+  }
+
+  async function logout() {
+    try {
+      await fetch('/logout', { method: 'GET' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('user_session');
+      currentUser = null;
+      isLoggedIn = false;
+      updateUIForGuest();
+      showModal('You have been logged out successfully.');
+    }
+  }
+
+  // Display cart items & totals
+  function displayCartItems() {
+    if (!tableBody) return;
+
+    tableBody.innerHTML = "";
+    if (!cart || cart.length === 0) {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td colspan="3" class="p-4 text-center text-gray-500">Your cart is empty.</td>`;
+      tableBody.appendChild(row);
+      payButton.disabled = true;
+    } else {
+      cart.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td class="p-3 border-b border-gray-200 text-gray-800 text-left">${item.name}</td>
+          <td class="p-3 border-b border-gray-200 text-gray-800 text-center">${item.qty}</td>
+          <td class="p-3 border-b border-gray-200 text-gray-800 text-right font-medium">${formatCurrency(item.price * item.qty)}</td>`;
+        tableBody.appendChild(row);
+      });
+    }
+  }
+
+  function updateTotals() {
+    totalAmountEl.textContent = Number(total || 0).toFixed(2);
+    
+    const discountedTotal = total - discountValue;
+    finalTotalEl.textContent = Number(discountedTotal).toFixed(2);
+
+    if (discountValue > 0) {
+      discountText.textContent = `- ${formatCurrency(discountValue)} (${discountPercent}% - ${appliedCoupon})`;
+      discountRow.style.display = "";
+    } else {
+      discountRow.style.display = "none";
+    }
+  }
+
+  // Apply coupon discount
+  function applyCoupon() {
+    const couponCode = couponInputEl.value.trim().toUpperCase();
+
+    if (!couponCode) {
+      showModal("Please enter a coupon code.");
+      return;
+    }
+
+    if (couponCodes.hasOwnProperty(couponCode)) {
+      discountPercent = couponCodes[couponCode];
+      discountValue = (total * discountPercent) / 100;
+      appliedCoupon = couponCode;
+      
+      updateTotals();
+      showModal(`Coupon "${couponCode}" applied successfully! You saved ${discountPercent}%.`);
+      
+      couponInputEl.disabled = true;
+    } else {
+      showModal("Invalid coupon code. Please check and try again.");
+    }
+  }
+
+  // Show success state after payment
+  function showPaymentSuccess() {
+    // Clear cart display
+    tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500">Order placed successfully! Your cart is now empty.</td></tr>`;
+    
+    // Update totals to zero
+    totalAmountEl.textContent = "0.00";
+    finalTotalEl.textContent = "0.00";
+    discountRow.style.display = "none";
+    
+    // Disable payment button and show continue shopping
+    payButton.disabled = true;
+    payButton.textContent = "Order Placed ✓";
+    payButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+    payButton.classList.add('bg-gray-400');
+    
+    // Show continue shopping button
+    continueShoppingBtn.classList.remove('hidden');
+    
+    // Reset coupon input
+    couponInputEl.disabled = false;
+    couponInputEl.value = '';
+  }
+
+  // Proceed to payment (with login check)
+  async function proceedToPay() {
+    // Double-check login status
+    const loggedIn = await checkUserLogin();
+    
+    if (!loggedIn) {
+      showModal("Please login to proceed with payment.");
+      return;
+    }
+
+    const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (!currentCart || currentCart.length === 0) {
+      showModal("Cart is empty.");
+      return;
+    }
+
+    const subtotal = parseFloat(localStorage.getItem("total") || 0);
+    const finalTotal = parseFloat(finalTotalEl.textContent) || subtotal;
+
+    const payload = {
+      cart: currentCart,
+      subtotal: subtotal,
+      discount_percent: discountPercent,
+      discount_amount: discountValue,
+      final_total: finalTotal,
+      currency: "INR",
+      payment_provider: null,
+      provider_payment_id: null,
+      payment_status: "pending",
+      customer_id: currentUser.id,
+      customer_name: currentUser.username,
+      customer_email: currentUser.email,
+      meta: { 
+        source: "web_payment",
+        coupon_code: appliedCoupon || null
+      }
+    };
+
+    try {
+      const resp = await fetch("/create_order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        const msg = data && data.message ? data.message : "Failed to place order";
+        showModal(msg);
+        return;
+      }
+
+      // Success
+      const orderId = data.order_id;
+      showModal(`Order placed successfully! Order #${orderId}`);
+
+      // Clear client cart
+      localStorage.removeItem("cart");
+      localStorage.removeItem("total");
+      
+      // Reset discount values
+      discountValue = 0;
+      discountPercent = 0;
+      appliedCoupon = '';
+
+      // Update UI to show success state
+      showPaymentSuccess();
+
+    } catch (err) {
+      console.error('Payment error:', err);
+      showModal("Server error while placing order. Please try again.");
+    }
+  }
+
+  // Initialize page
+  async function initializePage() {
+    await checkUserLogin();
+    displayCartItems();
+    updateTotals();
+    
+    // Check if cart is empty (might be from previous successful order)
+    const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (currentCart.length === 0) {
+      // If cart is empty but user is logged in, show empty state
+      payButton.disabled = true;
+      payButton.textContent = "Cart Empty";
+      payButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+      payButton.classList.add('bg-gray-400');
+    }
+  }
+
+  // Close modal when clicking outside
+  window.addEventListener("click", (event) => {
+    if (event.target === modal) closeModal();
   });
+
+  // Expose functions to global scope
+  window.proceedToPay = proceedToPay;
+  window.applyCoupon = applyCoupon;
+  window.redirectToLogin = redirectToLogin;
+  window.redirectToSignup = redirectToSignup;
+  window.redirectToMenu = redirectToMenu;
+  window.logout = logout;
+  window.closeModal = closeModal;
+
+  // Initialize when page loads
+  document.addEventListener('DOMContentLoaded', initializePage);
 </script>
 </body>
 </html>

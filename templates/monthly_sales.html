@@ -4,188 +4,411 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Monthly Sales Report</title>
+  
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    /* ================================
+      CSS Variables & Base Setup
+      ================================
+    */
     :root {
       --primary: #ff7b00;
       --secondary: #d86f00;
       --bg-light: #fffaf5;
       --text-dark: #333;
-      --text-light: #fff;
       --card-bg: #ffffff;
     }
 
+    /* Dark mode theme variables */
     [data-theme="dark"] {
       --bg-light: #1e1e1e;
-      --text-dark: #ffffff;
+      --text-dark: #fff;
       --card-bg: #2a2a2a;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.3s, color 0.3s; }
-    body { font-family: "Poppins", sans-serif; background-color: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background 0.3s, color 0.3s;
+    }
 
-    /* Navbar */
+    body {
+      font-family: "Poppins", sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ================================
+      Navbar Styles
+      ================================
+    */
+    /* ▼▼▼ NAVBAR SIZE REDUCED ▼▼▼ */
     nav {
-      display: flex; justify-content: space-between; align-items: center;
-      background: linear-gradient(90deg, #ff7b00, #ffae42); padding: 15px 40px;
-      color: white; position: sticky; top: 0; z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(90deg, #ff7b00, #ffae42);
+      padding: 10px 40px; /* Reduced from 15px */
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
-    .logo { font-weight: 700; font-size: 24px; letter-spacing: 1px; }
-    .logo span { color: #fff2e6; }
-    .nav-links { display: flex; align-items: center; gap: 30px; position: relative; }
-    .nav-item { position: relative; cursor: pointer; }
-    .nav-links a { color: white; text-decoration: none; font-weight: 500; position: relative; }
-    .nav-links a::after { content: ""; position: absolute; width: 0%; height: 2px; background-color: white; left: 0; bottom: -4px; transition: 0.3s; }
-    .nav-links a:hover::after { width: 100%; }
+    .logo {
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+    .logo span {
+      color: #fff2e6;
+    }
 
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      position: relative;
+    }
+    .nav-item {
+      position: relative;
+      cursor: pointer;
+    }
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      width: 0;
+      height: 2px;
+      background-color: white;
+      left: 0;
+      bottom: -4px;
+      transition: 0.3s;
+    }
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    /* Dropdown menu styles */
     .dropdown-content {
-      display: none; position: absolute; top: 40px; left: 0;
-      background-color: var(--card-bg); min-width: 180px; box-shadow: 0 5px 10px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; z-index: 999;
+      display: none;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background-color: var(--card-bg);
+      min-width: 180px;
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      z-index: 999;
     }
-    .dropdown-content a { color: var(--text-dark); padding: 10px 15px; display: block; text-decoration: none; font-weight: 500; }
-    .dropdown-content a:hover { background-color: rgba(255, 123, 0, 0.1); }
-    .nav-item.open .dropdown-content { display: block; }
+    .dropdown-content a {
+      color: var(--text-dark);
+      padding: 10px 15px;
+      display: block;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    /* Show dropdown when .open class is added by JS */
+    .nav-item.open .dropdown-content {
+      display: block;
+    }
 
-    .nav-actions { display: flex; align-items: center; gap: 20px; }
-    .theme-toggle { background: white; color: var(--secondary); border: none; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: 0.3s; }
-    .theme-toggle:hover { background: #fff2e6; }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .theme-toggle {
+      background: white;
+      color: var(--secondary);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.3s;
+    }
 
-    .profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-    .profile img { width: 38px; height: 38px; border-radius: 50%; border: 2px solid white; }
+    /* ▼▼▼ ADDED PROFILE STYLES ▼▼▼ */
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .profile img {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid white;
+    }
 
-    main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
-
-    header { text-align: center; margin-bottom: 25px; }
-    header h2 { color: var(--secondary); font-size: 28px; margin-bottom: 8px; }
-    header p { color: var(--text-dark); font-size: 16px; }
+    /* ================================
+      Main Content & Report Section
+      ================================
+    */
+    /* ▼▼▼ PADDING ADJUSTED FOR NAVBAR ▼▼▼ */
+    main {
+      flex: 1; /* Ensures main content fills space, pushing footer down */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* Adjusted padding to match smaller navbar */
+      padding: 75px 20px 40px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    header h2 {
+      color: var(--secondary);
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
 
     .monthly-section {
       width: 100%;
-      max-width: 900px;
+      max-width: 1000px;
       background: var(--card-bg);
       padding: 25px;
       border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     }
 
-    .month-filter { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-    .month-filter input, .month-filter button { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
-    .month-filter button { background: var(--primary); color: white; border: none; cursor: pointer; transition: 0.3s; }
-    .month-filter button:hover { background: var(--secondary); }
+    .month-filter {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap; /* Allows filter to wrap on small screens */
+    }
+    .month-filter input,
+    .month-filter button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+    .month-filter button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
 
-    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    th, td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #ddd; }
-    th { background-color: var(--primary); color: white; }
-    tr:hover { background-color: rgba(255, 123, 0, 0.08); }
+    /* ================================
+      Table Styles
+      ================================
+    */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+    th {
+      background: var(--primary);
+      color: white;
+      position: sticky; /* Makes header stick when table scrolls */
+      top: 0;
+      z-index: 2;
+    }
+    tr:hover {
+      background: rgba(255, 123, 0, 0.06);
+    }
 
-    .summary { display: flex; flex-wrap: wrap; justify-content: space-around; margin-top: 20px; font-weight: 600; gap: 10px; }
-    .chart-section { margin-top: 30px; text-align: center; }
-    .chart-section h3 { color: var(--secondary); margin-bottom: 15px; }
+    /* ================================
+      Summary Cards
+      ================================
+    */
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-top: 14px;
+      font-weight: 600;
+      gap: 10px;
+    }
+    .summary .card {
+      background: #fff7ef;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+      flex: 1; /* Each card takes equal space */
+      text-align: center;
+    }
 
-    footer { text-align: center; padding: 15px; background: var(--secondary); color: white; margin-top: auto; }
+    /* Chart */
+    .chart-section {
+      margin-top: 24px;
+      text-align: center;
+    }
 
-    .profile-modal { display: none; position: fixed; top: 70px; right: 30px; background: var(--card-bg); color: var(--text-dark); border-radius: 12px; padding: 20px; width: 250px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); z-index: 2000; }
-    .profile-modal.active { display: block; }
-    .logout { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; margin-top: 10px; cursor: pointer; width: 100%; transition: 0.3s; }
-    .logout:hover { background: var(--secondary); }
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: var(--secondary);
+      color: white;
+      margin-top: auto; /* Pushes footer to bottom */
+    }
+
+    /* ================================
+      Profile Modal Styles
+      ================================
+    */
+    .profile-modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      top: 70px; /* Adjusted slightly for smaller navbar */
+      right: 30px;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      border-radius: 12px;
+      padding: 20px;
+      width: 250px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      z-index: 2000;
+    }
+    .profile-modal.active {
+      display: block; /* Shown with .active class */
+    }
+    .logout {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+      transition: 0.3s;
+    }
+    .logout:hover {
+      background: var(--secondary);
+    }
+
+
+    /* Responsive */
+    @media (max-width: 800px) {
+      .summary {
+        flex-direction: column; /* Stack summary cards vertically */
+      }
+    }
   </style>
 </head>
 
 <body>
-  <!-- Navbar -->
   <nav>
     <div class="logo">MANAGER <span>DASHBOARD</span></div>
 
-    <div class="nav-links">
-      <a href="manager_dash.html">Home</a>
-
+    <div class="nav-links" role="navigation" aria-label="Main navigation">
+      <a href="{{ url_for('owner_dashboard') }}">Home</a>
+      <a href="{{ url_for('manager_menu')}}">Menu</a>
+      <a href="{{ url_for('manager_employees')}}">Employee</a>
       <div class="nav-item">
         <a href="#">Inventory</a>
-        <div class="dropdown-content">
-          <a href="ingredient_stock.html">Ingredient Stock</a>
-          <a href="lowstock.html">Low Stock Alerts</a>
+        <div class="dropdown-content" role="menu">
+          <a href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+          <a href="{{ url_for('low_stock') }}">Low Stock</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Purchase Orders</a>
-        <div class="dropdown-content">
-          <a href="generate_po.html">Generate PO</a>
-          <a href="purchase_order.html">Enter PO Details</a>
+        <div class="dropdown-content" role="menu">
+          <a href="{{ url_for('generate_po') }}">Generate PO</a>
+          <a href="{{ url_for('purchase_order') }}">Enter PO Details</a>
         </div>
       </div>
 
       <div class="nav-item">
         <a href="#">Reports</a>
-        <div class="dropdown-content">
-          <a href="daily_sales.html">Daily Sales</a>
-          <a href="monthly_sales.html">Monthly Sales</a>
-          <a href="expense_report.html">Expense Report</a>
+        <div class="dropdown-content" role="menu">
+          <a href="{{ url_for('daily_sales') }}">Daily Sales</a>
+          <a href="{{ url_for('monthly_sales') }}">Monthly Sales</a>
+          <a href="{{ url_for('expense_report') }}">Expense Report</a>
         </div>
       </div>
 
-      <a href="analytics.html">Analytics</a>
+      <a href="{{ url_for('analytics') }}">Analytics</a>
     </div>
 
     <div class="nav-actions">
-      <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
-      <div class="profile" id="profileBtn">
+      <button class="theme-toggle" id="refreshBtn">🔄</button>
+      <button class="theme-toggle" id="themeToggle" aria-pressed="false">🌙</button>
+      <div class="profile" id="profileBtn" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" />
-        <span>Manager</span>
+        
       </div>
     </div>
   </nav>
 
-  <!-- Profile Modal -->
-  <div class="profile-modal" id="profileModal">
+  <div class="profile-modal" id="profileModal" role="dialog" aria-hidden="true">
     <h3>Profile</h3>
     <p><strong>Name:</strong> Manager</p>
     <p><strong>Role:</strong> Restaurant Manager</p>
     <p><strong>Email:</strong> manager@restaurant.com</p>
-    <button class="logout">Logout</button>
+    <button class="logout" onclick="window.location='{{ url_for('logout') }}'">Logout</button>
   </div>
 
-  <!-- Main Content -->
   <main>
-    <section class="monthly-section">
+    <section class="monthly-section" aria-live="polite">
       <header>
         <h2>Monthly Sales Report</h2>
+        <p>Pick a month to view item-wise totals and revenue (computed from <code>orders</code> and <code>order_items</code>).</p>
       </header>
 
-      <form class="month-filter">
+      <form id="monthForm" class="month-filter" aria-label="Select month">
         <label for="month">Select Month:</label>
-        <input type="month" id="month" name="month" required>
+        <input type="month" id="month" name="month" required aria-required="true" />
         <button type="submit">View Report</button>
+        <button type="button" id="thisMonthBtn" title="This Month">This Month</button>
+        <div id="statusMsg" aria-live="polite" style="margin-left:12px;color:#555;font-size:14px"></div>
       </form>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Item Name</th>
-            <th>Total Quantity Sold</th>
-            <th>Unit Price (₹)</th>
-            <th>Total Revenue (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Cheese Pizza</td><td>120</td><td>250</td><td>30000</td></tr>
-          <tr><td>Veg Burger</td><td>90</td><td>120</td><td>10800</td></tr>
-          <tr><td>Chicken Pasta</td><td>60</td><td>300</td><td>18000</td></tr>
-        </tbody>
-      </table>
-
-      <div class="summary">
-        <p><strong>Total Orders:</strong> 270</p>
-        <p><strong>Total Items Sold:</strong> 270</p>
-        <p><strong>Total Revenue:</strong> ₹58,800</p>
-        <p><strong>Best Selling Item:</strong> Cheese Pizza</p>
+      <div style="overflow:auto"> <table aria-describedby="monthly-summary" role="table">
+          <thead>
+            <tr>
+              <th scope="col">Item Name</th>
+              <th scope="col">Total Qty Sold</th>
+              <th scope="col">Avg Unit Price (₹)</th>
+              <th scope="col">Total Revenue (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="monthlyBody">
+            <tr><td colspan="4" style="text-align:center;padding:18px;color:#777">Loading…</td></tr>
+          </tbody>
+        </table>
       </div>
 
-      <section class="chart-section">
-        <h3>Revenue Breakdown by Item (Monthly)</h3>
-        <canvas id="monthlySalesChart"></canvas>
+      <div class="summary" id="monthly-summary">
+        <div class="card"><div>Total Orders</div><div id="totOrders">—</div></div>
+        <div class="card"><div>Total Items Sold</div><div id="totItems">—</div></div>
+        <div class="card"><div>Total Revenue</div><div id="totRevenue">—</div></div>
+        <div class="card"><div>Best Seller</div><div id="bestSeller">—</div></div>
+      </div>
+
+      <section class="chart-section" aria-hidden="false">
+        <h3>Revenue by Item (Selected Month)</h3>
+        <canvas id="monthlySalesChart" style="max-width:900px;margin:0 auto"></canvas>
       </section>
     </section>
   </main>
@@ -195,67 +418,303 @@
   </footer>
 
   <script>
-    // Profile Modal Toggle
-    const profileBtn = document.getElementById("profileBtn");
-    const profileModal = document.getElementById("profileModal");
-    profileBtn.addEventListener("click", () => { profileModal.classList.toggle("active"); });
+    // ---------------------------
+    // Helpers & DOM References
+    // ---------------------------
+    
+    const $ = sel => document.querySelector(sel);
+    
+    const monthInput = $('#month');
+    const monthForm = $('#monthForm');
+    const thisMonthBtn = $('#thisMonthBtn');
+    const refreshBtn = $('#refreshBtn'); // ▼▼▼ REFRESH BUTTON ▼▼▼
+    const monthlyBody = $('#monthlyBody');
+    const totOrdersEl = $('#totOrders');
+    const totItemsEl = $('#totItems');
+    const totRevenueEl = $('#totRevenue');
+    const bestSellerEl = $('#bestSeller');
+    const statusMsg = $('#statusMsg');
+    const ctx = document.getElementById('monthlySalesChart').getContext('2d');
+    
+    let barChart = null;
+    let lastPayloadCache = null;
 
-    // Dark Mode Toggle
-    const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.body.getAttribute("data-theme");
-      if (currentTheme === "dark") {
-        document.body.removeAttribute("data-theme");
-        themeToggle.textContent = "🌙 Dark Mode";
-      } else {
-        document.body.setAttribute("data-theme", "dark");
-        themeToggle.textContent = "☀️ Light Mode";
+    // ---------------------------
+    // Utility Functions
+    // ---------------------------
+    
+    function toMonthValue(d) { return d.toISOString().slice(0, 7); }
+    const now = new Date();
+    monthInput.value = toMonthValue(now);
+
+    function formatNumber(n) { return Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function formatInt(n) { return Number(n || 0).toLocaleString('en-IN'); }
+    function escapeHtml(s) {
+      if (s === null || s === undefined) return '';
+      return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+    }
+
+    // ---------------------------
+    // Core: Fetch & Aggregate Data
+    // ---------------------------
+    
+    /**
+     * Fetches ALL orders and then filters/aggregates them client-side.
+     * @param {string} ym - The month to filter for, in "YYYY-MM" format.
+     */
+    async function fetchAndAggregateForMonth(ym) {
+      statusMsg.textContent = 'Fetching data...';
+
+      try {
+        const res = await fetch('/chef/orders?status=all', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        
+        const payload = await res.json().catch(() => null);
+        if (!payload || !payload.success) throw new Error('Invalid response from server');
+
+        lastPayloadCache = payload;
+        statusMsg.textContent = ''; // Clear status message
+
+        // --- Client-side Filtering ---
+        const filtered = (payload.orders || []).filter(o => {
+          if (!o.created_at) return false;
+          const dt = new Date(o.created_at);
+          if (Number.isNaN(dt.getTime())) return false;
+          return dt.toISOString().slice(0, 7) === ym;
+        });
+
+        // --- Client-side Aggregation ---
+        const itemAgg = {};
+        let totalItems = 0;
+        let totalRevenue = 0;
+        const orderIds = new Set();
+
+        for (const o of filtered) {
+          orderIds.add(o.id);
+          const items = o.items || [];
+
+          if (items.length === 0) {
+            totalRevenue += Number(o.final_total || 0);
+            continue;
+          }
+
+          for (const it of items) {
+            const name = it.item_name || it.name || 'Item';
+            const qty = Number(it.qty || it.quantity || 0);
+            const unit = Number(it.unit_price || it.price || 0);
+            const total = Number(it.total_price || (unit * qty) || 0);
+
+            totalItems += qty;
+            totalRevenue += total;
+
+            if (!itemAgg[name]) {
+              itemAgg[name] = { qty: 0, revenue: 0, unitTotal: 0, unitCount: 0 };
+            }
+            itemAgg[name].qty += qty;
+            itemAgg[name].revenue += total;
+            itemAgg[name].unitTotal += (unit * qty);
+            itemAgg[name].unitCount += qty;
+          }
+        }
+
+        return { itemAgg, totalItems, totalRevenue, totalOrders: orderIds.size };
+      } catch (err) {
+        console.error('fetchAndAggregateForMonth error', err);
+        statusMsg.textContent = 'Error: ' + (err.message || 'Failed to load');
+        throw err;
+      }
+    }
+
+    // ---------------------------
+    // Core: Render Functions
+    // ---------------------------
+    
+    /**
+     * Main function to fetch and render all data for a given month
+     * @param {string} ym - The month in "YYYY-MM" format
+     */
+    async function renderMonth(ym) {
+      // 1. Show loading state
+      monthlyBody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:18px;color:#777">Loading…</td></tr>`;
+      renderSummary(null, null, null, null); // Clear summary cards
+
+      try {
+        // 2. Fetch and aggregate data
+        const data = await fetchAndAggregateForMonth(ym);
+        const { itemAgg, totalItems, totalRevenue, totalOrders } = data;
+
+        const labels = Object.keys(itemAgg).sort((a, b) => itemAgg[b].revenue - itemAgg[a].revenue);
+
+        // 3. Handle "No Data" case
+        if (labels.length === 0) {
+          monthlyBody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:18px;color:#777">No sales for ${ym}</td></tr>`;
+          renderSummary(totalOrders, totalItems, totalRevenue, null);
+          renderChart([], []);
+          return;
+        }
+
+        // 4. Build and render table rows
+        monthlyBody.innerHTML = ''; // Clear loading row
+        for (const name of labels) {
+          const ag = itemAgg[name];
+          const avgUnit = ag.unitCount ? (ag.unitTotal / ag.unitCount) : 0;
+          
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="text-align:left;padding-left:12px">${escapeHtml(name)}</td>
+            <td>${formatInt(ag.qty)}</td>
+            <td>₹${formatNumber(avgUnit)}</td>
+            <td>₹${formatNumber(ag.revenue)}</td>
+          `;
+          monthlyBody.appendChild(tr);
+        }
+
+        // 5. Render summary cards
+        const best = labels[0] || null;
+        renderSummary(totalOrders, totalItems, totalRevenue, best);
+
+        // 6. Prepare data and render chart
+        const chartLabels = labels;
+        const chartValues = chartLabels.map(l => Number(itemAgg[l].revenue.toFixed(2)));
+        renderChart(chartLabels, chartValues);
+        
+      } catch (err) {
+        // Handle fetch/render errors
+        monthlyBody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:18px;color:#b91c1c">Error loading data (see console)</td></tr>`;
+        renderChart([], []); // Clear chart on error
+      }
+    }
+
+    /**
+     * Updates the four summary cards
+     */
+    function renderSummary(orders, items, revenue, best) {
+      totOrdersEl.textContent = orders !== null && orders !== undefined ? formatInt(orders) : '—';
+      totItemsEl.textContent = items !== null && items !== undefined ? formatInt(items) : '—';
+      totRevenueEl.textContent = revenue !== null && revenue !== undefined ? '₹' + formatNumber(revenue) : '—';
+      bestSellerEl.textContent = best ? escapeHtml(best) : '—';
+    }
+
+    /**
+     * Renders the bar chart using Chart.js
+     */
+    function renderChart(labels, values) {
+      if (barChart) {
+        barChart.destroy();
+        barChart = null;
+      }
+
+      if (!labels || labels.length === 0) {
+        barChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['No data'],
+            datasets: [{ label: 'Revenue (₹)', data: [0], backgroundColor: ['rgba(0,0,0,0.06)'] }]
+          },
+          options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+        return;
+      }
+
+      barChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Revenue (₹)',
+            data: values,
+            backgroundColor: labels.map((_, i) => `rgba(255,123,0,${0.65 - Math.min(0.35, i * 0.02)})`),
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Amount (₹)' } },
+            x: { title: { display: true, text: 'Menu Item' } }
+          }
+        }
+      });
+    }
+
+    // ---------------------------
+    // Events
+    // ---------------------------
+    
+    monthForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const m = monthInput.value;
+      if (!m) return alert('Please select a month');
+      renderMonth(m);
+    });
+
+    thisMonthBtn.addEventListener('click', () => {
+      monthInput.value = toMonthValue(new Date());
+      renderMonth(monthInput.value);
+    });
+
+    // ▼▼▼ REFRESH BUTTON EVENT LISTENER ▼▼▼
+    refreshBtn.addEventListener('click', () => {
+      if (monthInput && monthInput.value) {
+        renderMonth(monthInput.value);
       }
     });
 
-    // Dropdown Toggle
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach(item => {
-      item.addEventListener("click", (e) => {
+    // Initial render for the current month when page loads
+    renderMonth(monthInput.value);
+
+    // ▼▼▼ AUTO-REFRESH REMOVED ▼▼▼
+    // setInterval(() => { ... }, 6000);
+
+    // ---------------------------
+    // Small UI: Profile, Theme, Nav
+    // ---------------------------
+    
+    const profileBtn = document.getElementById('profileBtn');
+    const profileModal = document.getElementById('profileModal');
+    
+    profileBtn.addEventListener('click', () => {
+      const isActive = profileModal.classList.toggle('active');
+      profileModal.setAttribute('aria-hidden', !isActive);
+      profileBtn.setAttribute('aria-expanded', isActive);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#profileBtn') && !e.target.closest('#profileModal')) {
+        profileModal.classList.remove('active');
+        profileModal.setAttribute('aria-hidden', 'true');
+        profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    const themeToggle = document.getElementById('themeToggle');
+    themeToggle.addEventListener('click', () => {
+      const cur = document.body.getAttribute('data-theme');
+      if (cur === 'dark') {
+        document.body.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙';
+      } else {
+        document.body.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️';
+      }
+    });
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
         e.stopPropagation();
-        item.classList.toggle("open");
-        navItems.forEach(other => { if (other !== item) other.classList.remove("open"); });
+        item.classList.toggle('open');
+        document.querySelectorAll('.nav-item').forEach(other => {
+          if (other !== item) other.classList.remove('open');
+        });
       });
     });
-    document.addEventListener("click", () => { navItems.forEach(item => item.classList.remove("open")); });
-
-    // Chart.js Data
-    const ctx = document.getElementById('monthlySalesChart');
-    const itemNames = ['Cheese Pizza', 'Veg Burger', 'Chicken Pasta'];
-    const monthlyRevenue = [30000, 10800, 18000];
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: itemNames,
-        datasets: [{
-          label: 'Revenue (₹)',
-          data: monthlyRevenue,
-          backgroundColor: ['#2ecc71', '#3498db', '#e74c3c'],
-          borderRadius: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: {
-            display: true,
-            text: 'Monthly Revenue by Item',
-            color: '#2c3e50',
-            font: { size: 16, weight: 'bold' }
-          }
-        },
-        scales: {
-          y: { beginAtZero: true, title: { display: true, text: 'Amount (₹)' } },
-          x: { title: { display: true, text: 'Menu Items' } }
-        }
-      }
+    
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('open'));
     });
   </script>
 </body>

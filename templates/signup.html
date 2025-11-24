@@ -254,10 +254,14 @@
 
             <div class="form-header">
                 <h2>Create Account</h2>
-                <p>Join the team and streamline your restaurant operations.</p>
+                
             </div>
 
             <form id="signupForm" method="POST" action="{{ url_for('signup') }}">
+
+                {% if return_url %}
+                <input type="hidden" name="return_url" value="{{ return_url }}">
+                {% endif %}
                 
                 <!-- USERNAME FIELD -->
                 <div class="form-group">
