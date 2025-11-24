@@ -1855,6 +1855,9 @@ def delete_ingredient(ingredient_id):
         cursor.close()
 
 # Initialize database tables
+# Replace the last few lines of your mainapp.py with this:
+
+# Initialize database tables
 @app.route('/init-db')
 def init_db():
     """Initialize database tables (run this once)"""
@@ -1867,4 +1870,5 @@ def init_db():
 
 # ---------------------------------
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False, port=int(os.getenv('PORT', 5050)))
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port, debug=False)
